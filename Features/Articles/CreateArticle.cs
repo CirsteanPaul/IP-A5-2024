@@ -1,14 +1,14 @@
 ﻿using Carter;
 using FluentValidation;
-using IP.VerticalSliceArchitecture.Contracts;
-using IP.VerticalSliceArchitecture.Database;
-using IP.VerticalSliceArchitecture.Entities;
-using IP.VerticalSliceArchitecture.Features.Articles;
-using IP.VerticalSliceArchitecture.Shared;
+using IP.Project.Contracts;
+using IP.Project.Database;
+using IP.Project.Entities;
+using IP.Project.Features.Articles;
+using IP.Project.Shared;
 using Mapster;
 using MediatR;
 
-namespace IP.VerticalSliceArchitecture.Features.Articles
+namespace IP.Project.Features.Articles
 {
     public static class CreateArticle
     {
@@ -46,7 +46,7 @@ namespace IP.VerticalSliceArchitecture.Features.Articles
                 {
                     return Result.Failure<Guid>(
                         new Error("CreateArticle.Validator", 
-                        validationResult.ToString()));
+                        validationResult.ToString()!));
                 }
                 var article = new Article
                 {

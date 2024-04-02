@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace IP.VerticalSliceArchitecture.Migrations
+namespace IP.Project.Migrations
 {
     /// <inheritdoc />
     public partial class InitialMigrate : Migration

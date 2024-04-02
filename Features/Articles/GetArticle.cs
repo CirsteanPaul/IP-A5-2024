@@ -1,8 +1,8 @@
 ﻿using Carter;
-using IP.VerticalSliceArchitecture.Contracts;
-using IP.VerticalSliceArchitecture.Database;
+using IP.Project.Contracts;
+using IP.Project.Database;
+using IP.Project.Shared;
 using IP.VerticalSliceArchitecture.Features.Articles;
-using IP.VerticalSliceArchitecture.Shared;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 

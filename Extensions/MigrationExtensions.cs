@@ -1,7 +1,7 @@
-﻿using IP.VerticalSliceArchitecture.Database;
+﻿using IP.Project.Database;
 using Microsoft.EntityFrameworkCore;
 
-namespace IP.VerticalSliceArchitecture.Extensions
+namespace IP.Project.Extensions
 {
     public static class MigrationExtensions
     {

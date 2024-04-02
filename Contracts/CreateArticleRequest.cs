@@ -1,4 +1,4 @@
-﻿namespace IP.VerticalSliceArchitecture.Contracts
+﻿namespace IP.Project.Contracts
 {
     public class CreateArticleRequest
     {

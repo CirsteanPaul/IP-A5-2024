@@ -1,4 +1,4 @@
-namespace IP.VerticalSliceArchitecture.Entities;
+namespace IP.Project.Entities;
 
 public class Samba
 {

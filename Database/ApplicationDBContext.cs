@@ -1,7 +1,7 @@
-﻿using IP.VerticalSliceArchitecture.Entities;
+﻿using IP.Project.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace IP.VerticalSliceArchitecture.Database
+namespace IP.Project.Database
 {
     public class ApplicationDBContext : DbContext
     {
