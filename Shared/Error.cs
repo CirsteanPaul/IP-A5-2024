@@ -1,4 +1,4 @@
-﻿namespace IP.VerticalSliceArchitecture.Shared
+﻿namespace IP.Project.Shared
 {
     public record Error(string Code, string Message)
     {

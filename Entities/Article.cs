@@ -1,7 +1,8 @@
-﻿namespace IP.VerticalSliceArchitecture.Entities
+﻿namespace IP.Project.Entities
 {
     public class Article
     {
+        public Guid Id { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Content { get; set; } = string.Empty;
         public List<string> Tags { get; set; } = new();

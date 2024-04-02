@@ -1,7 +1,7 @@
 using Carter;
 using FluentValidation;
-using IP.VerticalSliceArchitecture.Database;
-using IP.VerticalSliceArchitecture.Extensions;
+using IP.Project.Database;
+using IP.Project.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

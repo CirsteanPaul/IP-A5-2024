@@ -1,17 +1,15 @@
 using Carter;
 using FluentValidation;
-using IP.VerticalSliceArchitecture.Contracts;
-using IP.VerticalSliceArchitecture.Database;
-using IP.VerticalSliceArchitecture.Features.Samba;
-using IP.VerticalSliceArchitecture.Shared;
-using Mapster;
+using IP.Project.Database;
+using IP.Project.Features.Samba;
+using IP.Project.Shared;
 using MediatR;
 
-namespace IP.VerticalSliceArchitecture.Features.Samba
+namespace IP.Project.Features.Samba
 {
     public static class CreateSamba
     {
-        public record Command : IRequest<Result<Guid>>, IRequest<Result<int>>
+        public record Command : IRequest<Result<int>> 
         {
             public int TestSamba { get; set; }
             
@@ -41,13 +39,12 @@ namespace IP.VerticalSliceArchitecture.Features.Samba
                 var validationResult = validator.Validate(request);
                 if (!validationResult.IsValid)
                 {
-                    // Handle error
-                    // return Result.Failure<Guid>(
-                    //     new Error("CreateSamba.Validator", 
-                    //     validationResult.ToString()));
+                    return Result.Failure<int>(
+                        new Error("CreateSamba.Validator", 
+                        validationResult.ToString()!));
                 }
                 
-                var samba = new Entities.Samba
+                var samba = new Project.Entities.Samba
                 {
                     TestSamba = 1,
                 };
@@ -65,9 +62,12 @@ public class CreateSambaEndPoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        _ = app.MapPost("api/samba", async (CreateArticleRequest request, ISender sender) =>
+        _ = app.MapPost("api/samba", async (int request, ISender sender) =>
         {
-            var command = request.Adapt<CreateSamba.Command>();
+            var command = new CreateSamba.Command()
+            {
+                TestSamba = request
+            };
             var result = await sender.Send(command);
             return result;
         });

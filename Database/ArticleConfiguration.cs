@@ -1,9 +1,9 @@
-﻿using IP.VerticalSliceArchitecture.Entities;
+﻿using IP.Project.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 
-namespace IP.VerticalSliceArchitecture.Database
+namespace IP.Project.Database
 {
     public class ArticleConfiguration : IEntityTypeConfiguration<Article>
     {
