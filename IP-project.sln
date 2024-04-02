@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IP-project-A5", "IP-project-A5\IP-project-A5.csproj", "{5CAEE4DF-3DDE-486B-878D-2943D7D4CA22}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IP-project-A5", "IP-project-A5.csproj", "{5CAEE4DF-3DDE-486B-878D-2943D7D4CA22}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
