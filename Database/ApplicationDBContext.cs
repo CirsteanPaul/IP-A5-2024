@@ -11,5 +11,6 @@ namespace IP.Project.Database
         }
 
         public DbSet<Article> Articles { get; set; }
+        public DbSet<Vpn> Vpns { get; set; }
     }
 }
