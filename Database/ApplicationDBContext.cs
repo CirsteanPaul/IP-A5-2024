@@ -1,4 +1,5 @@
-﻿using IP.Project.Entities;
+﻿using System.Reflection;
+using IP.Project.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace IP.Project.Database
@@ -12,5 +13,14 @@ namespace IP.Project.Database
 
         public DbSet<Article> Articles { get; set; }
         public DbSet<Vpn> Vpns { get; set; }
+        public DbSet<SambaAccount> SambaAccounts { get; set; }
+        
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // Applies entity model configurations from the Data Configuration namespace
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        }
     }
 }
