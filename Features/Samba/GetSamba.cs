@@ -3,6 +3,7 @@ using IP.Project.Contracts;
 using IP.Project.Database;
 using IP.Project.Features.Samba;
 using IP.Project.Shared;
+using Mapster;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -34,12 +35,7 @@ namespace IP.Project.Features.Samba
                         new Error("GetSamba.Null", "Samba not found"));
                 }
 
-                var sambaResponse = new SambaResponse
-                {
-                    Id = samba.Id,
-                    Description = samba.Description,
-                    IPv4Address = samba.IPv4Address
-                };
+                var sambaResponse = samba.Adapt<SambaResponse>();
 
                 return sambaResponse;
             }
