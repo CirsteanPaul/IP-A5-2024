@@ -3,7 +3,7 @@ using FluentValidation;
 using IP.Project.Contracts;
 using IP.Project.Database;
 using IP.Project.Entities;
-using IP.Project.Features.Articles;
+using IP.Project.Features.Accounts;
 using IP.Project.Shared;
 using Mapster;
 using MediatR;
@@ -58,7 +58,7 @@ namespace IP.Project.Features.Accounts
                     CreatedOnUtc = DateTime.UtcNow
                 };
 
-                //TODO dbContext.Accounts.Add(account);
+                dbContext.Accounts.Add(account);
                 await dbContext.SaveChangesAsync(cancellationToken);
 
                 return account.Id;
