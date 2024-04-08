@@ -1,79 +1,64 @@
-﻿/*using Azure.Core;
-using Carter;
-using FluentValidation;
-using IP.Project.Features.Vpn;
+﻿using FluentValidation;
+using IP.Project.Database;
+using IP.Project.Entities; 
 using IP.Project.Shared;
 using MediatR;
-using Org.BouncyCastle.Asn1.Ocsp;
-using System.Reflection;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace IP.Project.Features.Vpn
 {
     public static class CreateVpn
     {
-        public record Command : IRequest<Result<int>>
+        public record Command : IRequest<Result<Guid>>
         {
-            public string VPNName { get; set; }
-            public string ServerAddress { get; set; }
-            public int Port { get; set; }
-            
+            public string? Description { get; set; }
+            public string? IPv4Address { get; set; }
         }
-        public class CreateVPNValidator : AbstractValidator<CreateVPN.Command>
+
+        public class Validator : AbstractValidator<Command>
         {
-            public CreateVPNValidator()
+            public Validator()
             {
-                RuleFor(x = > x.VPNName).NotEmpty();
-                RuleFor(x = > x.ServerAddress).NotEmpty().Matches();
-                RuleFor(x = > x.Port).InclusiveBetween(1, 65535);
-                                                                  
+                RuleFor(x => x.Description).NotEmpty();
+                RuleFor(x => x.IPv4Address).NotEmpty().Matches("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
             }
         }
 
-    }
-    public class CreateVPNHandler : IRequestHandler<CreateVPN.Command, Result<int>>
-    {
-        private readonly VPNDbContext _dbContext;
-        private readonly IValidator<CreateVPN.Command> _validator;
-
-        public CreateVPNHandler(VPNDbContext dbContext, IValidator<CreateVPN.Command> validator)
+        public class Handler : IRequestHandler<Command, Result<Guid>>
         {
-            _dbContext = dbContext;
-            _validator = validator;
-        }
+            private readonly ApplicationDBContext _dbContext;
+            private readonly IValidator<Command> _validator;
 
-        public async Task<Result<int>> Handle(CreateVPN.Command request, CancellationToken cancellationToken)
-        {
-            var validationResult = _validator.Validate(request);
-            if (!validationResult.IsValid)
+            public Handler(ApplicationDBContext dbContext, IValidator<Command> validator)
             {
-                return Result.Failure<int>(
-                    new Error("CreateVPN.Validator",
-                        validationResult.ToString()!));
+                _dbContext = dbContext;
+                _validator = validator;
             }
 
-            var vpnInstance = new VPNInstance
+            public async Task<Result<Guid>> Handle(Command request, CancellationToken cancellationToken)
             {
-                Name = request.VPNName,
-                ServerAddress = request.ServerAddress,
-                Port = request.Port
-            };
+                var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+                if (!validationResult.IsValid)
+                {
+                    return Result.Failure<Guid>(
+                        new Error("CreateVpn.Validator",
+                        validationResult.ToString()));
+                }
 
-            _dbContext.VPNInstances.Add(vpnInstance);
-            await _dbContext.SaveChangesAsync(cancellationToken);
+                var vpn = new IP.Project.Entities.Vpn 
+                {
+                    Id = Guid.NewGuid(),
+                    Description = request.Description,
+                    IPv4Address = request.IPv4Address,
+                };
 
-            return vpnInstance.Id;
+                _dbContext.Vpns.Add(vpn);
+                await _dbContext.SaveChangesAsync(cancellationToken);
+
+                return vpn.Id;
+            }
         }
     }
 }
-public class CreateVPNEndPoint : ICarterModule
-{
-    public void AddRoutes(IEndpointRouteBuilder app)
-    {
-        app.MapPost("api/vpn", async(CreateVPN.Command request, ISender sender) = >
-        {
-            var result = await sender.Send(Request);
-            return result;
-        });
-    }
-}
-*/
