@@ -42,6 +42,7 @@ namespace IP.Project.Features.Samba
             public async Task<Result<Guid>> Handle(Command request, CancellationToken cancellationToken)
             {
                 var validationResult = validator.Validate(request);
+                
                 if (!validationResult.IsValid)
                 {
                     return Result.Failure<Guid>(
@@ -73,10 +74,12 @@ public class CreateSambaEndPoint : ICarterModule
         {
             var command = request.Adapt<CreateSamba.Command>();
             var result = await sender.Send(command);
+            
             if (result.IsFailure)
             {
                 return Results.BadRequest(result.Error);
             }
+            
             return Results.Ok($"/api/samba/{result.Value}");
         });
     }
