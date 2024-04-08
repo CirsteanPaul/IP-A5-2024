@@ -1,4 +1,4 @@
-﻿using Azure.Core;
+﻿/*using Azure.Core;
 using Carter;
 using FluentValidation;
 using IP.Project.Features.Vpn;
@@ -76,3 +76,4 @@ public class CreateVPNEndPoint : ICarterModule
         });
     }
 }
+*/

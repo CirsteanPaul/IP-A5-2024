@@ -58,7 +58,7 @@ namespace IP.Project.Features.Accounts
                     CreatedOnUtc = DateTime.UtcNow
                 };
 
-                //dbContext.Accounts.Add(account);
+                dbContext.Accounts.Add(account);
                 await dbContext.SaveChangesAsync(cancellationToken);
 
                 return account.Id;
