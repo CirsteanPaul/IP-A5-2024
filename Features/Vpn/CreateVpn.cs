@@ -1,11 +1,7 @@
 ﻿using FluentValidation;
 using IP.Project.Database;
-using IP.Project.Entities; 
 using IP.Project.Shared;
 using MediatR;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace IP.Project.Features.Vpn
 {
@@ -47,7 +43,7 @@ namespace IP.Project.Features.Vpn
                         validationResult.ToString()));
                 }
 
-                var vpn = new IP.Project.Entities.Vpn 
+                var vpn = new Entities.Vpn 
                 {
                     Id = Guid.NewGuid(),
                     Description = request.Description,

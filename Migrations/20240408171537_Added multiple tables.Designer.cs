@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IP.Project.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20240408123044_AllTables")]
-    partial class AllTables
+    [Migration("20240408171537_Added multiple tables")]
+    partial class Addedmultipletables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -109,7 +109,6 @@ namespace IP.Project.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("IPv4Address")

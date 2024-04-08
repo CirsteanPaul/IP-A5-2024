@@ -62,7 +62,7 @@ public class CreateSambaExampleEndPoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        _ = app.MapPost("api/samba", async (int request, ISender sender) =>
+        _ = app.MapPost("api/samba-example", async (int request, ISender sender) =>
         {
             var command = new CreateSambaExample.Command()
             {
