@@ -1,6 +1,10 @@
-﻿using FluentValidation;
+﻿using Carter;
+using FluentValidation;
+using IP.Project.Contracts;
 using IP.Project.Database;
+using IP.Project.Features.Vpn;
 using IP.Project.Shared;
+using Mapster;
 using MediatR;
 
 namespace IP.Project.Features.Vpn
@@ -10,7 +14,7 @@ namespace IP.Project.Features.Vpn
         public record Command : IRequest<Result<Guid>>
         {
             public string? Description { get; set; }
-            public string? IPv4Address { get; set; }
+            public string IPv4Address { get; set; }  = string.Empty;
         }
 
         public class Validator : AbstractValidator<Command>
@@ -18,7 +22,7 @@ namespace IP.Project.Features.Vpn
             public Validator()
             {
                 RuleFor(x => x.Description).NotEmpty();
-                RuleFor(x => x.IPv4Address).NotEmpty().Matches("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
+                RuleFor(x => x.IPv4Address).MaximumLength(16);
             }
         }
 
@@ -56,5 +60,25 @@ namespace IP.Project.Features.Vpn
                 return vpn.Id;
             }
         }
+    }
+}
+
+
+public class CreateVpnEndPoint : ICarterModule
+{
+    public void AddRoutes(IEndpointRouteBuilder app)
+    {
+        _ = app.MapPost("api/vpn", async (CreateVpnRequest request, ISender sender) =>
+        {
+            var command = request.Adapt<CreateVpn.Command>();
+            var result = await sender.Send(command);
+            
+            if (result.IsFailure)
+            {
+                return Results.BadRequest(result.Error);
+            }
+            
+            return Results.Ok($"/api/vpn/{result.Value}");
+        });
     }
 }

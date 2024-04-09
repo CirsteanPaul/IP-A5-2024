@@ -38,7 +38,7 @@ namespace IP.Project.Features.Vpn
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPut("api/vpn/description/{id}", async (Guid id, string newIpAddress, string? newDescription, ISender sender) =>
+            app.MapPut("api/vpn/update/{id}", async (Guid id, string newIpAddress, string? newDescription, ISender sender) =>
             {
                 var command = new UpdateVpnInstance.Command(id, newIpAddress, newDescription);
                 var result = await sender.Send(command);
