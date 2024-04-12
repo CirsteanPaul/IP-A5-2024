@@ -10,6 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+// We need to add cors policy so other HOSTS, PORTS can connect to our application. Without it the integration tests
+// will not work and neither the React app.
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Open", builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
@@ -35,6 +37,8 @@ app.UseHttpsRedirection();
 app.UseCors("Open");
 app.Run();
 
+
+// Added for integration tests.
 public partial class Program
 {
 

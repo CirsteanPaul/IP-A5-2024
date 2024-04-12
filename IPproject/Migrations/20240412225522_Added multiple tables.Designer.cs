@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IP.Project.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20240402103440_AddedSambaAccount")]
-    partial class AddedSambaAccount
+    [Migration("20240412225522_Added multiple tables")]
+    partial class Addedmultipletables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,33 +25,33 @@ namespace IP.Project.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("IP.Project.Entities.Article", b =>
+            modelBuilder.Entity("IP.Project.Entities.Account", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("CreatedOnUtc")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("PublishedOnUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Tags")
+                    b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Title")
+                    b.Property<DateTime>("LastUpdatedOnUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Matricol")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Articles");
+                    b.ToTable("Accounts");
                 });
 
             modelBuilder.Entity("IP.Project.Entities.SambaAccount", b =>
@@ -71,6 +71,25 @@ namespace IP.Project.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("SambaAccounts");
+                });
+
+            modelBuilder.Entity("IP.Project.Entities.Vpn", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IPv4Address")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Vpns");
                 });
 #pragma warning restore 612, 618
         }

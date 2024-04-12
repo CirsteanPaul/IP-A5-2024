@@ -28,6 +28,19 @@ namespace IP.Project.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "SambaAccounts",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IPv4Address = table.Column<string>(type: "nvarchar(16)", maxLength: 16, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SambaAccounts", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Vpns",
                 columns: table => new
                 {
@@ -46,6 +59,9 @@ namespace IP.Project.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Accounts");
+
+            migrationBuilder.DropTable(
+                name: "SambaAccounts");
 
             migrationBuilder.DropTable(
                 name: "Vpns");
