@@ -1,6 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IPproject", "IPproject.csproj", "{5CAEE4DF-3DDE-486B-878D-2943D7D4CA22}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IPproject", "IPproject\IPproject.csproj", "{5CAEE4DF-3DDE-486B-878D-2943D7D4CA22}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{1EEBEF68-C321-42CA-AC55-B343D0DA703C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{23BD0FF7-0271-49C1-B98C-F8352365FED1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IP.Project.Tests", "IP.Project.Tests\IP.Project.Tests.csproj", "{1B1B2D28-2913-459B-948F-5248C2229FB6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IP.Project.IntegrationTests", "IP.Project.IntegrationTests\IP.Project.IntegrationTests.csproj", "{D3E46733-75FD-46C7-8B29-1A4D376BC7C8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -12,5 +20,18 @@ Global
 		{5CAEE4DF-3DDE-486B-878D-2943D7D4CA22}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5CAEE4DF-3DDE-486B-878D-2943D7D4CA22}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5CAEE4DF-3DDE-486B-878D-2943D7D4CA22}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B1B2D28-2913-459B-948F-5248C2229FB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B1B2D28-2913-459B-948F-5248C2229FB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B1B2D28-2913-459B-948F-5248C2229FB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B1B2D28-2913-459B-948F-5248C2229FB6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3E46733-75FD-46C7-8B29-1A4D376BC7C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3E46733-75FD-46C7-8B29-1A4D376BC7C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3E46733-75FD-46C7-8B29-1A4D376BC7C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3E46733-75FD-46C7-8B29-1A4D376BC7C8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5CAEE4DF-3DDE-486B-878D-2943D7D4CA22} = {23BD0FF7-0271-49C1-B98C-F8352365FED1}
+		{1B1B2D28-2913-459B-948F-5248C2229FB6} = {1EEBEF68-C321-42CA-AC55-B343D0DA703C}
+		{D3E46733-75FD-46C7-8B29-1A4D376BC7C8} = {1EEBEF68-C321-42CA-AC55-B343D0DA703C}
 	EndGlobalSection
 EndGlobal
