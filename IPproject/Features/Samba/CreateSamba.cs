@@ -52,7 +52,6 @@ namespace IP.Project.Features.Samba
                 
                 var samba = new SambaAccount
                 {
-                    Id = Guid.NewGuid(),
                     Description = request.Description,
                     IPv4Address = request.IPv4Address
                 };
