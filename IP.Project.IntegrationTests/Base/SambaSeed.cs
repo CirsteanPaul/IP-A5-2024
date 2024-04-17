@@ -16,16 +16,16 @@ public static class SambaSeed
         context.AddRange(sambaAccounts);
     }
     
-    private static SambaAccount CreateSambaAccount(string IP, string? description = null) => new SambaAccount()
+    private static SambaAccount CreateSambaAccount(string ip, string? description = null) => new SambaAccount()
     {
         Id = Guid.NewGuid(),
-        IPv4Address = IP,
+        IPv4Address = ip,
         Description = description
     };
-    private static SambaAccount CreateSambaAccountSpecialID(string IP, string? description = null) => new SambaAccount()
+    private static SambaAccount CreateSambaAccountSpecialID(string ip, string? description = null) => new SambaAccount()
     {
         Id = Guid.Parse("b1f5d163-ff83-411a-4144-08dc5ef3042e"),
-        IPv4Address = IP,
+        IPv4Address = ip,
         Description = description
     };
 }
