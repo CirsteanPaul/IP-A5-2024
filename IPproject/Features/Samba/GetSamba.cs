@@ -47,7 +47,7 @@ public class GetSambaEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGet("api/samba/{id}", async (Guid id, ISender sender) =>
+        app.MapGet("api/v1/sambas/{id}", async (Guid id, ISender sender) =>
         {
             var query = new GetSamba.Query
             {
@@ -59,6 +59,6 @@ public class GetSambaEndpoint : ICarterModule
                 return Results.NotFound(result.Error);
             }
             return Results.Ok(result.Value);
-        });
+        }).WithTags("samba");
     }
 }
