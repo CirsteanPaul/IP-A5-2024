@@ -10,7 +10,7 @@ public static class SambaSeed
         var sambaAccounts = new List<SambaAccount>
         {
             CreateSambaAccount("102.100.170.255"),
-            CreateSambaAccountSpecialID("102.105.160.255")
+            CreateSambaAccountSpecialId("102.105.160.255")
         };
         
         context.AddRange(sambaAccounts);
@@ -22,7 +22,7 @@ public static class SambaSeed
         IPv4Address = ip,
         Description = description
     };
-    private static SambaAccount CreateSambaAccountSpecialID(string ip, string? description = null) => new SambaAccount()
+    private static SambaAccount CreateSambaAccountSpecialId(string ip, string? description = null) => new SambaAccount()
     {
         Id = Guid.Parse("b1f5d163-ff83-411a-4144-08dc5ef3042e"),
         IPv4Address = ip,
