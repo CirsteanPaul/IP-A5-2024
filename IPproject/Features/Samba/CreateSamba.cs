@@ -69,7 +69,7 @@ public class CreateSambaEndPoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        _ = app.MapPost("api/samba", async (CreateSambaRequest request, ISender sender) =>
+        _ = app.MapPost("api/v1/sambas", async (CreateSambaRequest request, ISender sender) =>
         {
             var command = request.Adapt<CreateSamba.Command>();
             var result = await sender.Send(command);
@@ -79,7 +79,7 @@ public class CreateSambaEndPoint : ICarterModule
                 return Results.BadRequest(result.Error);
             }
             
-            return Results.Ok($"/api/samba/{result.Value}");
-        });
+            return Results.Created($"/api/v1/sambas/{result.Value}", result.Value);
+        }).WithTags("samba");
     }
 }
