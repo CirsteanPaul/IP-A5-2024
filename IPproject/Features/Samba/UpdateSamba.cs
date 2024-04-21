@@ -3,8 +3,8 @@ using FluentValidation;
 using IP.Project.Database;
 using IP.Project.Shared;
 using MediatR;
-using System.Text.RegularExpressions;
-using IP.Project.Extensions; 
+using IP.Project.Extensions;
+using Microsoft.EntityFrameworkCore;
 
 namespace IP.Project.Features.Samba
 {
@@ -42,7 +42,8 @@ namespace IP.Project.Features.Samba
                     return Result.Failure<Guid>(new Error("UpdateSamba.ValidationFailed", string.Join(" ", errorMessages)));
                 }
 
-                var sambaInstance = await context.SambaAccounts.FindAsync(request.Id, cancellationToken);
+                var sambaInstance = await context.SambaAccounts.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+
                 if (sambaInstance == null)
                 {
                     return Result.Failure<Guid>(new Error("UpdateSamba.Null", $"Samba instance with ID {request.Id} not found."));

@@ -3,6 +3,7 @@ using IP.Project.Database;
 using IP.Project.Entities;
 using IP.Project.Shared;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace IP.Project.Features.Samba;
 
@@ -24,7 +25,7 @@ public static class DeleteSamba
 
         public async Task<Result> Handle(Command request, CancellationToken cancellationToken)
         {
-            var accountToBeDeleted = await dbContext.FindAsync<SambaAccount>(request.Id);
+            var accountToBeDeleted = await dbContext.SambaAccounts.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
             
             if (accountToBeDeleted is null)
             {
