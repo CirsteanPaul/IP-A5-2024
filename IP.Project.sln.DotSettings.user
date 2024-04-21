@@ -1,0 +1,17 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=152f5918_002Db661_002D4ec7_002Db395_002Dd28b44e2174f/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="GetSamba_ReturnsCorrectSambaAccount" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;xUnit::1B1B2D28-2913-459B-948F-5248C2229FB6::net8.0::IP.Project.Features.Samba.Tests.GetSambaTests.GetSamba_ReturnsCorrectSambaAccount&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::1B1B2D28-2913-459B-948F-5248C2229FB6::net8.0::IP.Project.Features.Samba.Tests.GetSambaTests.Something&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=8c71e6f7_002D1ef3_002D4c53_002Dac33_002D2d5c49c027e6/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Given_InvalidIPv4Address_WhenCreateSamba_ReturnsFailureResult" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;xUnit::1B1B2D28-2913-459B-948F-5248C2229FB6::net8.0::IP.Project.Features.Samba.Tests.SambaTests.Given_InvalidIPv4Address_WhenCreateSamba_ReturnsFailureResult&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f4a42e0a_002Dd5fd_002D4baf_002Da9d8_002D4e1154299df2/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="GetSambaTests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;xUnit::1B1B2D28-2913-459B-948F-5248C2229FB6::net8.0::IP.Project.Features.Samba.Tests.GetSambaTests&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

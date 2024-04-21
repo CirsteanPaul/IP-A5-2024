@@ -16,7 +16,7 @@ namespace IP.Project.Features.Samba
             public Guid Id { get; set; }
         }
 
-        internal sealed class Handler : IRequestHandler<Query, Result<SambaResponse>>
+        public sealed class Handler : IRequestHandler<Query, Result<SambaResponse>>
         {
             private readonly ApplicationDBContext context;
 
