@@ -45,7 +45,7 @@ namespace IP.Project.Features.Vpn
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapGet("api/vpns", async (ISender sender) =>
+            app.MapGet("api/v1/vpns", async (ISender sender) =>
             {
                 var query = new GetAllVpns.Query();
                 var result = await sender.Send(query);
