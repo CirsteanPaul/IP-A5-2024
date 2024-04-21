@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore.Query;
 using System.Linq.Expressions;
-namespace MyApp.Tests
+
+namespace IP.Project.Tests.Base
 {
     internal class AsyncHelper
     {

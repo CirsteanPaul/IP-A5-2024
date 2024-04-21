@@ -4,19 +4,19 @@ using IP.Project.Features.Samba;
 using IP.Project.Tests.Base;
 using Moq;
 
-namespace IP.Project.Tests;
+namespace IP.Project.Tests.Features.Samba;
 
 public class GetSambaTests : BaseTest<SambaAccount>
 {
     [Fact]
-    public async Task DeleteSambaHandler_ExisitngId_ReturnsSuccess()
+    public async Task DeleteSambaHandler_ExistingId_ReturnsSuccess()
     {
         // Arrange
         var id = Guid.NewGuid();
         var acc = new List<SambaAccount>
         {
-            new SambaAccount { Id = id, Description = "Samba Account 1", IPv4Address = "192.168.1.1" },
-            new SambaAccount { Id = Guid.NewGuid(), Description = "Samba Account 2", IPv4Address = "192.168.1.2" }
+            new() { Id = id, Description = "Samba Account 1", IPv4Address = "192.168.1.1" },
+            new() { Id = Guid.NewGuid(), Description = "Samba Account 2", IPv4Address = "192.168.1.2" }
         };
 
         var mock = Setup(acc);
