@@ -1,13 +1,25 @@
 ﻿using Carter;
+using FluentValidation;
 using IP.Project.Database;
 using IP.Project.Shared;
 using MediatR;
+using System.Text.RegularExpressions;
+using IP.Project.Extensions; 
 
 namespace IP.Project.Features.Samba
 {
     public static class UpdateSambaInstance
     {
-        public record Command(Guid Id, string NewIpAddress, string? NewDescription) : IRequest<Result<Guid>>;
+        public record Command(Guid Id, string NewIpAddress, string? NewDescription) : IRequest<Result<Guid>>
+        {
+            public class Validator : AbstractValidator<Command>
+            {
+                public Validator()
+                {
+                    RuleFor(x => x.NewIpAddress).NotEmpty().IpAddress(); // Using Matricol() for IP address validation
+                }
+            }
+        }
         public class Handler : IRequestHandler<Command, Result<Guid>>
         {
             private readonly ApplicationDBContext context;
@@ -19,6 +31,17 @@ namespace IP.Project.Features.Samba
 
             public async Task<Result<Guid>> Handle(Command request, CancellationToken cancellationToken)
             {
+                
+
+                var validationResult = new Command.Validator().Validate(request);
+                var errorMessages = validationResult.Errors
+                .Select(error => error.ErrorMessage)
+                .ToList();
+                if (!validationResult.IsValid)
+                {
+                    return Result.Failure<Guid>(new Error("UpdateSamba.ValidationFailed", string.Join(" ", errorMessages)));
+                }
+
                 var sambaInstance = await context.SambaAccounts.FindAsync(request.Id, cancellationToken);
                 if (sambaInstance == null)
                 {
@@ -38,16 +61,16 @@ namespace IP.Project.Features.Samba
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPut("api/samba/update/{id}", async (Guid id, string newIpAddress, string? newDescription, ISender sender) =>
+            app.MapPut("api/v1/sambas/update/{id}", async (Guid id, string newIpAddress, string? newDescription, ISender sender) =>
             {
                 var command = new UpdateSambaInstance.Command(id, newIpAddress, newDescription);
                 var result = await sender.Send(command);
                 if (result.IsSuccess)
                 {
-                    return Results.Ok($"/api/samba/{result.Value}");
+                    return Results.NoContent();
                 }
                 return Results.NotFound(result.Error);
-            });
+            }).WithTags("samba");
         }
     }
 }
