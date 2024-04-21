@@ -45,7 +45,7 @@ namespace IP.Project.Features.Vpn
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapGet("api/vpns/{id}", async (Guid id, ISender sender) =>
+            app.MapGet("api/v1/vpns/{id}", async (Guid id, ISender sender) =>
             {
                 var query = new GetVpn.Query
                 {
@@ -58,18 +58,4 @@ namespace IP.Project.Features.Vpn
             }).WithTags("vpn");
         }
     }
-
-    public class VpnResponse
-    {
-        public Guid Id { get; set; }
-        public string Description { get; set; }
-        public string IPv4Address { get; set; }
-
-        public VpnResponse()
-        {
-            Description = ""; 
-            IPv4Address = "";
-        }
-    }
-
 }
