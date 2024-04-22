@@ -2,6 +2,7 @@
 using IP.Project.Database;
 using IP.Project.Shared;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace IP.Project.Features.Samba
 {
@@ -19,7 +20,7 @@ namespace IP.Project.Features.Samba
 
             public async Task<Result<Guid>> Handle(Command request, CancellationToken cancellationToken)
             {
-                var sambaInstance = await context.SambaAccounts.FindAsync(request.Id, cancellationToken);
+                var sambaInstance = await context.SambaAccounts.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
                 if (sambaInstance == null)
                 {
                     return Result.Failure<Guid>(new Error("UpdateSamba.Null", $"Samba instance with ID {request.Id} not found."));
