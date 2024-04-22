@@ -22,11 +22,8 @@ public class GetSambaTests : BaseTest<SambaAccount>
         var mock = Setup(acc);
 
         var sut = new DeleteSamba.Handler(mock.Object);
-        var deleteCommand = new DeleteSamba.Command()
-        {
-            Id = id
-        };
-
+        var deleteCommand = new DeleteSamba.Command(id);
+        
         // Act
         var sambaAccount = await sut.Handle(deleteCommand, default);
 

@@ -9,12 +9,9 @@ namespace IP.Project.Features.Samba;
 
 public static class DeleteSamba
 {
-    public record Command : IRequest<Result>
-    {
-        public Guid Id { get; set; }
-    }
-    
-    public class Handler: IRequestHandler<Command, Result>
+    public record Command(Guid Id) : IRequest<Result>;
+
+    public class Handler : IRequestHandler<Command, Result>
     {
         private readonly ApplicationDBContext dbContext;
 
@@ -33,7 +30,7 @@ public static class DeleteSamba
             }
 
             dbContext.SambaAccounts.Remove(accountToBeDeleted);
-            
+
             await dbContext.SaveChangesAsync(cancellationToken);
 
             return Result.Success();
@@ -45,18 +42,22 @@ public class DeleteSambaEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapDelete("api/samba/{id}", async (Guid id, ISender sender) =>
+        app.MapDelete("api/v1/sambas/{id}", async (Guid id, ISender sender) =>
         {
-            var command = new DeleteSamba.Command() { Id = id };
-            
+            var command = new DeleteSamba.Command(id);
             var result = await sender.Send(command);
-            
+
             if (result.IsFailure)
             {
+                if (result.Error.Code == "DeleteSamba.Null")
+                {
+                    return Results.NotFound(result.Error);
+                }
                 return Results.BadRequest(result.Error);
             }
 
             return Results.NoContent();
-        });
+        })
+        .WithTags("Samba"); 
     }
 }
