@@ -38,16 +38,16 @@ namespace IP.Project.Features.Vpn
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPut("api/vpn/update/{id}", async (Guid id, string newIpAddress, string? newDescription, ISender sender) =>
+            app.MapPut("api/v1/vpns/update/{id}", async (Guid id, string newIpAddress, string? newDescription, ISender sender) =>
             {
                 var command = new UpdateVpnInstance.Command(id, newIpAddress, newDescription);
                 var result = await sender.Send(command);
                 if (result.IsSuccess)
                 {
-                    return Results.Ok($"/api/vpn/{result.Value}");
+                    return Results.NoContent();
                 }
                 return Results.NotFound(result.Error);
-            });
+            }).WithTags("VPNs");
         }
     }
 }
