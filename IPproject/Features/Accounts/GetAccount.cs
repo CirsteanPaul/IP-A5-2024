@@ -39,6 +39,7 @@ namespace IP.Project.Features.Accounts
                 {
                     Id = account.Id,
                     Username = account.Username,
+                    Password = account.Password,
                     Email = account.Email,
                     Matricol = account.Matricol,
                     CreatedOnUtc = account.CreatedOnUtc,
@@ -55,7 +56,7 @@ public class GetAccountEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGet("api/accounts/{id}", async (Guid id, ISender sender) =>
+        app.MapGet("api/v1/accounts/{id}", async (Guid id, ISender sender) =>
         {
             var query = new GetAccount.Query
             {
@@ -67,6 +68,6 @@ public class GetAccountEndpoint : ICarterModule
                 return Results.NotFound(result.Error);
             }
             return Results.Ok(result.Value);
-        });
+        }).WithTags("Accounts"); ;
     }
 }

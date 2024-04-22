@@ -11,9 +11,9 @@ namespace IP.Project.Database
         {
         }
 
-        public DbSet<Account> Accounts { get; set; }
-        public DbSet<Vpn> Vpns { get; set; }
-        public DbSet<SambaAccount> SambaAccounts { get; set; }
+        public virtual DbSet<Account> Accounts { get; set; }
+        public virtual DbSet<Vpn> Vpns { get; set; }
+        public virtual DbSet<SambaAccount> SambaAccounts { get; set; }
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

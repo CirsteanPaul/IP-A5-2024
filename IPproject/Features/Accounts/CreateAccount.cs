@@ -4,9 +4,11 @@ using IP.Project.Contracts;
 using IP.Project.Database;
 using IP.Project.Entities;
 using IP.Project.Features.Accounts;
+using IP.Project.Extensions;
 using IP.Project.Shared;
 using Mapster;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 
 namespace IP.Project.Features.Accounts
 {
@@ -15,6 +17,7 @@ namespace IP.Project.Features.Accounts
         public record Command : IRequest<Result<Guid>>
         {
             public string Username { get; set; } = string.Empty;
+            public string Password { get; set; } = string.Empty;
             public string Email { get; set; } = string.Empty;
             public string Matricol { get; set; } = string.Empty;    
         }
@@ -24,8 +27,9 @@ namespace IP.Project.Features.Accounts
             public Validator()
             {
                 RuleFor(x => x.Username).NotEmpty();
-                RuleFor(x => x.Matricol).NotEmpty();
-                RuleFor(x => x.Email).NotEmpty();
+                RuleFor(x => x.Password).NotEmpty();
+                RuleFor(x => x.Matricol).NotEmpty().Matricol();
+                RuleFor(x => x.Email).NotEmpty().EmailAddress();
             }
         }
 
@@ -53,6 +57,7 @@ namespace IP.Project.Features.Accounts
                 {
                     Id = Guid.NewGuid(),
                     Username = request.Username,
+                    Password = request.Password,
                     Email = request.Email,
                     Matricol = request.Matricol,
                     CreatedOnUtc = DateTime.UtcNow
@@ -72,7 +77,7 @@ public class CreateAccountEndPoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        _ = app.MapPost("api/accounts", async (CreateAccountRequest request, ISender sender) =>
+        _ = app.MapPost("api/v1/accounts", async (CreateAccountRequest request, ISender sender) =>
         {
             var command = request.Adapt<CreateAccount.Command>();
             var result = await sender.Send(command);
@@ -80,7 +85,7 @@ public class CreateAccountEndPoint : ICarterModule
             {
                 return Results.BadRequest(result.Error);
             }
-            return Results.Ok($"/api/accounts/{result.Value}");
-        });
+            return Results.Created($"/api/v1/accounts/{result.Value}", result.Value);
+        }).WithTags("Accounts");
     }
 }
