@@ -7,7 +7,7 @@ using Moq;
 
 namespace IP.Project.Tests.Features.Accounts;
 
-public class DeleteAccountTests : BaseTest<SambaAccount>
+public class DeleteAccountTests : BaseTest<Account>
 {
     [Fact]
     public async Task DeleteAccountHandler_ExistingId_ReturnsSuccess()
@@ -16,8 +16,8 @@ public class DeleteAccountTests : BaseTest<SambaAccount>
         var id = Guid.NewGuid();
         var acc = new List<Account>
         {
-            new() { Id = id, Username = "TestUser1", Password = "TestPassword1", Email = "test@test.com", Matricol = "123456789ABC123456", CreatedOnUtc=System.DateTime.Now, LastUpdatedOnUtc = System.DateTime.Now },
-            new() { Id = Guid.NewGuid(), Username = "TestUser1", Password = "TestPassword1", Email = "test@test.com", Matricol = "123456789ABC123456", CreatedOnUtc=System.DateTime.Now, LastUpdatedOnUtc = System.DateTime.Now },
+            new() { Id = id, Username = "TestUser1", Password = "TestPassword1", Email = "test@test.com", Matricol = "123456789ABC123456", CreatedOnUtc=DateTime.UtcNow, LastUpdatedOnUtc = DateTime.UtcNow },
+            new() { Id = Guid.NewGuid(), Username = "TestUser1", Password = "TestPassword1", Email = "test@test.com", Matricol = "123456789ABC123456", CreatedOnUtc=DateTime.UtcNow, LastUpdatedOnUtc = DateTime.UtcNow },
         };
 
         var mock = Setup(acc);
@@ -26,11 +26,11 @@ public class DeleteAccountTests : BaseTest<SambaAccount>
         var deleteCommand = new DeleteAccount.Command(id);
 
         // Act
-        var sambaAccount = await sut.Handle(deleteCommand, default);
+        var account = await sut.Handle(deleteCommand, default);
 
         // Assert
-        sambaAccount.IsSuccess.Should().BeTrue();
-        mock.Verify(x => x.SambaAccounts.Remove(It.IsAny<SambaAccount>()), Times.Once);
+        account.IsSuccess.Should().BeTrue();
+        mock.Verify(x => x.Accounts.Remove(It.IsAny<Account>()), Times.Once);
         mock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 }
