@@ -3,6 +3,7 @@ using FluentValidation;
 using IP.Project.Contracts;
 using IP.Project.Database;
 using IP.Project.Entities;
+using IP.Project.Extensions;
 using IP.Project.Features.Samba;
 using IP.Project.Shared;
 using Mapster;
@@ -18,16 +19,16 @@ namespace IP.Project.Features.Samba
             public string IPv4Address { get; set; } = string.Empty;
             
         }
-
-        public class Validator : AbstractValidator<Command>
-        {
-            public Validator()
+        
+            public class Validator : AbstractValidator<Command>
             {
-                RuleFor(x => x.IPv4Address).NotEmpty();
-                RuleFor(x => x.IPv4Address).MaximumLength(16);
+                public Validator()
+                {
+                    RuleFor(x => x.IPv4Address).NotEmpty().IpAddress(); // Using IpAddress() for IP address validation
+                    
+                }
             }
-        }
-
+        
         public class Handler : IRequestHandler<Command, Result<Guid>>
         {
             private readonly ApplicationDBContext dbContext;
@@ -79,7 +80,7 @@ public class CreateSambaEndPoint : ICarterModule
                 return Results.BadRequest(result.Error);
             }
             
-            return Results.Created($"/api/v1/sambas/{result.Value}", result.Value);
+            return Results.Created($"/api/v1/sambas/{result.Value}", null);
         }).WithTags("samba");
     }
 }
