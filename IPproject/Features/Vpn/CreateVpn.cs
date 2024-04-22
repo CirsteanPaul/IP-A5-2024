@@ -47,7 +47,7 @@ namespace IP.Project.Features.Vpn
                         validationResult.ToString()));
                 }
 
-                var vpn = new Entities.Vpn 
+                var vpn = new Entities.VpnAccount 
                 {
                     Id = Guid.NewGuid(),
                     Description = request.Description,
