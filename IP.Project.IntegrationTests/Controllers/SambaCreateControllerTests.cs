@@ -9,7 +9,7 @@ namespace IP.Project.IntegrationTests.Controllers;
 
 public class SambaCreateControllerTests : BaseAppContextTests
 {
-    private const string RequestUri = "/api/v1/sambas/create";  
+    private const string RequestUri = "/api/v1/sambas";  
 
     [Fact]
     public async Task When_CreateSambaWithValidIP_Then_ReturnsCreated()
