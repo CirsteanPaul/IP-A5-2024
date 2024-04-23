@@ -1,10 +1,7 @@
 ﻿using System.Net;
-using System.Net.Http.Json;
 using FluentAssertions;
 using IP.Project.Contracts;
-using IP.Project.Database;
 using IP.Project.IntegrationTests.Base;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
 namespace IP.Project.IntegrationTests.Controllers

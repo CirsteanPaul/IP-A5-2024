@@ -69,7 +69,7 @@ public class DeleteVpnEndpoint :ICarterModule
             {
                 return Results.NotFound(result.Error);
             }
-            return Results.Ok(result.Value);
-        });
+            return Results.NoContent();
+        }).WithTags("vpn");
     }   
 }

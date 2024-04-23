@@ -3,7 +3,6 @@ using System.Net.Http.Json;
 using FluentAssertions;
 using IP.Project.Contracts;
 using IP.Project.IntegrationTests.Base;
-using Newtonsoft.Json;
 
 namespace IP.Project.IntegrationTests.Controllers;
 

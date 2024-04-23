@@ -32,7 +32,7 @@ public class CreateVpnTests : BaseTest<VpnAccount>
     }
 
     [Fact]
-    public async Task CreateVpnHandler_InvalidIpAddress_ReturnsFailure() // This test will fail because the IP address has no validation
+    public async Task CreateVpnHandler_InvalidIpAddress_ReturnsFailure() 
     {
         // Arrange
         var acc = new List<VpnAccount>();
@@ -42,7 +42,7 @@ public class CreateVpnTests : BaseTest<VpnAccount>
         var createCommand = new CreateVpn.Command()
         {
             Description = "VPN Account 1",
-            IPv4Address = "192.168" // Invalid IP address
+            IPv4Address = "192.168" 
         };
 
         // Act
