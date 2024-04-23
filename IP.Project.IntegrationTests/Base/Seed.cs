@@ -9,6 +9,7 @@ public class Seed
     {
         context.AddSambaAccounts();
         context.AddAccounts();
+        context.AddVpns();
         context.SaveChanges();
     }
 }
