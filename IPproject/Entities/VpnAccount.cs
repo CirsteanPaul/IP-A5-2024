@@ -1,6 +1,6 @@
 ﻿namespace IP.Project.Entities;
 
-public class Vpn
+public class VpnAccount
 {
     public Guid Id { get; set; }
     public string? Description { get; set; }

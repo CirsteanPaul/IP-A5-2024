@@ -12,7 +12,7 @@ namespace IP.Project.Database
         }
 
         public virtual DbSet<Account> Accounts { get; set; }
-        public virtual DbSet<Vpn> Vpns { get; set; }
+        public virtual DbSet<VpnAccount> Vpns { get; set; }
         public virtual DbSet<SambaAccount> SambaAccounts { get; set; }
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
