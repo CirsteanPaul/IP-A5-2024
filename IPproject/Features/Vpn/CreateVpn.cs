@@ -6,6 +6,8 @@ using IP.Project.Features.Vpn;
 using IP.Project.Shared;
 using Mapster;
 using MediatR;
+using Microsoft.AspNetCore.Http;
+using System.Net;
 
 namespace IP.Project.Features.Vpn
 {
@@ -14,7 +16,7 @@ namespace IP.Project.Features.Vpn
         public record Command : IRequest<Result<Guid>>
         {
             public string? Description { get; set; }
-            public string IPv4Address { get; set; }  = string.Empty;
+            public string IPv4Address { get; set; } = string.Empty;
         }
 
         public class Validator : AbstractValidator<Command>
@@ -22,7 +24,9 @@ namespace IP.Project.Features.Vpn
             public Validator()
             {
                 RuleFor(x => x.Description).NotEmpty();
-                RuleFor(x => x.IPv4Address).MaximumLength(16);
+                RuleFor(x => x.IPv4Address).NotEmpty()
+                    .MaximumLength(16).WithMessage("IPv4 address exceeds maximum length of 15 characters")
+                    .Matches(@"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$").WithMessage("Invalid IPv4 address format");
             }
         }
 
@@ -43,11 +47,11 @@ namespace IP.Project.Features.Vpn
                 if (!validationResult.IsValid)
                 {
                     return Result.Failure<Guid>(
-                        new Error("CreateVpn.Validator",
-                        validationResult.ToString()));
+                        new Error("CreateVpn.Validator", validationResult.ToString()));
                 }
 
                 var vpn = new Entities.VpnAccount 
+
                 {
                     Id = Guid.NewGuid(),
                     Description = request.Description,
@@ -63,22 +67,21 @@ namespace IP.Project.Features.Vpn
     }
 }
 
-
 public class CreateVpnEndPoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        _ = app.MapPost("api/vpn", async (CreateVpnRequest request, ISender sender) =>
+        _ = app.MapPost("api/v1/vpns", async (CreateVpnRequest request, ISender sender) =>
         {
             var command = request.Adapt<CreateVpn.Command>();
             var result = await sender.Send(command);
-            
+
             if (result.IsFailure)
             {
-                return Results.BadRequest(result.Error);
+                return Results.BadRequest(result.Error); 
             }
-            
-            return Results.Ok($"/api/vpn/{result.Value}");
+
+            return Results.Created($"/api/v1/vpns/{result.Value}", result.Value); 
         });
     }
 }
