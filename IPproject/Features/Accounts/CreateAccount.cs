@@ -55,7 +55,7 @@ namespace IP.Project.Features.Accounts
                 }
                 var account = new Account
                 {
-                    Id = Guid.NewGuid(),
+                    //Id = Guid.NewGuid(),
                     Username = request.Username,
                     Password = request.Password,
                     Email = request.Email,
@@ -77,7 +77,7 @@ public class CreateAccountEndPoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        _ = app.MapPost("api/v1/accounts", async (CreateAccountRequest request, ISender sender) =>
+        _ = app.MapPost(Global.version + "accounts", async (CreateAccountRequest request, ISender sender) =>
         {
             var command = request.Adapt<CreateAccount.Command>();
             var result = await sender.Send(command);
@@ -85,7 +85,7 @@ public class CreateAccountEndPoint : ICarterModule
             {
                 return Results.BadRequest(result.Error);
             }
-            return Results.Created($"/api/v1/accounts/{result.Value}", result.Value);
+            return Results.Created(Global.version + $"accounts/{result.Value}", result.Value);
         }).WithTags("Accounts");
     }
 }

@@ -41,7 +41,7 @@ namespace IP.Project.Features.Accounts
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPut("api/v1/accounts/update/{id}", async (Guid id, string? Username, string? Password, string? Email, ISender sender) =>
+            app.MapPut(Global.version + "accounts/update/{id}", async (Guid id, string? Username, string? Password, string? Email, ISender sender) =>
             {
                 var command = new UpdateAccountInstance.Command(id, Username, Password, Email);
                 var result = await sender.Send(command);
@@ -49,7 +49,7 @@ namespace IP.Project.Features.Accounts
                 {
                     return Results.NotFound(result.Error);
                 }
-                return Results.Ok($"/api/v1/accounts/{result.Value}");
+                return Results.Ok(Global.version + $"accounts/{result.Value}");
             }).WithTags("Accounts"); ;
         }
     }
