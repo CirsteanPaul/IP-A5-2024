@@ -78,7 +78,8 @@ public class CreateVpnEndPoint : ICarterModule
                 return Results.BadRequest(result.Error); 
             }
 
-            return Results.Created($"/api/v1/vpns/{result.Value}", result.Value); 
-        }).WithTags("vpn");
+            return Results.Created($"/api/v1/vpns/{result.Value}", result.Value);
+        })
+        .WithTags("Vpn");
     }
 }

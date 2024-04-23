@@ -55,7 +55,8 @@ namespace IP.Project.Features.Vpn
                 return result.IsSuccess ?
                     Results.Ok(result.Value) :
                     Results.NotFound(result.Error);
-            }).WithTags("vpn");
+            })
+            .WithTags("Vpn");
         }
     }
 }
