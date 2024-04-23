@@ -9,10 +9,7 @@ namespace IP.Project.Features.Vpn
 {
     public static class DeleteVpn
     {
-        public record Command : IRequest<Result<Guid>>
-        {
-            public Guid Id { get; set; }
-        }
+        public record Command(Guid Id) : IRequest<Result>;
 
         public class Validator : AbstractValidator<Command>
         {
@@ -22,7 +19,7 @@ namespace IP.Project.Features.Vpn
             }
         }
 
-        public class Handler : IRequestHandler<Command, Result<Guid>>
+        public class Handler : IRequestHandler<Command, Result>
         {
             private readonly ApplicationDBContext dbContext;
             private readonly IValidator<Command> validator;
@@ -33,7 +30,7 @@ namespace IP.Project.Features.Vpn
                 this.validator = validator;
             }
 
-            public async Task<Result<Guid>> Handle(Command request, CancellationToken cancellationToken)
+            public async Task<Result> Handle(Command request, CancellationToken cancellationToken)
             {
                 var validationResult = validator.Validate(request);
                 if (!validationResult.IsValid)
@@ -43,12 +40,12 @@ namespace IP.Project.Features.Vpn
                 var vpn = await dbContext.Vpns.FindAsync(request.Id);
                 if (vpn == null)
                 {
-                    return Result.Failure<Guid>(new Error("DeleteVpn.Handler", "Vpn not found"));
+                    return Result.Failure<Guid>(new Error("DeleteVpn.Null", $"Vpn with id {request.Id} not found"));
                 }
                 dbContext.Vpns.Remove(vpn);
                 await dbContext.SaveChangesAsync(cancellationToken);
 
-                return vpn.Id;
+                return Result.Success();
             }
         }
     }
@@ -58,18 +55,20 @@ public class DeleteVpnEndpoint :ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        _ = app.MapDelete("api/vpn/delete/{id}", async (Guid id, ISender sender) =>
+        _ = app.MapDelete("api/v1/vpns/{id}", async (Guid id, ISender sender) =>
         {
-            var command = new DeleteVpn.Command()
-            {
-                Id = id
-            };
+            var command = new DeleteVpn.Command(id);
             var result = await sender.Send(command);
             if (result.IsFailure)
             {
-                return Results.NotFound(result.Error);
+                if (result.Error.Code == "DeleteVpn.Null")
+                {
+                    return Results.NotFound(result.Error);
+                }
+                return Results.BadRequest(result.Error);
             }
-            return Results.Ok(result.Value);
-        });
+            return Results.NoContent();
+        })
+        .WithTags("Vpn");
     }   
 }
