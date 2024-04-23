@@ -50,7 +50,8 @@ namespace IP.Project.Features.Vpn
                         new Error("CreateVpn.Validator", validationResult.ToString()));
                 }
 
-                var vpn = new Entities.Vpn
+                var vpn = new Entities.VpnAccount 
+
                 {
                     Id = Guid.NewGuid(),
                     Description = request.Description,

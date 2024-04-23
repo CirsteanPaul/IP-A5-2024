@@ -50,7 +50,7 @@ public class BaseTest<TEntity> where TEntity : class
             case DbSet<SambaAccount> sambas:
                 dbMock.Setup(c => c.SambaAccounts).Returns(sambas);
                 return;
-            case DbSet<Vpn> vpns:
+            case DbSet<VpnAccount> vpns:
                 dbMock.Setup(c => c.Vpns).Returns(vpns);
                 return;
             default:
