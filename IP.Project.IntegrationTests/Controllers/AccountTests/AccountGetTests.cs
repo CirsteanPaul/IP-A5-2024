@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace IP.Project.IntegrationTests.Controllers.AccountTests;
 
-public class AccountControllerTests : BaseAppContextTests
+public class AccountGetTests : BaseAppContextTests
 {
     private const string RequestUri = "/api/v1/accounts/";
 

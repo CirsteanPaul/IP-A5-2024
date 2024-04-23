@@ -61,10 +61,8 @@ namespace IP.Project.Tests.Features.Vpn
 
             var handler = new UpdateVpnInstance.Handler(mockContext.Object);
             var command = new UpdateVpnInstance.Command(vpnId, "192.168.0.2", "Updated Description");
-
-
+            
             var result = await handler.Handle(command, CancellationToken.None);
-
 
             result.IsSuccess.Should().BeFalse();
             result.Error.Code.Should().Be("UpdateVpn.Null");

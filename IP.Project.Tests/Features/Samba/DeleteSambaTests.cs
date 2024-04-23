@@ -6,7 +6,8 @@ using Moq;
 
 namespace IP.Project.Tests.Features.Samba;
 
-public class GetSambaTests : BaseTest<SambaAccount>
+
+public class DeleteSambaTests : BaseTest<SambaAccount>
 {
     [Fact]
     public async Task DeleteSambaHandler_ExistingId_ReturnsSuccess()

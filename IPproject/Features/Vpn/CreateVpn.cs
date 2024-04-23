@@ -2,12 +2,11 @@
 using FluentValidation;
 using IP.Project.Contracts;
 using IP.Project.Database;
+using IP.Project.Extensions;
 using IP.Project.Features.Vpn;
 using IP.Project.Shared;
 using Mapster;
 using MediatR;
-using Microsoft.AspNetCore.Http;
-using System.Net;
 
 namespace IP.Project.Features.Vpn
 {
@@ -24,9 +23,7 @@ namespace IP.Project.Features.Vpn
             public Validator()
             {
                 RuleFor(x => x.Description).NotEmpty();
-                RuleFor(x => x.IPv4Address).NotEmpty()
-                    .MaximumLength(16).WithMessage("IPv4 address exceeds maximum length of 15 characters")
-                    .Matches(@"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$").WithMessage("Invalid IPv4 address format");
+                RuleFor(x => x.IPv4Address).NotEmpty().IpAddress();
             }
         }
 
@@ -81,7 +78,7 @@ public class CreateVpnEndPoint : ICarterModule
                 return Results.BadRequest(result.Error); 
             }
 
-            return Results.Created($"/api/v1/vpns/{result.Value}", result.Value); 
+            return Results.Created($"/api/v1/vpns/{result.Value}", result.Value);
         })
         .WithTags("Vpn");
     }

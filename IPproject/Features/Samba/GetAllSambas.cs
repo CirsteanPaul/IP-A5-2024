@@ -1,15 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Carter;
 using IP.Project.Contracts;
 using IP.Project.Database;
 using IP.Project.Shared;
 using Mapster;
 using MediatR;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 
 namespace IP.Project.Features.Samba
@@ -53,7 +47,7 @@ namespace IP.Project.Features.Samba
                 var result = await sender.Send(query);
 
                 return Results.Ok(result.Value);
-            }).WithTags("samba");
+            }).WithTags("Samba");
         }
     }
 }
