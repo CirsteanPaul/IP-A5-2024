@@ -18,14 +18,14 @@ namespace IP.Project.Tests.Features.Vpn
             var oldDescription = "Initial Description";
             var newIpAddress = "192.168.0.2";
             var newDescription = "Updated Description";
-            var vpn = new Entities.Vpn
+            var vpn = new Entities.VpnAccount
             {
                 Id = vpnId,
                 IPv4Address = oldIpAddress,
                 Description = oldDescription
             };
 
-            var mockSet = new Mock<DbSet<Entities.Vpn>>();
+            var mockSet = new Mock<DbSet<Entities.VpnAccount>>();
             var mockContext = new Mock<ApplicationDBContext>(new DbContextOptions<ApplicationDBContext>());
 
             mockSet.Setup(m => m.FindAsync(vpnId, default(CancellationToken)))
@@ -51,11 +51,11 @@ namespace IP.Project.Tests.Features.Vpn
         {
 
             var vpnId = Guid.NewGuid();
-            var mockSet = new Mock<DbSet<Entities.Vpn>>();
+            var mockSet = new Mock<DbSet<Entities.VpnAccount>>();
             var mockContext = new Mock<ApplicationDBContext>(new DbContextOptions<ApplicationDBContext>());
 
             mockSet.Setup(m => m.FindAsync(vpnId, default(CancellationToken)))
-                   .ReturnsAsync((Entities.Vpn)null);
+                   .ReturnsAsync((Entities.VpnAccount)null);
             mockContext.Setup(c => c.Vpns)
                        .Returns(mockSet.Object);
 
