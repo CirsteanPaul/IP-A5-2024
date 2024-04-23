@@ -81,6 +81,6 @@ public class CreateSambaEndPoint : ICarterModule
             }
             
             return Results.Created($"/api/v1/sambas/{result.Value}", null);
-        }).WithTags("samba");
+        }).WithTags("Samba");
     }
 }

@@ -59,6 +59,6 @@ public class GetSambaEndpoint : ICarterModule
                 return Results.NotFound(result.Error);
             }
             return Results.Ok(result.Value);
-        }).WithTags("samba");
+        }).WithTags("Samba");
     }
 }

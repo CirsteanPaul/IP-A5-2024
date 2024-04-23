@@ -77,7 +77,7 @@ namespace IP.Project.Features.Samba
                     return Results.NoContent();
                 }
                 return Results.NotFound(result.Error);
-            }).WithTags("samba");
+            }).WithTags("Samba");
         }
     }
 }

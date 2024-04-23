@@ -47,7 +47,7 @@ namespace IP.Project.Features.Samba
                 var result = await sender.Send(query);
 
                 return Results.Ok(result.Value);
-            }).WithTags("samba");
+            }).WithTags("Samba");
         }
     }
 }
