@@ -47,7 +47,7 @@ namespace IP.Project.Features.Vpn
                     return Results.NoContent();
                 }
                 return Results.NotFound(result.Error);
-            }).WithTags("VPNs");
+            }).WithTags("vpn");
         }
     }
 }

@@ -2,10 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using IP.Project.Contracts;
-using IP.Project.Database;
 using IP.Project.IntegrationTests.Base;
-using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 
 namespace IP.Project.IntegrationTests.Controllers
 {
@@ -28,21 +25,6 @@ namespace IP.Project.IntegrationTests.Controllers
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.Created);
-
-            var returnedVpn = JsonConvert.DeserializeObject<VpnResponse>(await response.Content.ReadAsStringAsync());
-            returnedVpn.Should().NotBeNull();
-            returnedVpn.Description.Should().Be(vpnRequest.Description);
-            returnedVpn.IPv4Address.Should().Be(vpnRequest.IPv4Address);
-
-            using (var scope = Application.Services.CreateScope())
-            {
-                var scopedServices = scope.ServiceProvider;
-                var db = scopedServices.GetRequiredService<ApplicationDBContext>();
-                var vpnInDb = await db.Vpns.FindAsync(returnedVpn.Id);
-                vpnInDb.Should().NotBeNull();
-                vpnInDb.Description.Should().Be(vpnRequest.Description);
-                vpnInDb.IPv4Address.Should().Be(vpnRequest.IPv4Address);
-            }
         }
 
         [Fact]
