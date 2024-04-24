@@ -12,8 +12,8 @@ public static class VpnSeed
             CreateVpn("10.0.0.1"),
             CreateVpnSpecialId("10.0.0.2")
         };
-
-        context.AddRange(vpns);
+        
+        context.Vpns.AddRange(vpns);
     }
 
     private static VpnAccount CreateVpn(string ipv4Address, string? description = null) => new VpnAccount()
@@ -25,7 +25,7 @@ public static class VpnSeed
 
     private static VpnAccount CreateVpnSpecialId(string ipv4Address, string? description = null) => new VpnAccount()
     {
-        Id = Guid.Parse("b1f5d163-ff83-411a-4144-08dc5ef3042e"),
+        Id = Guid.Parse("2330d4f5-1c5b-42cb-a34b-d9275e99b6bc"),
         IPv4Address = ipv4Address,
         Description = description
     };

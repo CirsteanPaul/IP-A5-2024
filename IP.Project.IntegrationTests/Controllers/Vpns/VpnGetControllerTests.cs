@@ -3,21 +3,28 @@ using FluentAssertions;
 using IP.Project.Contracts;
 using IP.Project.IntegrationTests.Base;
 using Newtonsoft.Json;
+using Store.FunctionalTests;
 
-namespace IP.Project.IntegrationTests.Controllers
+namespace IP.Project.IntegrationTests.Controllers.Vpns
 {
-    public class VpnGetControllerTests : BaseAppContextTests
+    public class VpnGetControllerTests : IClassFixture<TestingBaseWebApplicationFactory>
     {
         private const string RequestUri = "/api/v1/vpns/";
+        private readonly TestingBaseWebApplicationFactory factory;
+
+        public VpnGetControllerTests(TestingBaseWebApplicationFactory factory)
+        {
+            this.factory = factory;
+        }
 
         [Fact]
         public async Task When_GetVpnById_Exists_Then_Success()
         {
             // Arrange
-            var existingVpnId = Guid.Parse("b1f5d163-ff83-411a-4144-08dc5ef3042e"); 
+            var existingVpnId = Guid.Parse("2330d4f5-1c5b-42cb-a34b-d9275e99b6bc"); 
 
             // Act
-            var response = await Client.GetAsync(RequestUri + existingVpnId);
+            var response = await factory.Client.GetAsync(RequestUri + existingVpnId);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -35,7 +42,7 @@ namespace IP.Project.IntegrationTests.Controllers
             var nonExistingVpnId = Guid.Parse("b1f5d163-ee13-411a-4144-07dc5ef3042e"); 
 
             // Act
-            var response = await Client.GetAsync(RequestUri + nonExistingVpnId);
+            var response = await factory.Client.GetAsync(RequestUri + nonExistingVpnId);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);

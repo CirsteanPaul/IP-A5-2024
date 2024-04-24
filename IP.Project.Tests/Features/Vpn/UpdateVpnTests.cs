@@ -1,8 +1,9 @@
-﻿using Moq;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using FluentAssertions;
 using IP.Project.Database;
+using IP.Project.Entities;
 using IP.Project.Features.Vpn;
+using NSubstitute;
 
 
 namespace IP.Project.Tests.Features.Vpn
@@ -25,41 +26,33 @@ namespace IP.Project.Tests.Features.Vpn
                 Description = oldDescription
             };
 
-            var mockSet = new Mock<DbSet<Entities.VpnAccount>>();
-            var mockContext = new Mock<ApplicationDBContext>(new DbContextOptions<ApplicationDBContext>());
+            var mockSet = Substitute.For<DbSet<Entities.VpnAccount>>();
+            var mockContext = Substitute.For<ApplicationDBContext>(new DbContextOptions<ApplicationDBContext>());
+            mockSet.FindAsync(vpnId, default(CancellationToken)).Returns(vpn);
+            mockContext.Vpns.Returns(mockSet);
 
-            mockSet.Setup(m => m.FindAsync(vpnId, default(CancellationToken)))
-                   .ReturnsAsync(vpn);
-            mockContext.Setup(c => c.Vpns)
-                       .Returns(mockSet.Object);
-
-            var handler = new UpdateVpnInstance.Handler(mockContext.Object);
+            var handler = new UpdateVpnInstance.Handler(mockContext);
             var command = new UpdateVpnInstance.Command(vpnId, newIpAddress, newDescription);
-
-
+            
             var result = await handler.Handle(command, CancellationToken.None);
-
-
+            
             result.IsSuccess.Should().BeTrue();
             vpn.IPv4Address.Should().Be(newIpAddress);
             vpn.Description.Should().Be(newDescription);
-            mockContext.Verify(m => m.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+            await mockContext.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
         }
 
         [Fact]
         public async Task Handle_GivenInvalidId_ReturnsFailure()
         {
-
             var vpnId = Guid.NewGuid();
-            var mockSet = new Mock<DbSet<Entities.VpnAccount>>();
-            var mockContext = new Mock<ApplicationDBContext>(new DbContextOptions<ApplicationDBContext>());
+            var mockContext = Substitute.For<ApplicationDBContext>(new DbContextOptions<ApplicationDBContext>());
+            var mockSet = Substitute.For<DbSet<VpnAccount>>();
 
-            mockSet.Setup(m => m.FindAsync(vpnId, default(CancellationToken)))
-                   .ReturnsAsync((Entities.VpnAccount)null);
-            mockContext.Setup(c => c.Vpns)
-                       .Returns(mockSet.Object);
+            mockSet.FindAsync(vpnId, default(CancellationToken)).Returns((VpnAccount)null);
+            mockContext.Vpns.Returns(mockSet);
 
-            var handler = new UpdateVpnInstance.Handler(mockContext.Object);
+            var handler = new UpdateVpnInstance.Handler(mockContext);
             var command = new UpdateVpnInstance.Command(vpnId, "192.168.0.2", "Updated Description");
             
             var result = await handler.Handle(command, CancellationToken.None);

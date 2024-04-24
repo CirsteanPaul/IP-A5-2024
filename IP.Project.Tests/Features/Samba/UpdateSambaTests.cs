@@ -2,7 +2,7 @@
 using IP.Project.Entities;
 using IP.Project.Features.Samba;
 using IP.Project.Tests.Base;
-using Moq;
+using NSubstitute;
 
 namespace IP.Project.Tests.Features.Samba
 {
@@ -21,14 +21,14 @@ namespace IP.Project.Tests.Features.Samba
                 NewIpAddress = "192.168.1.100", // Valid IP address
                 NewDescription = "Modified Samba Account 1" // Valid description
             });
-            var handler = new UpdateSambaInstance.Handler(dbContextMock.Object);
+            var handler = new UpdateSambaInstance.Handler(dbContextMock);
 
             // Act
             var result = await handler.Handle(request, CancellationToken.None);
 
             // Assert
             result.IsSuccess.Should().BeTrue();
-            dbContextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+            await dbContextMock.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
             sambaAccount.IPv4Address.Should().Be("192.168.1.100"); // IP address should be updated
             sambaAccount.Description.Should().Be("Modified Samba Account 1"); // Description should remain the same
         }
@@ -46,14 +46,14 @@ namespace IP.Project.Tests.Features.Samba
                 NewIpAddress = "192.168.1.2", // Valid IP address
                 NewDescription = null // Description left as null
             });
-            var handler = new UpdateSambaInstance.Handler(dbContextMock.Object);
+            var handler = new UpdateSambaInstance.Handler(dbContextMock);
 
             // Act
             var result = await handler.Handle(request, CancellationToken.None);
 
             // Assert
             result.IsSuccess.Should().BeTrue();
-            dbContextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+            await dbContextMock.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
             sambaAccount.IPv4Address.Should().Be("192.168.1.2"); // IP address should be updated
             sambaAccount.Description.Should().Be("Samba Account 1"); // Description should remain the same
         }
@@ -71,14 +71,14 @@ namespace IP.Project.Tests.Features.Samba
                 NewIpAddress = "192.168.1", // Invalid IP address format
                 NewDescription = "Modified Samba Account 1" // Valid description
             });
-            var handler = new UpdateSambaInstance.Handler(dbContextMock.Object);
+            var handler = new UpdateSambaInstance.Handler(dbContextMock);
 
             // Act
             var result = await handler.Handle(request, CancellationToken.None);
 
             // Assert
             result.IsSuccess.Should().BeFalse();
-            dbContextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+            await dbContextMock.Received(0).SaveChangesAsync(Arg.Any<CancellationToken>());
             sambaAccount.IPv4Address.Should().NotBe("192.168.1"); // IP address should not be updated
             sambaAccount.Description.Should().NotBe("Modified Samba Account 1"); // Description should not be updated
         }

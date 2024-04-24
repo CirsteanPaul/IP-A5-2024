@@ -1,14 +1,20 @@
 ﻿using System.Net;
 using FluentAssertions;
 using IP.Project.Contracts;
-using IP.Project.IntegrationTests.Base;
 using Newtonsoft.Json;
+using Store.FunctionalTests;
 
-namespace IP.Project.IntegrationTests.Controllers
+namespace IP.Project.IntegrationTests.Controllers.Sambas
 {
-    public class SambaControllerTests : BaseAppContextTests
+    public class SambaGetControllerTests : IClassFixture<TestingBaseWebApplicationFactory>
     {
         private const string RequestUri = "/api/v1/sambas/";
+        private readonly TestingBaseWebApplicationFactory factory;
+
+        public SambaGetControllerTests(TestingBaseWebApplicationFactory factory)
+        {
+            this.factory = factory;
+        }
 
         [Fact]
         public async Task When_GetSambaById_Exists_Then_Success()
@@ -17,7 +23,7 @@ namespace IP.Project.IntegrationTests.Controllers
             var existingSambaId = Guid.Parse("b1f5d163-ff83-411a-4144-08dc5ef3042e");
 
             // Act
-            var response = await Client.GetAsync(RequestUri + existingSambaId);
+            var response = await factory.Client.GetAsync(RequestUri + existingSambaId);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -34,7 +40,7 @@ namespace IP.Project.IntegrationTests.Controllers
             Guid nonExistingSambaId = Guid.Parse("b1f5d163-ee13-411a-4144-07dc5ef3042e");
 
             // Act
-            var response = await Client.GetAsync(RequestUri + nonExistingSambaId);
+            var response = await factory.Client.GetAsync(RequestUri + nonExistingSambaId);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);

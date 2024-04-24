@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using IP.Project.Database;
+﻿using IP.Project.Database;
 using IP.Project.Entities;
 
 namespace IP.Project.IntegrationTests.Base.AccountSeed;
@@ -19,7 +13,7 @@ public static class AccountSeed
             CreateAccountSpecialId("testAccount2", "testPassword2", "testEmail2", "testMatricol2"),
         };
 
-        context.AddRange(accounts);
+        context.Accounts.AddRange(accounts);
     }
 
     private static Account CreateAccount(string username, string password, string email, string matricol) => new Account()

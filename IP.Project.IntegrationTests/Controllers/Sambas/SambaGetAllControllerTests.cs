@@ -1,14 +1,20 @@
 using System.Net;
 using FluentAssertions;
 using IP.Project.Contracts;
-using IP.Project.IntegrationTests.Base;
 using Newtonsoft.Json;
+using Store.FunctionalTests;
 
-namespace IP.Project.IntegrationTests.Controllers;
+namespace IP.Project.IntegrationTests.Controllers.Sambas;
 
-public class SambaGetAllControllerTests : BaseAppContextTests
+public class SambaGetAllControllerTests : IClassFixture<TestingBaseWebApplicationFactory>
 {
     private const string RequestUri = "/api/v1/sambas/";
+    private readonly TestingBaseWebApplicationFactory factory;
+
+    public SambaGetAllControllerTests(TestingBaseWebApplicationFactory factory)
+    {
+        this.factory = factory;
+    }
 
     [Fact]
     public async Task When_GetAllSambas_Then_Success()
@@ -16,7 +22,7 @@ public class SambaGetAllControllerTests : BaseAppContextTests
         // Arrange
 
         // Act
-        var response = await Client.GetAsync(RequestUri);
+        var response = await factory.Client.GetAsync(RequestUri);
         var responseString = await response.Content.ReadAsStringAsync();
         var sambasResponse = JsonConvert.DeserializeObject<List<SambaResponse>>(responseString);
 

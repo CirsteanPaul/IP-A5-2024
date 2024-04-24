@@ -2,21 +2,20 @@
 using IP.Project.Entities;
 using IP.Project.Features.Samba;
 using IP.Project.Tests.Base;
-using Moq;
+using NSubstitute;
 
 namespace IP.Project.Tests.Features.Samba;
 
 public class CreateSambaTests : BaseTest<SambaAccount>
 {
     [Fact]
-    
     public async Task CreateSambaHandler_InvalidIpAddress_ReturnsFailure()
     {
         // Arrange
         var acc = new List<SambaAccount>();
         var mock = Setup(acc);
 
-        var sut = new CreateSamba.Handler(mock.Object, new CreateSamba.Validator());
+        var sut = new CreateSamba.Handler(mock, new CreateSamba.Validator());
         var createCommand = new CreateSamba.Command()
         {
             Description = "Samba Account 1",
@@ -28,8 +27,8 @@ public class CreateSambaTests : BaseTest<SambaAccount>
 
         // Assert
         sambaAccount.IsFailure.Should().BeTrue();
-        mock.Verify(x => x.SambaAccounts.Add(It.IsAny<SambaAccount>()), Times.Never);
-        mock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        mock.Received(0).SambaAccounts.Add(Arg.Any<SambaAccount>());
+        await mock.Received(0).SaveChangesAsync(Arg.Any<CancellationToken>());
     }
     
     [Fact]
@@ -40,7 +39,7 @@ public class CreateSambaTests : BaseTest<SambaAccount>
         var acc = new List<SambaAccount>();
         var mock = Setup(acc);
 
-        var sut = new CreateSamba.Handler(mock.Object, new CreateSamba.Validator());
+        var sut = new CreateSamba.Handler(mock, new CreateSamba.Validator());
         var createCommand = new CreateSamba.Command()
         {
             Description = null,
@@ -52,8 +51,8 @@ public class CreateSambaTests : BaseTest<SambaAccount>
 
         // Assert
         sambaAccount.IsSuccess.Should().BeTrue();
-        mock.Verify(x => x.SambaAccounts.Add(It.IsAny<SambaAccount>()), Times.Once);
-        mock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        mock.Received(1).SambaAccounts.Add(Arg.Any<SambaAccount>());
+        await mock.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
     }
     
     [Fact]
@@ -64,7 +63,7 @@ public class CreateSambaTests : BaseTest<SambaAccount>
         var acc = new List<SambaAccount>();
         var mock = Setup(acc);
 
-        var sut = new CreateSamba.Handler(mock.Object, new CreateSamba.Validator());
+        var sut = new CreateSamba.Handler(mock, new CreateSamba.Validator());
         var createCommand = new CreateSamba.Command()
         {
             Description = "Samba account 2",
@@ -76,7 +75,7 @@ public class CreateSambaTests : BaseTest<SambaAccount>
 
         // Assert
         sambaAccount.IsSuccess.Should().BeTrue();
-        mock.Verify(x => x.SambaAccounts.Add(It.IsAny<SambaAccount>()), Times.Once);
-        mock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        mock.Received(1).SambaAccounts.Add(Arg.Any<SambaAccount>());
+        await mock.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 }

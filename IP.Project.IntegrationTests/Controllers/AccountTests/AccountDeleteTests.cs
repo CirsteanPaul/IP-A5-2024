@@ -1,27 +1,31 @@
 ﻿using System.Net;
-using System.Net.Http.Json;
 using FluentAssertions;
-using IP.Project.Contracts;
-using IP.Project.IntegrationTests.Base;
 using Newtonsoft.Json;
+using Store.FunctionalTests;
 
-namespace IP.Project.IntegrationTests.Controllers;
+namespace IP.Project.IntegrationTests.Controllers.AccountTests;
 
-public class AccountDeleteTests : BaseAppContextTests
+public class AccountDeleteTests : IClassFixture<TestingBaseWebApplicationFactory>
 {
+    private readonly TestingBaseWebApplicationFactory factory;
     private const string RequestUri = "/api/v1/accounts/";
 
+    public AccountDeleteTests(TestingBaseWebApplicationFactory factory)
+    {
+        this.factory = factory;
+    }
+
     [Fact]
-    public async Task When_DeleteAccountById_Exists_Then_NoContent()
+    public void When_DeleteAccountById_Exists_Then_NoContent()
     {
         // Arrange
         var existingAccountId = Guid.Parse("b5ec0aed-e1f4-4115-80e4-e4448b1f43ab");
 
         // Act
-        var response = await Client.DeleteAsync(RequestUri + existingAccountId);
+        var response = factory.Client.DeleteAsync(RequestUri + existingAccountId).Result;
 
         response.EnsureSuccessStatusCode();
-        var responseString = await response.Content.ReadAsStringAsync();
+        var responseString = response.Content.ReadAsStringAsync().Result;
         var result = JsonConvert.DeserializeObject<string>(responseString);
 
         // Assert
