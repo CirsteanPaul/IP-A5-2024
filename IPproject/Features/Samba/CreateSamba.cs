@@ -71,7 +71,7 @@ public class CreateSambaEndPoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        _ = app.MapPost("api/v1/sambas", async ([FromBody] CreateSambaRequest request, ISender sender) =>
+        _ = app.MapPost($"{Global.version}sambas", async ([FromBody] CreateSambaRequest request, ISender sender) =>
             {
                 var command = request.Adapt<CreateSamba.Command>();
                 var result = await sender.Send(command);
