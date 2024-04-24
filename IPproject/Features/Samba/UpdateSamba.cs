@@ -67,9 +67,8 @@ namespace IP.Project.Features.Samba
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPut("api/v1/sambas/{id}", async (Guid id, string newIpAddress, string? newDescription, ISender sender) =>
+            app.MapPut("api/v1/sambas/{id:guid}", async (Guid id, UpdateSambaRequest request, ISender sender) =>
             {
-                var request = new UpdateSambaRequest { NewIpAddress = newIpAddress, NewDescription = newDescription };
                 var command = new UpdateSambaInstance.Command(id, request);
                 var result = await sender.Send(command);
                 if (result.IsSuccess)

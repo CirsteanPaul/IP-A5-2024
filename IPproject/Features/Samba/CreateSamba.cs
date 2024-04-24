@@ -8,6 +8,7 @@ using IP.Project.Features.Samba;
 using IP.Project.Shared;
 using Mapster;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace IP.Project.Features.Samba
 {
@@ -70,17 +71,23 @@ public class CreateSambaEndPoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        _ = app.MapPost("api/v1/sambas", async (CreateSambaRequest request, ISender sender) =>
-        {
-            var command = request.Adapt<CreateSamba.Command>();
-            var result = await sender.Send(command);
-            
-            if (result.IsFailure)
+        _ = app.MapPost("api/v1/sambas", async ([FromBody] CreateSambaRequest request, ISender sender) =>
             {
-                return Results.BadRequest(result.Error);
-            }
-            
-            return Results.Created($"/api/v1/sambas/{result.Value}", null);
-        }).WithTags("Samba");
+                var command = request.Adapt<CreateSamba.Command>();
+                var result = await sender.Send(command);
+
+                if (result.IsFailure)
+                {
+                    return Results.BadRequest(result.Error);
+                }
+
+                return Results.Created($"/api/v1/sambas/{result.Value}", null);
+            })
+            .WithTags("Samba")
+            .WithDescription("Endpoint for creating a new samba account. " +
+                             "If the request succedeed in the location header you can find the endpoint to get the new account.")
+            .Produces(StatusCodes.Status201Created)
+            .Produces<Error>(StatusCodes.Status400BadRequest)
+            .WithOpenApi();
     }
 }
