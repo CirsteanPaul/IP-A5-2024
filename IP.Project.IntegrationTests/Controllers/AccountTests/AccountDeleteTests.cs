@@ -16,13 +16,13 @@ public class AccountDeleteTests : IClassFixture<TestingBaseWebApplicationFactory
     }
 
     [Fact]
-    public void When_DeleteAccountById_Exists_Then_NoContent()
+    public async Task When_DeleteAccountById_Exists_Then_NoContent()
     {
         // Arrange
         var existingAccountId = Guid.Parse("b5ec0aed-e1f4-4115-80e4-e4448b1f43ab");
 
         // Act
-        var response = factory.Client.DeleteAsync(RequestUri + existingAccountId).Result;
+        var response = await factory.Client.DeleteAsync(RequestUri + existingAccountId);
 
         response.EnsureSuccessStatusCode();
         var responseString = response.Content.ReadAsStringAsync().Result;
