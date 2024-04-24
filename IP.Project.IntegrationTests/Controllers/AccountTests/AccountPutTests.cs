@@ -2,8 +2,8 @@
 using System.Net.Http.Json;
 using FluentAssertions;
 using IP.Project.Contracts;
+using IP.Project.IntegrationTests.Base.TestingBaseWebApplicationFactory;
 using Newtonsoft.Json;
-using Store.FunctionalTests;
 
 namespace IP.Project.IntegrationTests.Controllers.AccountTests;
 

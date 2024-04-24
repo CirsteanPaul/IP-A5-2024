@@ -2,7 +2,7 @@
 using System.Net.Http.Json;
 using FluentAssertions;
 using IP.Project.Contracts;
-using Store.FunctionalTests;
+using IP.Project.IntegrationTests.Base.TestingBaseWebApplicationFactory;
 
 namespace IP.Project.IntegrationTests.Controllers.Sambas;
 

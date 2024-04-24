@@ -3,10 +3,9 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using IP.Project.Database;
-using IP.Project.IntegrationTests.Base;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Store.FunctionalTests
+namespace IP.Project.IntegrationTests.Base.TestingBaseWebApplicationFactory
 {
     public class TestingBaseWebApplicationFactory : IDisposable
     {
