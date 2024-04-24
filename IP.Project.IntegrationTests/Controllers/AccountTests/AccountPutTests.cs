@@ -2,14 +2,20 @@
 using System.Net.Http.Json;
 using FluentAssertions;
 using IP.Project.Contracts;
-using IP.Project.IntegrationTests.Base;
+using IP.Project.IntegrationTests.Base.TestingBaseWebApplicationFactory;
 using Newtonsoft.Json;
 
-namespace IP.Project.IntegrationTests.Controllers;
+namespace IP.Project.IntegrationTests.Controllers.AccountTests;
 
-public class AccountPutTests : BaseAppContextTests
+public class AccountPutTests : IClassFixture<TestingBaseWebApplicationFactory>
 {
+    private readonly TestingBaseWebApplicationFactory factory;
     private const string RequestUri = "/api/v1/accounts/update/";
+
+    public AccountPutTests(TestingBaseWebApplicationFactory factory)
+    {
+        this.factory = factory;
+    }
 
     [Fact]
     public async Task When_PutAccountById_Exists_AndChangedUsername_Then_Success()
@@ -25,7 +31,7 @@ public class AccountPutTests : BaseAppContextTests
         };
 
         // Act
-        var response = await Client.PutAsJsonAsync(RequestUri + existingAccountId, request);
+        var response = await factory.Client.PutAsJsonAsync(RequestUri + existingAccountId, request);
 
         response.EnsureSuccessStatusCode();
         var responseString = await response.Content.ReadAsStringAsync();

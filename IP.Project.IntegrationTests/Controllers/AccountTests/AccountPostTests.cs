@@ -2,14 +2,20 @@
 using System.Net.Http.Json;
 using FluentAssertions;
 using IP.Project.Contracts;
-using IP.Project.IntegrationTests.Base;
+using IP.Project.IntegrationTests.Base.TestingBaseWebApplicationFactory;
 using Newtonsoft.Json;
 
-namespace IP.Project.IntegrationTests.Controllers;
+namespace IP.Project.IntegrationTests.Controllers.AccountTests;
 
-public class AccountPostTests : BaseAppContextTests
+public class AccountPostTests : IClassFixture<TestingBaseWebApplicationFactory>
 {
-    private const string RequestUri = "/api/v1/accounts";
+    private readonly TestingBaseWebApplicationFactory factory;
+    private const string RequestUri = "/api/v1/accounts/";
+
+    public AccountPostTests(TestingBaseWebApplicationFactory factory)
+    {
+        this.factory = factory;
+    }
 
     [Fact]
     public async Task When_PostAccountByIsCalledWithRightParameters_Then_Created()
@@ -24,7 +30,7 @@ public class AccountPostTests : BaseAppContextTests
         };
 
         // Act
-        var response = await Client.PostAsJsonAsync(RequestUri, request);
+        var response = await factory.Client.PostAsJsonAsync(RequestUri, request);
 
         response.EnsureSuccessStatusCode();
         var responseString = await response.Content.ReadAsStringAsync();

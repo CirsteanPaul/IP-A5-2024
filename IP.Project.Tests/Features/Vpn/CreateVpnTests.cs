@@ -2,7 +2,7 @@
 using IP.Project.Entities;
 using IP.Project.Features.Vpn;
 using IP.Project.Tests.Base;
-using Moq;
+using NSubstitute;
 
 namespace IP.Project.Tests.Features.Vpn;
 
@@ -15,7 +15,7 @@ public class CreateVpnTests : BaseTest<VpnAccount>
         var acc = new List<VpnAccount>();
         var mock = Setup(acc);
 
-        var sut = new CreateVpn.Handler(mock.Object, new CreateVpn.Validator());
+        var sut = new CreateVpn.Handler(mock, new CreateVpn.Validator());
         var createCommand = new CreateVpn.Command()
         {
             Description = "VPN Account 1",
@@ -27,8 +27,8 @@ public class CreateVpnTests : BaseTest<VpnAccount>
 
         // Assert
         vpnAccount.IsSuccess.Should().BeTrue();
-        mock.Verify(x => x.Vpns.Add(It.IsAny<VpnAccount>()), Times.Once);
-        mock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        mock.Vpns.Received(1).Add(Arg.Any<VpnAccount>());
+        await mock.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -38,7 +38,7 @@ public class CreateVpnTests : BaseTest<VpnAccount>
         var acc = new List<VpnAccount>();
         var mock = Setup(acc);
 
-        var sut = new CreateVpn.Handler(mock.Object, new CreateVpn.Validator());
+        var sut = new CreateVpn.Handler(mock, new CreateVpn.Validator());
         var createCommand = new CreateVpn.Command()
         {
             Description = "VPN Account 1",
@@ -50,7 +50,7 @@ public class CreateVpnTests : BaseTest<VpnAccount>
 
         // Assert
         vpnAccount.IsFailure.Should().BeTrue();
-        mock.Verify(x => x.Vpns.Add(It.IsAny<VpnAccount>()), Times.Never);
-        mock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        mock.Vpns.Received(0).Add(Arg.Any<VpnAccount>());
+        await mock.Received(0).SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 }

@@ -12,8 +12,8 @@ public static class SambaSeed
             CreateSambaAccount("102.100.170.255"),
             CreateSambaAccountSpecialId("102.105.160.255")
         };
-        
-        context.AddRange(sambaAccounts);
+
+        context.SambaAccounts.AddRange(sambaAccounts);
     }
     
     private static SambaAccount CreateSambaAccount(string ip, string? description = null) => new SambaAccount()

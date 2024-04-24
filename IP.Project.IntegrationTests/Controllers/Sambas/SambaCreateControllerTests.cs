@@ -2,13 +2,19 @@
 using System.Net.Http.Json;
 using FluentAssertions;
 using IP.Project.Contracts;
-using IP.Project.IntegrationTests.Base;
+using IP.Project.IntegrationTests.Base.TestingBaseWebApplicationFactory;
 
-namespace IP.Project.IntegrationTests.Controllers;
+namespace IP.Project.IntegrationTests.Controllers.Sambas;
 
-public class SambaCreateControllerTests : BaseAppContextTests
+public class SambaCreateControllerTests : IClassFixture<TestingBaseWebApplicationFactory>
 {
-    private const string RequestUri = "/api/v1/sambas";  
+    private const string RequestUri = "/api/v1/sambas/";
+    private readonly TestingBaseWebApplicationFactory factory;
+
+    public SambaCreateControllerTests(TestingBaseWebApplicationFactory factory)
+    {
+        this.factory = factory;
+    }
 
     [Fact]
     public async Task When_CreateSambaWithValidIP_Then_ReturnsCreated()
@@ -21,7 +27,7 @@ public class SambaCreateControllerTests : BaseAppContextTests
         };
 
         // Act
-        var response = await Client.PostAsJsonAsync(RequestUri, request);
+        var response = await factory.Client.PostAsJsonAsync(RequestUri, request);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -38,7 +44,7 @@ public class SambaCreateControllerTests : BaseAppContextTests
         };
 
         // Act
-        var response = await Client.PostAsJsonAsync(RequestUri, request);
+        var response = await factory.Client.PostAsJsonAsync(RequestUri, request);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);

@@ -1,15 +1,19 @@
 ﻿using System.Net;
-using System.Net.Http.Json;
 using FluentAssertions;
-using IP.Project.Contracts;
-using IP.Project.IntegrationTests.Base;
+using IP.Project.IntegrationTests.Base.TestingBaseWebApplicationFactory;
 using Newtonsoft.Json;
 
-namespace IP.Project.IntegrationTests.Controllers;
+namespace IP.Project.IntegrationTests.Controllers.AccountTests;
 
-public class AccountDeleteTests : BaseAppContextTests
+public class AccountDeleteTests : IClassFixture<TestingBaseWebApplicationFactory>
 {
+    private readonly TestingBaseWebApplicationFactory factory;
     private const string RequestUri = "/api/v1/accounts/";
+
+    public AccountDeleteTests(TestingBaseWebApplicationFactory factory)
+    {
+        this.factory = factory;
+    }
 
     [Fact]
     public async Task When_DeleteAccountById_Exists_Then_NoContent()
@@ -18,10 +22,10 @@ public class AccountDeleteTests : BaseAppContextTests
         var existingAccountId = Guid.Parse("b5ec0aed-e1f4-4115-80e4-e4448b1f43ab");
 
         // Act
-        var response = await Client.DeleteAsync(RequestUri + existingAccountId);
+        var response = await factory.Client.DeleteAsync(RequestUri + existingAccountId);
 
         response.EnsureSuccessStatusCode();
-        var responseString = await response.Content.ReadAsStringAsync();
+        var responseString = response.Content.ReadAsStringAsync().Result;
         var result = JsonConvert.DeserializeObject<string>(responseString);
 
         // Assert

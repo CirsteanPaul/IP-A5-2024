@@ -1,13 +1,13 @@
 using IP.Project.Database;
 using IP.Project.Entities;
 using Microsoft.EntityFrameworkCore;
-using Moq;
+using NSubstitute;
 
 namespace IP.Project.Tests.Base;
 
 public class BaseTest<TEntity> where TEntity : class
 {
-    protected Mock<ApplicationDBContext> Setup(IEnumerable<TEntity> dbSet)
+    protected ApplicationDBContext Setup(IEnumerable<TEntity> dbSet)
     {
         IQueryable<TEntity> entities = new List<TEntity>(dbSet).AsQueryable();
         
@@ -18,40 +18,34 @@ public class BaseTest<TEntity> where TEntity : class
         return contextMock;
     }
 
-    private static Mock<ApplicationDBContext> SetupDbSetMock(IQueryable<TEntity> entities, out Mock<DbSet<TEntity>> setMock)
+    private static ApplicationDBContext SetupDbSetMock(IQueryable<TEntity> entities, out DbSet<TEntity> setMock)
     {
-        var contextMock = new Mock<ApplicationDBContext>(new DbContextOptions<ApplicationDBContext>());
+        var contextMock = Substitute.For<ApplicationDBContext>(new DbContextOptions<ApplicationDBContext>());
 
-        setMock = new Mock<DbSet<TEntity>>();
-
-        setMock.As<IAsyncEnumerable<TEntity>>()
-            .Setup(m => m.GetAsyncEnumerator(default))
+        setMock = Substitute.For<DbSet<TEntity>, IQueryable<TEntity>, IAsyncEnumerable<TEntity>>();
+        
+        ((IAsyncEnumerable<TEntity>)setMock).GetAsyncEnumerator()
             .Returns(new AsyncHelper.TestAsyncEnumerator<TEntity>(entities.GetEnumerator()));
+        ((IQueryable<TEntity>)setMock).Provider.Returns(new AsyncHelper.TestAsyncQueryProvider<TEntity>(entities.Provider));
+        ((IQueryable<TEntity>)setMock).Expression.Returns(entities.Expression);
+        ((IQueryable<TEntity>)setMock).ElementType.Returns(entities.ElementType);
+        ((IQueryable<TEntity>)setMock).GetEnumerator().Returns(entities.GetEnumerator());
 
-        setMock.As<IQueryable<TEntity>>()
-            .Setup(m => m.Provider)
-            .Returns(new AsyncHelper.TestAsyncQueryProvider<TEntity>(entities.Provider));
-        setMock.As<IQueryable<TEntity>>().Setup(m => m.Expression)
-            .Returns(entities.Expression);
-        setMock.As<IQueryable<TEntity>>().Setup(m => m.ElementType)
-            .Returns(entities.ElementType);
-        setMock.As<IQueryable<TEntity>>().Setup(m => m.GetEnumerator())
-            .Returns(() => entities.GetEnumerator());
         return contextMock;
     }
 
-    private void SetupDbMock(Mock<ApplicationDBContext> dbMock, Mock<DbSet<TEntity>> setMock)
+    private void SetupDbMock(ApplicationDBContext dbMock, DbSet<TEntity> setMock)
     {
-        switch (setMock.Object)
+        switch (setMock)
         {
             case DbSet<Account> accounts:
-                dbMock.Setup(c => c.Accounts).Returns(accounts);
+                dbMock.Accounts.Returns(accounts);
                 return;
             case DbSet<SambaAccount> sambas:
-                dbMock.Setup(c => c.SambaAccounts).Returns(sambas);
+                dbMock.SambaAccounts.Returns(sambas);
                 return;
             case DbSet<VpnAccount> vpns:
-                dbMock.Setup(c => c.Vpns).Returns(vpns);
+                dbMock.Vpns.Returns(vpns);
                 return;
             default:
                 throw new ArgumentException("Invalid type");

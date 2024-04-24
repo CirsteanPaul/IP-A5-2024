@@ -2,10 +2,9 @@ using FluentAssertions;
 using IP.Project.Entities;
 using IP.Project.Features.Samba;
 using IP.Project.Tests.Base;
-using Moq;
+using NSubstitute;
 
 namespace IP.Project.Tests.Features.Samba;
-
 
 public class DeleteSambaTests : BaseTest<SambaAccount>
 {
@@ -22,7 +21,7 @@ public class DeleteSambaTests : BaseTest<SambaAccount>
 
         var mock = Setup(acc);
 
-        var sut = new DeleteSamba.Handler(mock.Object);
+        var sut = new DeleteSamba.Handler(mock);
         var deleteCommand = new DeleteSamba.Command(id);
         
         // Act
@@ -30,7 +29,7 @@ public class DeleteSambaTests : BaseTest<SambaAccount>
 
         // Assert
         sambaAccount.IsSuccess.Should().BeTrue();
-        mock.Verify(x => x.SambaAccounts.Remove(It.IsAny<SambaAccount>()), Times.Once);
-        mock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        mock.SambaAccounts.Received(1).Remove(Arg.Any<SambaAccount>());
+        await mock.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 }

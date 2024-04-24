@@ -2,8 +2,7 @@
 using IP.Project.Entities;
 using IP.Project.Features.Accounts;
 using IP.Project.Tests.Base;
-using Moq;
-
+using NSubstitute;
 
 namespace IP.Project.Tests.Features.Accounts;
 
@@ -22,7 +21,7 @@ public class DeleteAccountTests : BaseTest<Account>
 
         var mock = Setup(acc);
 
-        var sut = new DeleteAccount.Handler(mock.Object);
+        var sut = new DeleteAccount.Handler(mock);
         var deleteCommand = new DeleteAccount.Command(id);
 
         // Act
@@ -30,7 +29,7 @@ public class DeleteAccountTests : BaseTest<Account>
 
         // Assert
         account.IsSuccess.Should().BeTrue();
-        mock.Verify(x => x.Accounts.Remove(It.IsAny<Account>()), Times.Once);
-        mock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        mock.Accounts.Received(1).Remove(Arg.Any<Account>());
+        await mock.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 }

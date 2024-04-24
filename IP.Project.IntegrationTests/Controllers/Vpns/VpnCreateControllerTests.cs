@@ -2,13 +2,19 @@ using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using IP.Project.Contracts;
-using IP.Project.IntegrationTests.Base;
+using IP.Project.IntegrationTests.Base.TestingBaseWebApplicationFactory;
 
-namespace IP.Project.IntegrationTests.Controllers
+namespace IP.Project.IntegrationTests.Controllers.Vpns
 {
-    public class VpnCreateControllerTests : BaseAppContextTests
+    public class VpnCreateControllerTests : IClassFixture<TestingBaseWebApplicationFactory>
     {
         private const string RequestUri = "/api/v1/vpns/";
+        private readonly TestingBaseWebApplicationFactory factory;
+
+        public VpnCreateControllerTests(TestingBaseWebApplicationFactory factory)
+        {
+            this.factory = factory;
+        }
 
         [Fact]
         public async Task When_CreateVpn_WithValidData_Then_ReturnsCreatedResponseAndCorrectData()
@@ -21,7 +27,7 @@ namespace IP.Project.IntegrationTests.Controllers
             };
 
             // Act
-            var response = await Client.PostAsJsonAsync(RequestUri, vpnRequest);
+            var response = await factory.Client.PostAsJsonAsync(RequestUri, vpnRequest);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -38,7 +44,7 @@ namespace IP.Project.IntegrationTests.Controllers
             };
 
             // Act
-            var response = await Client.PostAsJsonAsync(RequestUri, invalidVpnRequest);
+            var response = await factory.Client.PostAsJsonAsync(RequestUri, invalidVpnRequest);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);

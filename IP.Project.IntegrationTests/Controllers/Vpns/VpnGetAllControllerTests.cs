@@ -2,22 +2,28 @@
 using System.Net.Http.Json;
 using FluentAssertions;
 using IP.Project.Contracts;
-using IP.Project.IntegrationTests.Base;
+using IP.Project.IntegrationTests.Base.TestingBaseWebApplicationFactory;
 
-namespace IP.Project.IntegrationTests.Controllers
+namespace IP.Project.IntegrationTests.Controllers.Vpns
 {
-    public class GetAllVpnsControllerTests : BaseAppContextTests
+    public class GetAllVpnsControllerTests : IClassFixture<TestingBaseWebApplicationFactory>
     {
         private const string RequestUri = "/api/v1/vpns/";
+        private readonly TestingBaseWebApplicationFactory factory;
+
+        public GetAllVpnsControllerTests(TestingBaseWebApplicationFactory factory)
+        {
+            this.factory = factory;
+        }
 
         [Fact]
         public async Task GetAllVpns_ReturnsListOfVpns_WhenExists()
         {
             // Arrange 
-            var existingid = Guid.Parse("b1f5d163-ff83-411a-4144-08dc5ef3042e");
+            var existingid = Guid.Parse("2330d4f5-1c5b-42cb-a34b-d9275e99b6bc");
             
             // Act
-            var response = await Client.GetAsync(RequestUri);
+            var response = await factory.Client.GetAsync(RequestUri);
             var vpns = await response.Content.ReadFromJsonAsync<List<VpnResponse>>();
 
             // Assert
@@ -26,6 +32,5 @@ namespace IP.Project.IntegrationTests.Controllers
             vpns.Should().HaveCount(2);
             vpns.Should().ContainSingle(x => x.Id == existingid);
         }
-        
     }
 }
