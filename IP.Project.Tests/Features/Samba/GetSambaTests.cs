@@ -11,7 +11,7 @@ namespace IP.Project.Tests.Features.Samba
         public async Task GetSambaHandler_ValidId_ReturnsSuccess()
         {
             // Arrange
-            var accountId = Guid.NewGuid();
+            var accountId = Guid.Parse("4c727215-0522-4384-8481-4a2d1e094fb7");
             var sambaAccount = new SambaAccount { Id = accountId, Description = "Test Account", IPv4Address = "192.168.1.1" };
             var mock = Setup(new List<SambaAccount> { sambaAccount });
 
@@ -33,9 +33,10 @@ namespace IP.Project.Tests.Features.Samba
         public async Task GetSambaHandler_InvalidId_ReturnsFailure()
         {
             // Arrange
+            var invalidId = Guid.Parse("b0af913e-4b78-408d-98b3-8103fb3b1870");
             var mock = Setup(new List<SambaAccount>());
             var sut = new GetSamba.Handler(mock);
-            var query = new GetSamba.Query { Id = Guid.NewGuid() };
+            var query = new GetSamba.Query { Id = invalidId };
 
             // Act
             var result = await sut.Handle(query, default);
