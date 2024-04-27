@@ -3,12 +3,13 @@ using System.Net.Http.Json;
 using FluentAssertions;
 using IP.Project.Contracts;
 using IP.Project.IntegrationTests.Base.TestingBaseWebApplicationFactory;
+using IP.Project.Shared;
 
 namespace IP.Project.IntegrationTests.Controllers.Sambas;
 
 public class SambaCreateControllerTests : IClassFixture<TestingBaseWebApplicationFactory>
 {
-    private const string RequestUri = "/api/v1/sambas/";
+    private static readonly string RequestUri = Global.version + "sambas/";
     private readonly TestingBaseWebApplicationFactory factory;
 
     public SambaCreateControllerTests(TestingBaseWebApplicationFactory factory)
