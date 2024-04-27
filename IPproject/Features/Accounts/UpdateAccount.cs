@@ -1,4 +1,5 @@
 ﻿using Azure.Core;
+using IP.Project.Contracts;
 using Carter;
 using FluentValidation;
 using IP.Project.Database;
@@ -6,13 +7,7 @@ using IP.Project.Shared;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 namespace IP.Project.Features.Accounts
-{
-    public class UpdateAccountRequest
-    {
-        public string? NewUsername { get; set; }
-        public string? NewPassword { get; set; }
-        public string? NewEmail { get; set; }
-    }
+{   
     public class UpdateAccountInstance
     {
         public record Command(Guid Id, UpdateAccountRequest Request) : IRequest<Result<Guid>>
