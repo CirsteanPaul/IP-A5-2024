@@ -2,16 +2,17 @@
 using FluentAssertions;
 using IP.Project.Contracts;
 using IP.Project.IntegrationTests.Base.TestingBaseWebApplicationFactory;
+using IP.Project.Shared;
 using Newtonsoft.Json;
 
 namespace IP.Project.IntegrationTests.Controllers.AccountTests;
 
-public class AccountGetTests : IClassFixture<TestingBaseWebApplicationFactory>
+public class AccountGetControllerTests : IClassFixture<TestingBaseWebApplicationFactory>
 {
     private readonly TestingBaseWebApplicationFactory factory;
-    private const string RequestUri = "/api/v1/accounts/";
+    private const string RequestUri = Global.versionAccount;
 
-    public AccountGetTests(TestingBaseWebApplicationFactory factory)
+    public AccountGetControllerTests(TestingBaseWebApplicationFactory factory)
     {
         this.factory = factory;
     }
@@ -20,7 +21,7 @@ public class AccountGetTests : IClassFixture<TestingBaseWebApplicationFactory>
     public async Task When_GetAccountById_Exists_Then_Success()
     {
         // Arrange
-        var existingAccountId = Guid.Parse("b5ec0aed-e1f4-4115-80e4-e4448b1f43ab");
+        var existingAccountId = Guid.Parse("f1302aae-193b-4ae0-8d1d-b8a3f239fff1");
 
         // Act
         var response = await factory.Client.GetAsync(RequestUri + existingAccountId);
@@ -37,7 +38,7 @@ public class AccountGetTests : IClassFixture<TestingBaseWebApplicationFactory>
     public async Task When_GetAccountById_DoesNotExist_Then_NotFound()
     {
         // Arrange
-        Guid nonExistingAccountId = Guid.Parse("b1f5d163-0013-411a-41aa-07dc5ef3042e");
+        Guid nonExistingAccountId = Guid.Parse("828cccf2-4c62-4241-836f-4253b3ebb321");
 
         // Act
         var response = await factory.Client.GetAsync(RequestUri + nonExistingAccountId);

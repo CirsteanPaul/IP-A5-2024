@@ -2,6 +2,7 @@
 {
     public class Global
     {
-        public static string version = "api/v1/";
+        public const string version = "api/v1/";
+        public const string versionAccount = version + "accounts/";
     }
 }
