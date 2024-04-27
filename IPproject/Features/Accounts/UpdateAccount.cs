@@ -1,4 +1,5 @@
-﻿using Carter;
+﻿using Azure.Core;
+using Carter;
 using FluentValidation;
 using IP.Project.Database;
 using IP.Project.Shared;
@@ -20,9 +21,7 @@ namespace IP.Project.Features.Accounts
             {
                 public Validator()
                 {
-                    RuleFor(x => x.Request.NewUsername).NotEmpty();
-                    RuleFor(x => x.Request.NewPassword).NotEmpty();
-                    RuleFor(x => x.Request.NewEmail).NotEmpty().EmailAddress();
+                    RuleFor(x => x.Request.NewEmail).EmailAddress().When(x => x.Request.NewEmail != null);
                 }
             }
         }
