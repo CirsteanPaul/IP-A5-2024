@@ -33,4 +33,17 @@ public class AccountDeleteControllerTests : IClassFixture<TestingBaseWebApplicat
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
         result?.Should().NotBeNull();
     }
+
+    [Fact]
+    public async Task When_DeleteAccountById_DoesNotExist_Then_NotFound()
+    {
+        // Arrange
+        var existingAccountId = Guid.Parse("828cccf2-4c62-4241-836f-4253b3ebb321");
+
+        // Act
+        var response = await factory.Client.DeleteAsync(RequestUri + existingAccountId);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
 }
