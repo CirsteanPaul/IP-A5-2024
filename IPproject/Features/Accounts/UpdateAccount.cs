@@ -6,6 +6,7 @@ using IP.Project.Database;
 using IP.Project.Shared;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 namespace IP.Project.Features.Accounts
 {   
     public class UpdateAccountInstance
@@ -64,7 +65,7 @@ namespace IP.Project.Features.Accounts
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPut(Global.version + "accounts/{id:guid}", async (Guid id, UpdateAccountRequest request, ISender sender) =>
+            app.MapPut(Global.version + "accounts/{id:guid}", async ([FromRoute] Guid id, [FromBody] UpdateAccountRequest request, ISender sender) =>
             {
                 var command = new UpdateAccountInstance.Command(id, request);
                 var result = await sender.Send(command);
@@ -73,7 +74,11 @@ namespace IP.Project.Features.Accounts
                     return Results.NotFound(result.Error);
                 }
                 return Results.Ok(Global.version + $"accounts/{result.Value}");
-            }).WithTags("Accounts");
+            }).WithTags("Accounts")
+            .WithDescription("Endpoint for updating an account by id. " +  "If the request succeeds, the updated account id will be returned.")
+            .Produces<Guid>(StatusCodes.Status200OK)
+            .Produces<Error>(StatusCodes.Status404NotFound)
+            .WithOpenApi();
         }
     }
 }

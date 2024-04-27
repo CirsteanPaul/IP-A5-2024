@@ -4,6 +4,7 @@ using IP.Project.Database;
 using IP.Project.Features.Accounts;
 using IP.Project.Shared;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace IP.Project.Features.Accounts
@@ -56,7 +57,7 @@ public class GetAccountEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGet(Global.version + "accounts/{id:guid}", async (Guid id, ISender sender) =>
+        app.MapGet(Global.version + "accounts/{id:guid}", async ([FromRoute] Guid id, ISender sender) =>
         {
             var query = new GetAccount.Query
             {
@@ -68,6 +69,11 @@ public class GetAccountEndpoint : ICarterModule
                 return Results.NotFound(result.Error);
             }
             return Results.Ok(result.Value);
-        }).WithTags("Accounts"); ;
+        }).WithTags("Accounts")
+        .WithDescription("Endpoint for getting an account by id. " +
+        "If the request succeeds, in the response body you can find the account details.")
+        .Produces<AccountResponse>(StatusCodes.Status200OK)
+        .Produces<Error>(StatusCodes.Status404NotFound)
+        .WithOpenApi();
     }
 }
