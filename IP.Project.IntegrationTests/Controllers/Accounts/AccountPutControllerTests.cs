@@ -26,9 +26,7 @@ public class AccountPutControllerTests : IClassFixture<TestingBaseWebApplication
         var existingAccountId = Guid.Parse("f1302aae-193b-4ae0-8d1d-b8a3f239fff1");
         var request = new UpdateAccountRequest()
         {
-            NewUsername = "New username",
-            NewPassword = "",
-            NewEmail = "",
+            NewUsername = "New username"
         };
 
         // Act
