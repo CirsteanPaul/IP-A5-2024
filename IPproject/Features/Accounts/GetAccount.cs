@@ -56,7 +56,7 @@ public class GetAccountEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGet(Global.version + "accounts/{id}", async (Guid id, ISender sender) =>
+        app.MapGet(Global.version + "accounts/{id:guid}", async (Guid id, ISender sender) =>
         {
             var query = new GetAccount.Query
             {

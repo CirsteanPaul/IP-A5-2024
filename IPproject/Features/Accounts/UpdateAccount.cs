@@ -1,56 +1,85 @@
 ﻿using Carter;
+using FluentValidation;
 using IP.Project.Database;
 using IP.Project.Shared;
 using MediatR;
-
+using Microsoft.EntityFrameworkCore;
 namespace IP.Project.Features.Accounts
 {
+    public class UpdateAccountRequest
+    {
+        public string? NewUsername { get; set; }
+        public string? NewPassword { get; set; }
+        public string? NewEmail { get; set; }
+    }
     public class UpdateAccountInstance
     {
-        public record Command(Guid Id, string? NewUsername, string? NewPassword, string? NewEmail) : IRequest<Result<Guid>>;
-        public class Handler : IRequestHandler<Command, Result<Guid>>
+        public record Command(Guid Id, UpdateAccountRequest Request) : IRequest<Result<Guid>>
         {
-            private readonly ApplicationDBContext context;
-
-            public Handler(ApplicationDBContext dbContext)
+            public class Validator : AbstractValidator<Command>
             {
-                this.context = dbContext;
-            }
-
-            public async Task<Result<Guid>> Handle(Command request, CancellationToken cancellationToken)
-            {
-                var accountInstance = await context.Accounts.FindAsync(request.Id, cancellationToken);
-                if (accountInstance == null)
+                public Validator()
                 {
-                    return Result.Failure<Guid>(new Error("UpdateAccount.Null", $"Account instance with ID {request.Id} not found."));
+                    RuleFor(x => x.Request.NewUsername).NotEmpty();
+                    RuleFor(x => x.Request.NewPassword).NotEmpty();
+                    RuleFor(x => x.Request.NewEmail).NotEmpty().EmailAddress();
                 }
-
-                if (request.NewUsername != null) { accountInstance.Username = request.NewUsername; }
-                if (request.NewPassword != null) { accountInstance.Password = request.NewPassword; }
-                if (request.NewEmail != null) { accountInstance.Email = request.NewEmail; }
-
-                accountInstance.LastUpdatedOnUtc = DateTime.UtcNow;
-
-                await context.SaveChangesAsync(cancellationToken);
-                return Result.Success(request.Id);
             }
         }
-    }
 
-    public class UpdateAccountEndpoints : ICarterModule
+    public class Handler : IRequestHandler<Command, Result<Guid>>
+    {
+        private readonly ApplicationDBContext context;
+
+        public Handler(ApplicationDBContext dbContext)
+        {
+            this.context = dbContext;
+        }
+
+        public async Task<Result<Guid>> Handle(Command request, CancellationToken cancellationToken)
+        {
+            var validationResult = new Command.Validator().Validate(request);
+            var errorMessages = validationResult.Errors
+            .Select(error => error.ErrorMessage)
+            .ToList();
+             if (!validationResult.IsValid)
+             {
+                return Result.Failure<Guid>(new Error("UpdateAccount.ValidationFailed", string.Join(" ", errorMessages)));
+             }
+
+            var accountInstance = await context.Accounts.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+
+            if (accountInstance == null)
+            {
+                return Result.Failure<Guid>(new Error("UpdateAccount.Null", $"Account instance with ID {request.Id} not found."));
+            }
+
+            if (request.Request.NewUsername != null) { accountInstance.Username = request.Request.NewUsername; }
+            if (request.Request.NewPassword != null) { accountInstance.Password = request.Request.NewPassword; }
+            if (request.Request.NewEmail != null) { accountInstance.Email = request.Request.NewEmail; }
+
+            accountInstance.LastUpdatedOnUtc = DateTime.UtcNow;
+
+            await context.SaveChangesAsync(cancellationToken);
+            return Result.Success(request.Id);
+        }
+    }
+        }
+
+        public class UpdateAccountEndpoints : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPut(Global.version + "accounts/update/{id}", async (Guid id, string? Username, string? Password, string? Email, ISender sender) =>
+            app.MapPut(Global.version + "accounts/{id:guid}", async (Guid id, UpdateAccountRequest request, ISender sender) =>
             {
-                var command = new UpdateAccountInstance.Command(id, Username, Password, Email);
+                var command = new UpdateAccountInstance.Command(id, request);
                 var result = await sender.Send(command);
                 if (result.IsFailure)
                 {
                     return Results.NotFound(result.Error);
                 }
                 return Results.Ok(Global.version + $"accounts/{result.Value}");
-            }).WithTags("Accounts"); ;
+            }).WithTags("Accounts");
         }
     }
 }
