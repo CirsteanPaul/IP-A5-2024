@@ -5,6 +5,7 @@ using IP.Project.Features.Samba;
 using IP.Project.Shared;
 using Mapster;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace IP.Project.Features.Samba
@@ -47,7 +48,7 @@ public class GetSambaEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGet("api/v1/sambas/{id}", async (Guid id, ISender sender) =>
+        app.MapGet($"{Global.version}sambas/{{id:guid}}", async ([FromRoute] Guid id, ISender sender) =>
         {
             var query = new GetSamba.Query
             {
@@ -59,6 +60,11 @@ public class GetSambaEndpoint : ICarterModule
                 return Results.NotFound(result.Error);
             }
             return Results.Ok(result.Value);
-        }).WithTags("Samba");
+        }).WithTags("Samba")
+        .WithDescription("Endpoint for retrieving details of a specific Samba account. " +
+                         "If the request is successful, returns details of the specified Samba account. ")
+        .Produces(StatusCodes.Status200OK)
+        .Produces<Error>(StatusCodes.Status404NotFound)
+        .WithOpenApi();
     }
 }
