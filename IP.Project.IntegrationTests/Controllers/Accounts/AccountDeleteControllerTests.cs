@@ -2,6 +2,7 @@
 using FluentAssertions;
 using IP.Project.IntegrationTests.Base.TestingBaseWebApplicationFactory;
 using IP.Project.IntegrationTests.Base;
+using IP.Project.Shared;
 using Newtonsoft.Json;
 
 namespace IP.Project.IntegrationTests.Controllers.AccountTests;
