@@ -2,13 +2,14 @@ using System.Net;
 using FluentAssertions;
 using IP.Project.Contracts;
 using IP.Project.IntegrationTests.Base.TestingBaseWebApplicationFactory;
+using IP.Project.Shared;
 using Newtonsoft.Json;
 
 namespace IP.Project.IntegrationTests.Controllers.Sambas;
 
 public class SambaGetAllControllerTests : IClassFixture<TestingBaseWebApplicationFactory>
 {
-    private const string RequestUri = "/api/v1/sambas/";
+    private static readonly string RequestUri = Global.version + "sambas/";
     private readonly TestingBaseWebApplicationFactory factory;
 
     public SambaGetAllControllerTests(TestingBaseWebApplicationFactory factory)
