@@ -76,7 +76,12 @@ namespace IP.Project.Features.Samba
                     return Results.NoContent();
                 }
                 return Results.NotFound(result.Error);
-            }).WithTags("Samba");
+            }).WithTags("Samba")
+            .WithDescription("Endpoint for updating details of a specific Samba account. " +
+                         "If the request is successful, it will return status code 204 (No content). ")
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces<Error>(StatusCodes.Status404NotFound)
+            .WithOpenApi();
         }
     }
 }
