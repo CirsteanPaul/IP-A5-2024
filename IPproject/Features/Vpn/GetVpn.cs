@@ -15,7 +15,7 @@ namespace IP.Project.Features.Vpn
             public Guid Id { get; set; }
         }
 
-        internal sealed class Handler : IRequestHandler<Query, Result<VpnResponse>>
+        public sealed class Handler : IRequestHandler<Query, Result<VpnResponse>>
         {
             private readonly ApplicationDBContext context;
 
@@ -36,7 +36,7 @@ namespace IP.Project.Features.Vpn
 
                 var vpnResponse = vpn.Adapt<VpnResponse>();
 
-                return Result.Success(vpnResponse);
+                return vpnResponse;
             }
         }
     }
