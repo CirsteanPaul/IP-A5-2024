@@ -1,13 +1,8 @@
 using FluentAssertions;
 using IP.Project.Contracts;
-using IP.Project.Database;
 using IP.Project.Features.Samba;
-using IP.Project.Shared;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Xunit;
+using IP.Project.Entities;
+using IP.Project.Tests.Base;
 
 namespace IP.Project.Tests.Features.Samba
 {
@@ -19,9 +14,9 @@ namespace IP.Project.Tests.Features.Samba
             // Arrange
             var sambas = new List<SambaAccount>
             {
-                new SambaAccount { Id = Guid.NewGuid(), Description = "Samba 1", IPv4Address = "192.168.1.1" },
-                new SambaAccount { Id = Guid.NewGuid(), Description = "Samba 2", IPv4Address = "192.168.1.2" },
-                new SambaAccount { Id = Guid.NewGuid(), Description = "Samba 3", IPv4Address = "192.168.1.3" }
+                new SambaAccount { Id = Guid.Parse("4c727215-0522-4384-8481-4a2d1e094fb7"), Description = "Samba 1", IPv4Address = "192.168.1.1" },
+                new SambaAccount { Id = Guid.Parse("4c727215-0522-4384-8481-4a2d1e094fb8"), Description = "Samba 2", IPv4Address = "192.168.1.2" },
+                new SambaAccount { Id = Guid.Parse("4c727215-0522-4384-8481-4a2d1e094fb9"), Description = "Samba 3", IPv4Address = "192.168.1.3" }
             };
 
             var mock = Setup(sambas);

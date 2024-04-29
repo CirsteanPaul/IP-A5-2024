@@ -42,18 +42,15 @@ namespace IP.Project.Features.Samba
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             app.MapGet($"{Global.version}sambas", async (ISender sender) =>
-            {
-                var query = new GetAllSambas.Query();
-                var result = await sender.Send(query);
+                {
+                    var query = new GetAllSambas.Query();
+                    var result = await sender.Send(query);
 
-                return Results.Ok(result.Value);
-            }).WithTags("Samba");
-            .WithDescription("Endpoint for retrieving details of all Samba accounts.")
-            .Produces(StatusCodes.Status200OK)
-            .Produces<List<SambaResponse>>(StatusCodes.Status200OK)
-            .WithOpenApiDescription("Retrieves details of all Samba accounts.")
-            .Produces<Error>(StatusCodes.Status500InternalServerError)
-            .WithOpenApiResponse(StatusCodes.Status500InternalServerError, "Internal server error.");
+                    return Results.Ok(result.Value);
+                }).WithTags("Samba")
+                .WithDescription("Endpoint for retrieving details of all Samba accounts.")
+                .Produces<List<SambaResponse>>(StatusCodes.Status200OK)
+                .Produces<Error>(StatusCodes.Status500InternalServerError);
         }
     }
 }
