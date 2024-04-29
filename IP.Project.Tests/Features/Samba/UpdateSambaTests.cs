@@ -12,7 +12,7 @@ namespace IP.Project.Tests.Features.Samba
         public async Task Handle_ValidRequest_ReturnsSuccess()
         {
             // Arrange
-            var id = Guid.NewGuid();
+            var id = Guid.Parse("4c727215-0522-4384-8481-4a2d1e094fb7");
             var sambaAccount = new SambaAccount { Id = id, Description = "Samba Account 1", IPv4Address = "192.168.1.1" };
             var dbContextMock = Setup(new List<SambaAccount> { sambaAccount });
 
@@ -37,7 +37,7 @@ namespace IP.Project.Tests.Features.Samba
         public async Task Handle_NullDescription_ReturnsSuccess()
         {
             // Arrange
-            var id = Guid.NewGuid();
+            var id = Guid.Parse("4c727215-0522-4384-8481-4a2d1e094fb7");
             var sambaAccount = new SambaAccount { Id = id, Description = "Samba Account 1", IPv4Address = "192.168.1.1" };
             var dbContextMock = Setup(new List<SambaAccount> { sambaAccount });
 
@@ -62,7 +62,7 @@ namespace IP.Project.Tests.Features.Samba
         public async Task Handle_InvalidIpAddress_ReturnsFailure()
         {
             // Arrange
-            var id = Guid.NewGuid();
+            var id = Guid.Parse("4c727215-0522-4384-8481-4a2d1e094fb7");
             var sambaAccount = new SambaAccount { Id = id, Description = "Samba Account 1", IPv4Address = "192.168.1.1" };
             var dbContextMock = Setup(new List<SambaAccount> { sambaAccount });
 
