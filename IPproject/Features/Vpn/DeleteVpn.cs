@@ -64,3 +64,4 @@ public class DeleteVpnEndpoint :ICarterModule
         .WithOpenApi();
     }   
 }
+

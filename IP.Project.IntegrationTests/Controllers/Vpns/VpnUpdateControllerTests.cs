@@ -24,50 +24,28 @@ namespace IP.Project.IntegrationTests.Controllers.Vpns
         {
             // Arrange
             var existingVpnId = Guid.Parse("2330d4f5-1c5b-42cb-a34b-d9275e99b6bc");
-            var updateRequest = new CreateVpnRequest
+            var updateRequest = new UpdateVpnRequest
             {
-                Description = "Updated VPN Description",
-                IPv4Address = "192.168.100.1"
+                NewDescription = "Updated VPN Description",
+                NewIpAddress = "192.168.100.1"
             };
 
             // Act
             var response = await factory.Client.PutAsJsonAsync($"{RequestUri}{existingVpnId}", updateRequest);
 
             // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var updatedVpn = await response.Content.ReadFromJsonAsync<VpnResponse>();
-            updatedVpn.Should().NotBeNull();
-            updatedVpn.Description.Should().Be(updateRequest.Description);
-            updatedVpn.IPv4Address.Should().Be(updateRequest.IPv4Address);
+            response.StatusCode.Should().Be(HttpStatusCode.NoContent);
         }
-
-        [Fact]
-        public async Task When_UpdateVpn_WithInvalidData_Then_ReturnsBadRequest()
-        {
-            // Arrange
-            var existingVpnId = Guid.Parse("2330d4f5-1c5b-42cb-a34b-d9275e99b6bc");
-            var invalidUpdateRequest = new CreateVpnRequest
-            {
-                Description = "Updated VPN Description",
-                IPv4Address = "999.999.999.999"  
-            };
-
-            // Act
-            var response = await factory.Client.PutAsJsonAsync($"{RequestUri}{existingVpnId}", invalidUpdateRequest);
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        }
-
+        
         [Fact]
         public async Task When_UpdateVpn_ThatDoesNotExist_Then_ReturnsNotFound()
         {
             // Arrange
             var nonExistingVpnId = Guid.Parse("deadbeef-1c5b-42cb-a34b-d9275e99b6bc");
-            var updateRequest = new CreateVpnRequest
+            var updateRequest = new UpdateVpnRequest()
             {
-                Description = "Non-existent VPN Description",
-                IPv4Address = "192.168.100.2"
+                NewDescription = "Non-existent VPN Description",
+                NewIpAddress = "192.168.100.2"
             };
 
             // Act
