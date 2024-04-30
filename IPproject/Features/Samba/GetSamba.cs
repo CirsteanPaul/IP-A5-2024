@@ -63,7 +63,7 @@ public class GetSambaEndpoint : ICarterModule
         }).WithTags("Samba")
         .WithDescription("Endpoint for retrieving details of a specific Samba account. " +
                          "If the request is successful, returns details of the specified Samba account. ")
-        .Produces(StatusCodes.Status200OK)
+        .Produces<SambaResponse>(StatusCodes.Status200OK)
         .Produces<Error>(StatusCodes.Status404NotFound)
         .WithOpenApi();
     }

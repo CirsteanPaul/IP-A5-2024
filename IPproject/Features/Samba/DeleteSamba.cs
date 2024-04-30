@@ -54,7 +54,6 @@ namespace IP.Project.Features.Samba
                 .Produces<Error>(StatusCodes.Status404NotFound)
                 .WithDescription("Endpoint for deleting a specific Samba account. " +
                                  "If the request is successful, it will return status code 204 (No content).")
-                .Produces(StatusCodes.Status204NoContent)
                 .WithOpenApi();
         }
     }
