@@ -14,7 +14,7 @@ builder.Services.AddSwaggerGen();
 // will not work and neither the React app.
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("Open", builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+    options.AddPolicy("Open", builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod().WithExposedHeaders("Location"));
 });
 builder.Services.AddDbContext<ApplicationDBContext>(db => 
 db.UseSqlServer(builder.Configuration.GetConnectionString("Database")));
