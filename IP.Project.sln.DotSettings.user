@@ -1,6 +1,10 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=9ebbe2ff_002Dd5a4_002D413f_002D9ff0_002Dc46b398e3457/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="GetAllSambasTests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;TestAncestor&gt;
-    &lt;TestId&gt;xUnit::1B1B2D28-2913-459B-948F-5248C2229FB6::net8.0::IP.Project.Tests.Features.Samba.GetAllSambasTests&lt;/TestId&gt;
-  &lt;/TestAncestor&gt;
+	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer /&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=eccccedf_002De255_002D4195_002Dafac_002D0347011131c1/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Handle_GivenValidId_UpdatesVpn" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;xUnit::1B1B2D28-2913-459B-948F-5248C2229FB6::net8.0::IP.Project.Tests.Features.Vpn.UpdateVpnTests.Handle_GivenValidId_UpdatesVpn&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::1B1B2D28-2913-459B-948F-5248C2229FB6::net8.0::IP.Project.Tests.Features.Vpn.UpdateVpnTests.Handle_GivenInvalidId_ReturnsFailure&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::1B1B2D28-2913-459B-948F-5248C2229FB6::net8.0::IP.Project.Tests.Features.Vpn.CreateVpnTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::D3E46733-75FD-46C7-8B29-1A4D376BC7C8::net8.0::IP.Project.IntegrationTests.Controllers.VpnCreateControllerTests&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
