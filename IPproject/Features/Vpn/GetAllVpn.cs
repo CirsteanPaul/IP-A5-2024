@@ -15,7 +15,7 @@ namespace IP.Project.Features.Vpn
         {
         }
 
-        internal sealed class Handler : IRequestHandler<Query, Result<List<VpnResponse>>>
+        public class Handler : IRequestHandler<Query, Result<List<VpnResponse>>>
         {
             private readonly ApplicationDBContext context;
 
