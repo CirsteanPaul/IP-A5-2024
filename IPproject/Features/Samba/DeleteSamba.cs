@@ -37,12 +37,12 @@ namespace IP.Project.Features.Samba
                 return Result.Success();
             }
         }
-
-        public class DeleteSambaEndpoint : ICarterModule
+    }
+    public class DeleteSambaEndpoint : ICarterModule
+    {
+        public void AddRoutes(IEndpointRouteBuilder app)
         {
-            public void AddRoutes(IEndpointRouteBuilder app)
-            {
-                app.MapDelete($"{Global.version}sambas/{{id}}", async (Guid id, ISender sender) =>
+            app.MapDelete($"{Global.version}sambas/{{id}}", async (Guid id, ISender sender) =>
                 {
                     var command = new DeleteSamba.Command(id);
                     var result = await sender.Send(command);
@@ -56,7 +56,6 @@ namespace IP.Project.Features.Samba
                                  "If the request is successful, it will return status code 204 (No content).")
                 .Produces(StatusCodes.Status204NoContent)
                 .WithOpenApi();
-            }
         }
     }
 }
