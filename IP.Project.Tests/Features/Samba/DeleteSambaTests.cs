@@ -32,4 +32,28 @@ public class DeleteSambaTests : BaseTest<SambaAccount>
         mock.SambaAccounts.Received(1).Remove(Arg.Any<SambaAccount>());
         await mock.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
     }
+
+    [Fact]
+    public async Task DeleteSambaHandler_NotExistingId_ReturnsFailure()
+    {
+        // Arrange
+        var acc = new List<SambaAccount>
+        {
+            new() { Id = Guid.NewGuid(), Description = "Samba Account 2", IPv4Address = "192.168.1.2" }
+        };
+        var badId = Guid.Parse("a1491b26-9390-479c-b6c4-0ddddd8f0152");
+        
+        var mock = Setup(acc);
+
+        var sut = new DeleteSamba.Handler(mock);
+        var deleteCommand = new DeleteSamba.Command(badId);
+        
+        // Act
+        var sambaAccount = await sut.Handle(deleteCommand, default);
+        
+        // Assert
+        sambaAccount.IsFailure.Should().BeTrue();
+        mock.SambaAccounts.Received(0).Remove(Arg.Any<SambaAccount>());
+        await mock.Received(0).SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
 }
