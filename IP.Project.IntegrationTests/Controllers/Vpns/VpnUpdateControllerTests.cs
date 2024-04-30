@@ -1,9 +1,11 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
+using System.Text;
 using FluentAssertions;
 using IP.Project.Contracts;
 using IP.Project.IntegrationTests.Base.TestingBaseWebApplicationFactory;
 using IP.Project.Shared;
+using Newtonsoft.Json;
 
 
 namespace IP.Project.IntegrationTests.Controllers.Vpns
@@ -24,21 +26,19 @@ namespace IP.Project.IntegrationTests.Controllers.Vpns
         {
             // Arrange
             var existingVpnId = Guid.Parse("2330d4f5-1c5b-42cb-a34b-d9275e99b6bc");
-            var updateRequest = new CreateVpnRequest
+            var updateRequest = new UpdateVpnRequest
             {
-                Description = "Updated VPN Description",
-                IPv4Address = "192.168.100.1"
+                NewDescription = "Updated VPN Description",
+                NewIpAddress = "192.168.100.1"
             };
 
+            var content = new StringContent(JsonConvert.SerializeObject(updateRequest), Encoding.UTF8, "application/json");
+
             // Act
-            var response = await factory.Client.PutAsJsonAsync($"{RequestUri}{existingVpnId}", updateRequest);
+            var response = await factory.Client.PutAsync(RequestUri + existingVpnId, content);
 
             // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var updatedVpn = await response.Content.ReadFromJsonAsync<VpnResponse>();
-            updatedVpn.Should().NotBeNull();
-            updatedVpn.Description.Should().Be(updateRequest.Description);
-            updatedVpn.IPv4Address.Should().Be(updateRequest.IPv4Address);
+            response.StatusCode.Should().Be(HttpStatusCode.NoContent);
         }
 
         [Fact]
@@ -46,14 +46,16 @@ namespace IP.Project.IntegrationTests.Controllers.Vpns
         {
             // Arrange
             var existingVpnId = Guid.Parse("2330d4f5-1c5b-42cb-a34b-d9275e99b6bc");
-            var invalidUpdateRequest = new CreateVpnRequest
+            var invalidUpdateRequest = new UpdateVpnRequest
             {
-                Description = "Updated VPN Description",
-                IPv4Address = "999.999.999.999"  
+                NewDescription = "Updated VPN Description",
+                NewIpAddress = "999.999.999.999"  
             };
 
+            var content = new StringContent(JsonConvert.SerializeObject(invalidUpdateRequest), Encoding.UTF8, "application/json");
+
             // Act
-            var response = await factory.Client.PutAsJsonAsync($"{RequestUri}{existingVpnId}", invalidUpdateRequest);
+            var response = await factory.Client.PutAsync(RequestUri + existingVpnId, content);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -64,14 +66,16 @@ namespace IP.Project.IntegrationTests.Controllers.Vpns
         {
             // Arrange
             var nonExistingVpnId = Guid.Parse("deadbeef-1c5b-42cb-a34b-d9275e99b6bc");
-            var updateRequest = new CreateVpnRequest
+            var updateRequest = new UpdateVpnRequest
             {
-                Description = "Non-existent VPN Description",
-                IPv4Address = "192.168.100.2"
+                NewDescription = "Non-existent VPN Description",
+                NewIpAddress = "192.168.100.2"
             };
 
+            var content = new StringContent(JsonConvert.SerializeObject(updateRequest), Encoding.UTF8, "application/json");
+
             // Act
-            var response = await factory.Client.PutAsJsonAsync($"{RequestUri}{nonExistingVpnId}", updateRequest);
+            var response = await factory.Client.PutAsync(RequestUri + nonExistingVpnId, content);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
