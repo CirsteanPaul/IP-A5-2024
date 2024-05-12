@@ -1,4 +1,4 @@
-﻿namespace IP.Project.Features.LDAP
+﻿namespace IP.Project.LDAP
 {
     public class ADUser
     {

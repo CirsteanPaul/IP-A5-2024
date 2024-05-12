@@ -1,6 +1,6 @@
 ﻿using System.DirectoryServices.Protocols;
 
-namespace IP.Project.Features.LDAP
+namespace IP.Project.LDAP
 {
     public static class General
     {

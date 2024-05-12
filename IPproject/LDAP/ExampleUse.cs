@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace IP.Project.Features.LDAP
+namespace IP.Project.LDAP
 {
 
     [Authorize(Roles = "managers")]

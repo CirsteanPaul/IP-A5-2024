@@ -5,7 +5,7 @@ using System.DirectoryServices.Protocols;
 using System.Security.Claims;
 using System.Text;
 
-namespace IP.Project.Features.LDAP
+namespace IP.Project.LDAP
 {
     public interface ISignInManager
     {
@@ -17,7 +17,7 @@ namespace IP.Project.Features.LDAP
     public class SignInManager(
         IOptions<ConfigurationAD> configurationAD,
         IHttpContextAccessor httpContextAccessor
-            ) : ISignInManager
+        ) : ISignInManager
     {
         private readonly ConfigurationAD _configurationAD = configurationAD.Value;
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
@@ -176,7 +176,7 @@ namespace IP.Project.Features.LDAP
             {
                 foreach (var attr in attributesToQuery)
                 {
-                    if (searchEntry.Attributes[attr][0].GetType() != typeof(System.Byte[]))
+                    if (searchEntry.Attributes[attr][0].GetType() != typeof(byte[]))
                     {
                         var attrValue = searchEntry.Attributes[attr][0].ToString();
                         Console.WriteLine(attrValue);

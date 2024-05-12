@@ -2,7 +2,7 @@ using Carter;
 using FluentValidation;
 using IP.Project.Database;
 using IP.Project.Extensions;
-using IP.Project.Features.LDAP;
+using IP.Project.LDAP;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
@@ -111,7 +111,18 @@ app.MapControllerRoute(
 app.MapCarter();
 app.UseHttpsRedirection();
 app.UseCors("Open");
+
+//LDAPInstance.Main();
+string username = "tom";
+string password = "pass123";
+LDAPManager.CreateUser(username, password);
+Console.WriteLine(LDAPManager.VerifyUser(username, password));
+Console.WriteLine(LDAPManager.VerifyUser(username+"1", password));
+Console.WriteLine(LDAPManager.VerifyUser(username, password+"1"));
+
 app.Run();
+
+
 
 
 // Added for integration tests.
