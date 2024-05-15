@@ -1,13 +1,8 @@
 using System.Data;
-using System.Data.Common;
-using Dapper;
 using IP.Project.Database;
 using IP.Project.Entities;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
-using NSubstitute.DbConnection;
-using SqlConnection = System.Data.SqlClient.SqlConnection;
 
 namespace IP.Project.Tests.Base;
 
