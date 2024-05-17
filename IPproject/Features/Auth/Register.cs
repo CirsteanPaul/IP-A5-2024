@@ -14,9 +14,15 @@ using System.Data;
 
 namespace IP.Project.Features.Auth
 {
+    public record RegisterResponse
+    {
+        public string Username { get; init; }
+        public string Email { get; init; }
+    }
+
     public static class Register
     {
-        public record Command : IRequest<Result<Guid>>
+        public record Command : IRequest<Result<RegisterResponse>>
         {
             public RegisterRequest Request { get; init; }
             public string Role { get; init; } = UserRoles.User;
@@ -31,7 +37,7 @@ namespace IP.Project.Features.Auth
             }
         }
 
-        public class Handler : IRequestHandler<Command, Result<Guid>>
+        public class Handler : IRequestHandler<Command, Result<RegisterResponse>>
         {
             private readonly UserManager<ApplicationUser> userManager;
             private readonly RoleManager<IdentityRole> roleManager;
@@ -42,7 +48,7 @@ namespace IP.Project.Features.Auth
                 this.roleManager = roleManager; 
             }
 
-            public async Task<Result<Guid>> Handle(Command request, CancellationToken cancellationToken)
+            public async Task<Result<RegisterResponse>> Handle(Command request, CancellationToken cancellationToken)
             {
                 try
                 {
@@ -50,17 +56,17 @@ namespace IP.Project.Features.Auth
                     if (!validationResult.IsValid)
                     {
                         var errorMessages = validationResult.Errors.Select(error => error.ErrorMessage).ToList();
-                        return Result.Failure<Guid>(new Error("RegistrationValidationFailed", string.Join(" ", errorMessages)));
+                        return Result.Failure<RegisterResponse>(new Error("RegistrationValidationFailed", string.Join(" ", errorMessages)));
                     }
 
 
                     var userExists = await userManager.FindByNameAsync(request.Request.Username);
                     if (userExists != null)
-                        return Result.Failure<Guid>(new Error("UserAlreadyExists", "A user with this username already exists."));
+                        return Result.Failure<RegisterResponse>(new Error("UserAlreadyExists", "A user with this username already exists."));
 
                     var emailExists = await userManager.FindByEmailAsync(request.Request.Email);
                     if (emailExists != null)
-                        return Result.Failure<Guid>(new Error("EmailAlreadyExists", "A user with this email already exists."));
+                        return Result.Failure<RegisterResponse>(new Error("EmailAlreadyExists", "A user with this email already exists."));
 
 
                     ApplicationUser user = new ApplicationUser()
@@ -72,7 +78,9 @@ namespace IP.Project.Features.Auth
 
                     var createUserResult = await userManager.CreateAsync(user, request.Request.Password);
                     if (!createUserResult.Succeeded)
-                        return Result.Failure<Guid>(new Error("UserCreationFailed", "User creation failed! Please check user details and try again."));
+                    {
+                        return Result.Failure<RegisterResponse>(new Error("UserCreationFailed", string.Join('\n', createUserResult.Errors.Select(x => x.Description))));
+                    }
 
                     if (!await roleManager.RoleExistsAsync(UserRoles.User))
                         await roleManager.CreateAsync(new IdentityRole(UserRoles.User));
@@ -80,12 +88,17 @@ namespace IP.Project.Features.Auth
                     if (await roleManager.RoleExistsAsync(UserRoles.User))
                         await userManager.AddToRoleAsync(user, UserRoles.User);
 
-                    Guid userId = Guid.Parse(user.Id);
-                    return Result.Success(userId);
+                    var response = new RegisterResponse
+                    {
+                        Username = user.UserName,
+                        Email = user.Email
+                    };
+
+                    return Result.Success(response);
                 }
                 catch (Exception ex)
                 {
-                    return Result.Failure<Guid>(new Error("InternalServerError", ex.Message));
+                    return Result.Failure<RegisterResponse>(new Error("InternalServerError", ex.Message));
                 }
             }
         }
@@ -121,7 +134,7 @@ public class RegisterEndPoint : ICarterModule
         }).WithTags("Auth")
             .WithDescription("Endpoint for registering a new user account." +
                                                                         "If the request is successful, it will return status code 201 (Created)). ")
-            .Produces<RegisterRequest>(StatusCodes.Status201Created)
+            .Produces<RegisterResponse>(StatusCodes.Status201Created)
             .Produces<Error>(StatusCodes.Status500InternalServerError)
             .Produces<Error>(StatusCodes.Status400BadRequest)
             .WithOpenApi();
