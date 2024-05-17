@@ -1,4 +1,5 @@
 using System.Text;
+using IP.Project.Database;
 using IP.Project.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -12,13 +13,13 @@ public static class IdentityExtensions
 {
     public static void AddIdentity(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddDbContext<IdentityDbContext>(
+        services.AddDbContext<IdentityDBContext>(
             options =>
                 options.UseSqlServer(
                     configuration.GetConnectionString("Database"), b => b.MigrationsAssembly("IPproject")));
         // For Identity  
         services.AddIdentity<ApplicationUser, IdentityRole>()
-            .AddEntityFrameworkStores<IdentityDbContext>()
+            .AddEntityFrameworkStores<IdentityDBContext>()
             .AddDefaultTokenProviders();
         // Adding Authentication  
         services.AddAuthentication(options =>
