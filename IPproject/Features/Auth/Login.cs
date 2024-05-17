@@ -30,13 +30,11 @@ namespace IP.Project.Features.Auth
         public class Handler : IRequestHandler<Command, Result<LoginResponse>>
         {
             private readonly UserManager<ApplicationUser> userManager;
-            private readonly SignInManager<ApplicationUser> signInManager;
             private readonly IConfiguration configuration;
 
-            public Handler(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration configuration)
+            public Handler(UserManager<ApplicationUser> userManager, IConfiguration configuration)
             {
                 this.userManager = userManager;
-                this.signInManager = signInManager;
                 this.configuration = configuration;
             }
 
