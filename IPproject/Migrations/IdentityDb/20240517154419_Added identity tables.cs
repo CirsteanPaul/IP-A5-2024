@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace IP.Project.Migrations.IdentityDb
+namespace IP.Project.Migrations.IdentityDB
 {
     /// <inheritdoc />
     public partial class Addedidentitytables : Migration
