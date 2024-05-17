@@ -129,7 +129,7 @@ public class RegisterEndPoint : ICarterModule
                 }
             }
 
-            return Results.Created($"{Global.version}auth/register/{result.Value}", request);
+            return Results.Created($"{Global.version}auth/register/{result.Value}", result.Value);
 
         }).WithTags("Auth")
             .WithDescription("Endpoint for registering a new user account." +
