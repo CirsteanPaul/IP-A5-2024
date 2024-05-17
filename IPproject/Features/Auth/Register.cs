@@ -12,8 +12,6 @@ using FluentValidation;
 using System;
 using System.Data;
 
-
-
 namespace IP.Project.Features.Auth
 {
     public static class Register
@@ -68,6 +66,7 @@ namespace IP.Project.Features.Auth
                     ApplicationUser user = new ApplicationUser()
                     {
                         Email = request.Request.Email,
+                        SecurityStamp = Guid.NewGuid().ToString(),
                         UserName = request.Request.Username
                     };
 
@@ -86,7 +85,7 @@ namespace IP.Project.Features.Auth
                 }
                 catch (Exception ex)
                 {
-                    return Result.Failure<Guid>(new Error("RegistrationError", ex.Message));
+                    return Result.Failure<Guid>(new Error("InternalServerError", ex.Message));
                 }
             }
         }
@@ -97,7 +96,6 @@ public class RegisterEndPoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-
         app.MapPost($"{Global.version}auth/register", async ([FromBody] RegisterRequest request, ISender sender) =>
         {
             var command = new Register.Command
@@ -108,18 +106,24 @@ public class RegisterEndPoint : ICarterModule
 
             if (result.IsFailure)
             {
-                return Results.BadRequest(result.Error);
+                if (result.Error.Code == "InternalServerError")
+                {
+                    return Results.StatusCode(500);
+                }
+                else
+                {
+                    return Results.BadRequest(result.Error);
+                }
             }
 
             return Results.Created($"{Global.version}auth/register/{result.Value}", request);
-
 
         }).WithTags("Auth")
             .WithDescription("Endpoint for registering a new user account." +
                                                                         "If the request is successful, it will return status code 201 (Created)). ")
             .Produces<RegisterRequest>(StatusCodes.Status201Created)
+            .Produces<Error>(StatusCodes.Status500InternalServerError)
             .Produces<Error>(StatusCodes.Status400BadRequest)
             .WithOpenApi();
-
     }
 }
