@@ -1,77 +1,87 @@
-﻿using Xunit;
-using Moq;
-using IP.Project.Features.Samba;
-using IP.Project.Contracts;
-using IP.Project.Shared;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Threading;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Threading.Tasks;
 using Dapper;
-using System.Data;
-using Moq.Dapper;
+using FluentAssertions;
+using IP.Project.Database;
 using IP.Project.Entities;
+using IP.Project.Features.Samba;
+using IP.Project.Shared;
+using Moq;
+using Moq.Dapper;
+using NSubstitute;
+using Xunit;
 
-public class GetSambaTests
+namespace IP.Project.Tests.Features.Samba
 {
-    private readonly Mock<IDbConnection> _mockDbConnection;
-    private readonly GetSamba.Handler _handler;
-
-    public GetSambaTests()
+    public class GetSambaTests
     {
-        _mockDbConnection = new Mock<IDbConnection>();
-        var mockConfiguration = new Mock<IConfiguration>();
-        mockConfiguration.Setup(config => config.GetConnectionString("DefaultConnection"))
-            .Returns("YourConnectionString");
+        private readonly Mock<ISqlConnectionFactory> _mockSqlConnectionFactory;
+        private readonly Mock<IDbConnection> _mockDbConnection;
+        private readonly GetSamba.Handler _handler;
 
-        _handler = new GetSamba.Handler(mockConfiguration.Object)
+        public GetSambaTests()
         {
-            Connection = _mockDbConnection.Object
-        };
-    }
+            _mockSqlConnectionFactory = new Mock<ISqlConnectionFactory>();
+            _mockDbConnection = new Mock<IDbConnection>();
 
-    [Fact]
-    public async Task Handle_ReturnsSambaResponse_WhenSambaExists()
-    {
-        // Arrange
-        var query = new GetSamba.Query { Id = Guid.NewGuid() };
-        var expectedSamba = new SambaAccount
+            _mockSqlConnectionFactory.Setup(f => f.CreateConnection()).Returns(_mockDbConnection.Object);
+
+            _handler = new GetSamba.Handler(_mockSqlConnectionFactory.Object);
+        }
+
+        [Fact]
+        public async Task GetSambaHandler_ValidId_ReturnsSuccess()
         {
-            Id = query.Id,
-            Description = "Test Description",
-            IPv4Address = "127.0.0.1"
-        };
+            // Arrange
+            var accountId = Guid.Parse("4c727215-0522-4384-8481-4a2d1e094fb7");
+            var sambaAccount = new SambaAccount { Id = accountId, Description = "Test Account", IPv4Address = "192.168.1.1" };
 
-        // Setup Dapper mock
-        _mockDbConnection.SetupDapperAsync(c => c.QuerySingleOrDefaultAsync<SambaAccount>(It.IsAny<string>(), null, null, null, null))
-            .ReturnsAsync(expectedSamba);
+            // Configurarea mock-ului pentru Dapper
+            _mockDbConnection.SetupDapperAsync(c => c.QuerySingleOrDefaultAsync<SambaAccount>(
+                It.IsAny<string>(),
+                It.IsAny<object>(),
+                null,
+                null,
+                null)).ReturnsAsync(sambaAccount);
 
-        // Act
-        var result = await _handler.Handle(query, CancellationToken.None);
+            var query = new GetSamba.Query { Id = accountId };
 
-        // Assert
-        Assert.False(result.IsFailure);
-        Assert.NotNull(result.Value);
-        Assert.Equal(expectedSamba.Id, result.Value.Id);
-        Assert.Equal(expectedSamba.Description, result.Value.Description);
-        Assert.Equal(expectedSamba.IPv4Address, result.Value.IPv4Address);
-    }
+            // Act
+            var result = await _handler.Handle(query, default);
 
-    [Fact]
-    public async Task Handle_ReturnsFailure_WhenSambaDoesNotExist()
-    {
-        // Arrange
-        var query = new GetSamba.Query { Id = Guid.NewGuid() };
+            // Assert
+            result.IsSuccess.Should().BeTrue();
+            result.Value.Should().NotBeNull();
+            result.Value.Id.Should().Be(accountId);
+            result.Value.Description.Should().Be("Test Account");
+            result.Value.IPv4Address.Should().Be("192.168.1.1");
+        }
 
-        // Setup Dapper mock to return null
-        _mockDbConnection.SetupDapperAsync(c => c.QuerySingleOrDefaultAsync<SambaAccount>(It.IsAny<string>(), null, null, null, null))
-            .ReturnsAsync((SambaAccount)null);
+        [Fact]
+        public async Task GetSambaHandler_InvalidId_ReturnsFailure()
+        {
+            // Arrange
+            var invalidId = Guid.Parse("b0af913e-4b78-408d-98b3-8103fb3b1870");
 
-        // Act
-        var result = await _handler.Handle(query, CancellationToken.None);
+            // Configurarea mock-ului pentru Dapper
+            _mockDbConnection.SetupDapperAsync(c => c.QuerySingleOrDefaultAsync<SambaAccount>(
+                It.IsAny<string>(),
+                It.IsAny<object>(),
+                null,
+                null,
+                null)).ReturnsAsync((SambaAccount)null);
 
-        // Assert
-        Assert.True(result.IsFailure);
-        Assert.Null(result.Value);
+            var query = new GetSamba.Query { Id = invalidId };
+
+            // Act
+            var result = await _handler.Handle(query, default);
+
+            // Assert
+            result.IsFailure.Should().BeTrue();
+            result.Error.Code.Should().Be("GetSamba.Null");
+            result.Error.Message.Should().Be("Samba not found");
+        }
     }
 }
