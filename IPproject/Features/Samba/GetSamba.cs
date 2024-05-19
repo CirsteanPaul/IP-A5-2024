@@ -1,13 +1,13 @@
 ﻿using Carter;
 using IP.Project.Contracts;
-using IP.Project.Shared;
+using IP.Project.Shared; 
 using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient; 
+using Microsoft.Data.SqlClient;
 using Dapper;
 using IP.Project.Entities;
-using IP.Project.Features.Samba; 
+using IP.Project.Database;
 
 namespace IP.Project.Features.Samba
 {
@@ -20,16 +20,16 @@ namespace IP.Project.Features.Samba
 
         public sealed class Handler : IRequestHandler<Query, Result<SambaResponse>>
         {
-            private readonly IConfiguration _configuration;
+            private readonly ISqlConnectionFactory _factory;
 
-            public Handler(IConfiguration configuration)
+            public Handler(ISqlConnectionFactory factory)
             {
-                _configuration = configuration;
+                _factory = factory;
             }
 
             public async Task<Result<SambaResponse>> Handle(Query request, CancellationToken cancellationToken)
             {
-                using (var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+                using (var connection = _factory.CreateConnection())
                 {
                     var query = "SELECT * FROM SambaAccounts WHERE Id = @Id";
                     var samba = await connection.QuerySingleOrDefaultAsync<SambaAccount>(query, new { Id = request.Id });
@@ -46,28 +46,28 @@ namespace IP.Project.Features.Samba
             }
         }
     }
-}
 
-public class GetSambaEndpoint : ICarterModule
-{
-    public void AddRoutes(IEndpointRouteBuilder app)
+    public class GetSambaEndpoint : ICarterModule
     {
-        app.MapGet($"{Global.version}sambas/{{id:guid}}", async ([FromRoute] Guid id, ISender sender) =>
+        public void AddRoutes(IEndpointRouteBuilder app)
         {
-            var query = new GetSamba.Query
+            app.MapGet($"{Global.version}sambas/{{id:guid}}", async ([FromRoute] Guid id, ISender sender) =>
             {
-                Id = id
-            };
-            var result = await sender.Send(query);
-            if (result.IsFailure)
-            {
-                return Results.NotFound(result.Error);
-            }
-            return Results.Ok(result.Value);
-        }).WithTags("Samba")
-        .WithDescription("Endpoint for retrieving details of a specific Samba account.")
-        .Produces<SambaResponse>(StatusCodes.Status200OK)
-        .Produces<Error>(StatusCodes.Status404NotFound)
-        .WithOpenApi();
+                var query = new GetSamba.Query
+                {
+                    Id = id
+                };
+                var result = await sender.Send(query);
+                if (result.IsFailure)
+                {
+                    return Results.NotFound(result.Error);
+                }
+                return Results.Ok(result.Value);
+            }).WithTags("Samba")
+            .WithDescription("Endpoint for retrieving details of a specific Samba account.")
+            .Produces<SambaResponse>(StatusCodes.Status200OK)
+            .Produces<Error>(StatusCodes.Status404NotFound)
+            .WithOpenApi();
+        }
     }
 }
