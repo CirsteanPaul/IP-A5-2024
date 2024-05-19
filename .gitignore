@@ -6,3 +6,5 @@ global.json
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
+/IP.Project.Tests/IP.Project.Tests.csproj
+/IPproject/appsettings.json
