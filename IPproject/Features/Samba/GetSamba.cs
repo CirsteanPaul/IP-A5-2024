@@ -1,12 +1,13 @@
 ﻿using Carter;
 using IP.Project.Contracts;
-using IP.Project.Database;
-using IP.Project.Features.Samba;
 using IP.Project.Shared;
 using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient; 
+using Dapper;
+using IP.Project.Entities;
+using IP.Project.Features.Samba; 
 
 namespace IP.Project.Features.Samba
 {
@@ -19,26 +20,29 @@ namespace IP.Project.Features.Samba
 
         public sealed class Handler : IRequestHandler<Query, Result<SambaResponse>>
         {
-            private readonly ApplicationDBContext context;
+            private readonly IConfiguration _configuration;
 
-            public Handler(ApplicationDBContext context)
+            public Handler(IConfiguration configuration)
             {
-                this.context = context;
+                _configuration = configuration;
             }
 
             public async Task<Result<SambaResponse>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var samba = await context.SambaAccounts.AsNoTracking().FirstOrDefaultAsync(s => s.Id == request.Id, cancellationToken);
-
-                if (samba == null)
+                using (var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
                 {
-                    return Result.Failure<SambaResponse>(
-                        new Error("GetSamba.Null", "Samba not found"));
+                    var query = "SELECT * FROM SambaAccounts WHERE Id = @Id";
+                    var samba = await connection.QuerySingleOrDefaultAsync<SambaAccount>(query, new { Id = request.Id });
+
+                    if (samba == null)
+                    {
+                        return Result.Failure<SambaResponse>(new Error("GetSamba.Null", "Samba not found"));
+                    }
+
+                    var sambaResponse = samba.Adapt<SambaResponse>();
+
+                    return sambaResponse;
                 }
-
-                var sambaResponse = samba.Adapt<SambaResponse>();
-
-                return sambaResponse;
             }
         }
     }
@@ -61,8 +65,7 @@ public class GetSambaEndpoint : ICarterModule
             }
             return Results.Ok(result.Value);
         }).WithTags("Samba")
-        .WithDescription("Endpoint for retrieving details of a specific Samba account. " +
-                         "If the request is successful, returns details of the specified Samba account. ")
+        .WithDescription("Endpoint for retrieving details of a specific Samba account.")
         .Produces<SambaResponse>(StatusCodes.Status200OK)
         .Produces<Error>(StatusCodes.Status404NotFound)
         .WithOpenApi();
