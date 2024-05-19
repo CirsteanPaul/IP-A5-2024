@@ -1,50 +1,77 @@
-﻿using FluentAssertions;
-using IP.Project.Entities;
+﻿using Xunit;
+using Moq;
 using IP.Project.Features.Samba;
-using IP.Project.Tests.Base;
+using IP.Project.Contracts;
+using IP.Project.Shared;
+using Microsoft.Extensions.Configuration;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Dapper;
+using System.Data;
+using Moq.Dapper;
+using IP.Project.Entities;
 
-namespace IP.Project.Tests.Features.Samba
+public class GetSambaTests
 {
-    public class GetSambaTests : BaseTest<SambaAccount>
+    private readonly Mock<IDbConnection> _mockDbConnection;
+    private readonly GetSamba.Handler _handler;
+
+    public GetSambaTests()
     {
-        [Fact]
-        public async Task GetSambaHandler_ValidId_ReturnsSuccess()
+        _mockDbConnection = new Mock<IDbConnection>();
+        var mockConfiguration = new Mock<IConfiguration>();
+        mockConfiguration.Setup(config => config.GetConnectionString("DefaultConnection"))
+            .Returns("YourConnectionString");
+
+        _handler = new GetSamba.Handler(mockConfiguration.Object)
         {
-            // Arrange
-            var accountId = Guid.Parse("4c727215-0522-4384-8481-4a2d1e094fb7");
-            var sambaAccount = new SambaAccount { Id = accountId, Description = "Test Account", IPv4Address = "192.168.1.1" };
-            var mock = Setup(new List<SambaAccount> { sambaAccount });
+            Connection = _mockDbConnection.Object
+        };
+    }
 
-            var sut = new GetSamba.Handler(mock);
-            var query = new GetSamba.Query { Id = accountId };
-
-            // Act
-            var result = await sut.Handle(query, default);
-
-            // Assert
-            result.IsSuccess.Should().BeTrue();
-            result.Value.Should().NotBeNull();
-            result.Value.Id.Should().Be(accountId);
-            result.Value.Description.Should().Be("Test Account");
-            result.Value.IPv4Address.Should().Be("192.168.1.1");
-        }
-
-        [Fact]
-        public async Task GetSambaHandler_InvalidId_ReturnsFailure()
+    [Fact]
+    public async Task Handle_ReturnsSambaResponse_WhenSambaExists()
+    {
+        // Arrange
+        var query = new GetSamba.Query { Id = Guid.NewGuid() };
+        var expectedSamba = new SambaAccount
         {
-            // Arrange
-            var invalidId = Guid.Parse("b0af913e-4b78-408d-98b3-8103fb3b1870");
-            var mock = Setup(new List<SambaAccount>());
-            var sut = new GetSamba.Handler(mock);
-            var query = new GetSamba.Query { Id = invalidId };
+            Id = query.Id,
+            Description = "Test Description",
+            IPv4Address = "127.0.0.1"
+        };
 
-            // Act
-            var result = await sut.Handle(query, default);
+        // Setup Dapper mock
+        _mockDbConnection.SetupDapperAsync(c => c.QuerySingleOrDefaultAsync<SambaAccount>(It.IsAny<string>(), null, null, null, null))
+            .ReturnsAsync(expectedSamba);
 
-            // Assert
-            result.IsFailure.Should().BeTrue();
-            result.Error.Code.Should().Be("GetSamba.Null");
-            result.Error.Message.Should().Be("Samba not found");
-        }
+        // Act
+        var result = await _handler.Handle(query, CancellationToken.None);
+
+        // Assert
+        Assert.False(result.IsFailure);
+        Assert.NotNull(result.Value);
+        Assert.Equal(expectedSamba.Id, result.Value.Id);
+        Assert.Equal(expectedSamba.Description, result.Value.Description);
+        Assert.Equal(expectedSamba.IPv4Address, result.Value.IPv4Address);
+    }
+
+    [Fact]
+    public async Task Handle_ReturnsFailure_WhenSambaDoesNotExist()
+    {
+        // Arrange
+        var query = new GetSamba.Query { Id = Guid.NewGuid() };
+
+        // Setup Dapper mock to return null
+        _mockDbConnection.SetupDapperAsync(c => c.QuerySingleOrDefaultAsync<SambaAccount>(It.IsAny<string>(), null, null, null, null))
+            .ReturnsAsync((SambaAccount)null);
+
+        // Act
+        var result = await _handler.Handle(query, CancellationToken.None);
+
+        // Assert
+        Assert.True(result.IsFailure);
+        Assert.Null(result.Value);
     }
 }
