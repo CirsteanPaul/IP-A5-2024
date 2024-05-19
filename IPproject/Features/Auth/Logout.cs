@@ -24,7 +24,15 @@ namespace IP.Project.Features.Auth
 
             public async Task<Result> Handle(Command request, CancellationToken cancellationToken)
             {
-                await _signInManager.SignOutAsync();
+                try
+                {
+                    await _signInManager.SignOutAsync();
+                }
+                catch (Exception e)
+                {
+                    return Result.Failure(new Error("InternalServerError", e.Message));
+                }
+
                 return Result.Success();
             }
         }
@@ -34,7 +42,7 @@ namespace IP.Project.Features.Auth
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            _ = app.MapPost("api/v1/auth/logout", async (ISender sender) =>
+            _ = app.MapPost($"{Global.version}auth/logout", async (ISender sender) =>
             {
                 var command = new Logout.Command();
                 var result = await sender.Send(command);
