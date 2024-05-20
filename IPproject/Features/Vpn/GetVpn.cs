@@ -1,11 +1,19 @@
 using Carter;
+using Dapper;
 using IP.Project.Contracts;
-using IP.Project.Database;
-using IP.Project.Features.Vpn;
+using IP.Project.Entities;
 using IP.Project.Shared;
-using Mapster;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
+using System;
+using System.Data;
+using Microsoft.AspNetCore.Mvc;
+using FluentValidation;
+using Mapster;
+
 namespace IP.Project.Features.Vpn
 {
     public class GetVpn
@@ -15,28 +23,41 @@ namespace IP.Project.Features.Vpn
             public Guid Id { get; set; }
         }
 
+        public class Validator : AbstractValidator<Query>
+        {
+            public Validator()
+            {
+                RuleFor(x => x.Id).NotEmpty().WithMessage("The VPN ID must not be empty.");
+            }
+        }
+
         public sealed class Handler : IRequestHandler<Query, Result<VpnResponse>>
         {
-            private readonly ApplicationDBContext context;
+            private readonly IConfiguration _configuration;
 
-            public Handler(ApplicationDBContext context)
+            public Handler(IConfiguration configuration)
             {
-                this.context = context;
+                _configuration = configuration;
             }
 
             public async Task<Result<VpnResponse>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var vpn = await context.Vpns.AsNoTracking().FirstOrDefaultAsync(v => v.Id == request.Id, cancellationToken);
-
-                if (vpn == null)
+                using (var connection = new SqlConnection(_configuration.GetConnectionString("Database")))
                 {
-                    return Result.Failure<VpnResponse>(
-                        new Error("GetVpn.Null", "Vpn not found"));
+                    await connection.OpenAsync(cancellationToken);
+
+                    var query = "SELECT * FROM dbo.Vpns WHERE Id = @Id";
+                    var vpnAccount = await connection.QuerySingleOrDefaultAsync<VpnAccount>(query, new { request.Id });
+
+                    if (vpnAccount == null)
+                    {
+                        return Result.Failure<VpnResponse>(new Error("GetVpn.NotFound", "VPN account not found"));
+                    }
+
+                    var response = vpnAccount.Adapt<VpnResponse>();
+
+                    return Result.Success(response);
                 }
-
-                var vpnResponse = vpn.Adapt<VpnResponse>();
-
-                return vpnResponse;
             }
         }
     }
@@ -45,18 +66,19 @@ namespace IP.Project.Features.Vpn
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapGet("api/v1/vpns/{id}", async (Guid id, ISender sender) =>
+            app.MapGet($"{Global.version}vpns/{{id:guid}}", async ([FromRoute] Guid id, ISender sender, CancellationToken cancellationToken) =>
             {
-                var query = new GetVpn.Query
-                {
-                    Id = id
-                };
-                var result = await sender.Send(query);
-                return result.IsSuccess ?
-                    Results.Ok(result.Value) :
-                    Results.NotFound(result.Error);
+                var query = new GetVpn.Query { Id = id };
+                var result = await sender.Send(query, cancellationToken);
+                return result.IsSuccess
+                    ? Results.Ok(result.Value)
+                    : Results.NotFound(new { Message = result.Error.Message });
             })
-            .WithTags("Vpn");
+            .WithTags("Vpn")
+            .Produces<VpnResponse>(200)
+            .Produces<Error>(404)
+            .WithDescription("Retrieves details of a specific VPN account.")
+            .WithOpenApi();
         }
     }
 }
