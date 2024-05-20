@@ -39,6 +39,7 @@ namespace IP.Project.Features.Samba
                     }
 
                     var sambaResponse = samba.Adapt<SambaResponse>();
+                    
                     return sambaResponse;
                 }
             }
