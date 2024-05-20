@@ -4,7 +4,6 @@ using IP.Project.Shared;
 using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
 using Dapper;
 using IP.Project.Entities;
 using IP.Project.Database;
@@ -40,7 +39,6 @@ namespace IP.Project.Features.Samba
                     }
 
                     var sambaResponse = samba.Adapt<SambaResponse>();
-
                     return sambaResponse;
                 }
             }
