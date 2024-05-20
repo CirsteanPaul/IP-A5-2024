@@ -1,13 +1,12 @@
 ﻿using Carter;
 using IP.Project.Contracts;
-using IP.Project.Shared;
+using IP.Project.Shared; 
 using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
 using Dapper;
 using IP.Project.Entities;
-using System.Data;
+using IP.Project.Database;
 
 namespace IP.Project.Features.Samba
 {
@@ -20,28 +19,29 @@ namespace IP.Project.Features.Samba
 
         public sealed class Handler : IRequestHandler<Query, Result<SambaResponse>>
         {
-            private readonly IConfiguration _configuration;
-            public IDbConnection Connection { get; set; }
+            private readonly ISqlConnectionFactory _factory;
 
-            public Handler(IConfiguration configuration)
+            public Handler(ISqlConnectionFactory factory)
             {
-                _configuration = configuration;
-                Connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+                _factory = factory;
             }
 
             public async Task<Result<SambaResponse>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var query = "SELECT * FROM SambaAccounts WHERE Id = @Id";
-                var samba = await Connection.QuerySingleOrDefaultAsync<SambaAccount>(query, new { Id = request.Id });
-
-                if (samba == null)
+                using (var connection = _factory.CreateConnection())
                 {
-                    return Result.Failure<SambaResponse>(new Error("GetSamba.Null", "Samba not found"));
+                    var query = "SELECT * FROM SambaAccounts WHERE Id = @Id";
+                    var samba = await connection.QuerySingleOrDefaultAsync<SambaAccount>(query, new { Id = request.Id });
+
+                    if (samba == null)
+                    {
+                        return Result.Failure<SambaResponse>(new Error("GetSamba.Null", "Samba not found"));
+                    }
+
+                    var sambaResponse = samba.Adapt<SambaResponse>();
+                    
+                    return sambaResponse;
                 }
-
-                var sambaResponse = samba.Adapt<SambaResponse>();
-
-                return sambaResponse;
             }
         }
     }
