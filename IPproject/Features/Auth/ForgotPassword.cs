@@ -43,7 +43,7 @@ namespace IP.Project.Features.Auth
                 if (!validationResult.IsValid)
                 {
                     var errors = validationResult.Errors.Select(e => e.ErrorMessage);
-                    return Result.Failure(new Error("ValidationFailed", string.Join("; ", errors)));
+                    return Result.Failure(new Error("ValidationFailed", string.Join("\n", errors)));
                 }
 
                 var user = await _userManager.FindByEmailAsync(request.Email);
@@ -65,14 +65,21 @@ namespace IP.Project.Features.Auth
                 {
                     Text = $"Hello {user.UserName},\n\nPlease click the following link to reset your password:\n{resetLink}\n\nIf you did not request a password reset, please ignore this email."
                 };
-                
-                using (var client = new SmtpClient())
+                try
                 {
-                    client.Connect("smtp.example.com", 587, false);
-                    client.Authenticate("smtp_username", "smtp_password");
-                    client.Send(email);
-                    client.Disconnect(true);
+                    using (var client = new SmtpClient())
+                    {
+                        await client.ConnectAsync("smtp.example.com", 587, false, cancellationToken);
+                        await client.AuthenticateAsync("smtp_username", "smtp_password", cancellationToken);
+                        await client.SendAsync(email, cancellationToken);
+                        await client.DisconnectAsync(true, cancellationToken);
+                    }
                 }
+                catch (Exception e)
+                {
+                    return Result.Failure(new Error("EmailProviderError", e.Message));
+                }
+               
 
                 return Result.Success();
             }

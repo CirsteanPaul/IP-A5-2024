@@ -45,7 +45,7 @@ namespace IP.Project.Features.Auth
                 if (!validationResult.IsValid)
                 {
                     var errors = validationResult.Errors.Select(e => e.ErrorMessage);
-                    return Result.Failure(new Error("ValidationFailed", string.Join("; ", errors)));
+                    return Result.Failure(new Error("ValidationFailed", string.Join("\n", errors)));
                 }
 
                 var user = await _userManager.FindByEmailAsync(request.Email);
@@ -62,7 +62,7 @@ namespace IP.Project.Features.Auth
                 }
                 else
                 {
-                    return Result.Failure(new Error("ResetPasswordFailed", string.Join(", ", result.Errors)));
+                    return Result.Failure(new Error("ResetPasswordFailed", string.Join("\n", result.Errors.Select(x => x.Description))));
                 }
             }
         }
