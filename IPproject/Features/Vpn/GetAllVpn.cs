@@ -4,8 +4,12 @@ using IP.Project.Database;
 using IP.Project.Shared;
 using Mapster;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
+using Dapper;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace IP.Project.Features.Vpn
 {
@@ -17,25 +21,31 @@ namespace IP.Project.Features.Vpn
 
         public class Handler : IRequestHandler<Query, Result<List<VpnResponse>>>
         {
-            private readonly ApplicationDBContext context;
+            private readonly IConfiguration _configuration;
 
-            public Handler(ApplicationDBContext context)
+            public Handler(IConfiguration configuration)
             {
-                this.context = context;
+                _configuration = configuration;
             }
 
             public async Task<Result<List<VpnResponse>>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var vpns = await context.Vpns.ToListAsync(cancellationToken);
-
-                if (vpns.Count == 0)
+                using (var connection = new SqlConnection(_configuration.GetConnectionString("Database")))
                 {
-                    return Result.Success(new List<VpnResponse>());
+                    await connection.OpenAsync(cancellationToken);
+
+                    var query = "SELECT * FROM Vpns";
+                    var vpns = await connection.QueryAsync<IP.Project.Entities.VpnAccount>(query);
+
+
+                    if (vpns == null || vpns.AsList().Count == 0)
+                    {
+                        return Result.Success(new List<VpnResponse>());
+                    }
+
+                    var vpnResponses = vpns.Adapt<List<VpnResponse>>();
+                    return Result.Success(vpnResponses);
                 }
-
-                var vpnResponses = vpns.Adapt<List<VpnResponse>>();
-
-                return Result.Success(vpnResponses);
             }
         }
     }

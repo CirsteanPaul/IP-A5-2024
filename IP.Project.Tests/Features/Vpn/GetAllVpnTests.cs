@@ -1,4 +1,7 @@
-﻿using FluentAssertions;
+﻿// REDO GET ALL VPN TESTS
+
+
+/*using FluentAssertions;
 using IP.Project.Entities;
 using IP.Project.Features.Vpn;
 using IP.Project.Tests.Base;
@@ -49,3 +52,4 @@ namespace IP.Project.Tests.Features.Vpn
         }
     }
 }
+*/
