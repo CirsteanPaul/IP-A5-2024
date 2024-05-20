@@ -2,6 +2,12 @@
 using IP.Project.Entities;
 using IP.Project.Features.Vpn;
 using IP.Project.Tests.Base;
+using Moq;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace IP.Project.Tests.Features.Vpn
 {
@@ -13,12 +19,12 @@ namespace IP.Project.Tests.Features.Vpn
             // Arrange
             var vpnAccounts = new List<VpnAccount>
             {
-                new VpnAccount { Id = Guid.NewGuid(),Description = "VPN 1", IPv4Address = "192.168.1.1" },
+                new VpnAccount { Id = Guid.NewGuid(), Description = "VPN 1", IPv4Address = "192.168.1.1" },
                 new VpnAccount { Id = Guid.NewGuid(), Description = "VPN 2", IPv4Address = "192.168.1.2" }
             };
-            var mock = Setup(vpnAccounts);
 
-            var sut = new GetAllVpns.Handler(mock);
+            var mockDbConnection = SetupDapper.SetupDapperForVpn(vpnAccounts);
+            var sut = new GetAllVpns.Handler(mockDbConnection.Object);
             var query = new GetAllVpns.Query();
 
             // Act
@@ -36,8 +42,8 @@ namespace IP.Project.Tests.Features.Vpn
         public async Task GetAllVpnHandler_NoVpnAccounts_ReturnsEmptyList()
         {
             // Arrange
-            var mock = Setup(new List<VpnAccount>());
-            var sut = new GetAllVpns.Handler(mock);
+            var mockDbConnection = SetupDapper.SetupDapperForVpn(new List<VpnAccount>());
+            var sut = new GetAllVpns.Handler(mockDbConnection.Object);
             var query = new GetAllVpns.Query();
 
             // Act
