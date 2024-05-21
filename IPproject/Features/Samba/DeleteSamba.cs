@@ -3,61 +3,58 @@ using IP.Project.Database;
 using IP.Project.Entities;
 using IP.Project.Shared;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
-namespace IP.Project.Features.Samba;
-
-public static class DeleteSamba
+namespace IP.Project.Features.Samba
 {
-    public record Command(Guid Id) : IRequest<Result>;
-
-    public class Handler : IRequestHandler<Command, Result>
+    public static class DeleteSamba
     {
-        private readonly ApplicationDBContext dbContext;
+        public record Command(Guid Id) : IRequest<Result>;
 
-        public Handler(ApplicationDBContext dbContext)
+        public class Handler : IRequestHandler<Command, Result>
         {
-            this.dbContext = dbContext;
-        }
+            private readonly ApplicationDBContext dbContext;
 
-        public async Task<Result> Handle(Command request, CancellationToken cancellationToken)
-        {
-            var accountToBeDeleted = await dbContext.SambaAccounts.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
-            
-            if (accountToBeDeleted is null)
+            public Handler(ApplicationDBContext dbContext)
             {
-                return Result.Failure(new Error("DeleteSamba.Null", $"Samba account with id {request.Id} not found"));
+                this.dbContext = dbContext;
             }
 
-            dbContext.SambaAccounts.Remove(accountToBeDeleted);
+            public async Task<Result> Handle(Command request, CancellationToken cancellationToken)
+            {
+                var sambaAccountToBeDeleted = await dbContext.SambaAccounts
+                    .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
-            await dbContext.SaveChangesAsync(cancellationToken);
+                if (sambaAccountToBeDeleted is null)
+                {
+                    return Result.Failure(new Error("DeleteSamba.NotFound", "Samba account not found"));
+                }
 
-            return Result.Success();
+                dbContext.SambaAccounts.Remove(sambaAccountToBeDeleted);
+                await dbContext.SaveChangesAsync(cancellationToken);
+
+                return Result.Success();
+            }
         }
     }
-}
-
-public class DeleteSambaEndpoint : ICarterModule
-{
-    public void AddRoutes(IEndpointRouteBuilder app)
+    public class DeleteSambaEndpoint : ICarterModule
     {
-        app.MapDelete("api/v1/sambas/{id}", async (Guid id, ISender sender) =>
+        public void AddRoutes(IEndpointRouteBuilder app)
         {
-            var command = new DeleteSamba.Command(id);
-            var result = await sender.Send(command);
-
-            if (result.IsFailure)
-            {
-                if (result.Error.Code == "DeleteSamba.Null")
+            app.MapDelete($"{Global.version}sambas/{{id}}", async (Guid id, ISender sender) =>
                 {
-                    return Results.NotFound(result.Error);
-                }
-                return Results.BadRequest(result.Error);
-            }
+                    var command = new DeleteSamba.Command(id);
+                    var result = await sender.Send(command);
 
-            return Results.NoContent();
-        })
-        .WithTags("Samba"); 
+                    return result.IsSuccess ? Results.NoContent() : Results.NotFound(result.Error);
+                })
+                .WithTags("Samba")
+                .Produces(StatusCodes.Status204NoContent)
+                .Produces<Error>(StatusCodes.Status404NotFound)
+                .WithDescription("Endpoint for deleting a specific Samba account. " +
+                                 "If the request is successful, it will return status code 204 (No content).")
+                .WithOpenApi();
+        }
     }
 }

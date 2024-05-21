@@ -85,7 +85,7 @@ public class CreateSambaEndPoint : ICarterModule
             })
             .WithTags("Samba")
             .WithDescription("Endpoint for creating a new samba account. " +
-                             "If the request succedeed in the location header you can find the endpoint to get the new account.")
+                             "If the request succeeded in the location header you can find the endpoint to get the new account.")
             .Produces(StatusCodes.Status201Created)
             .Produces<Error>(StatusCodes.Status400BadRequest)
             .WithOpenApi();

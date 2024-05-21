@@ -41,13 +41,16 @@ namespace IP.Project.Features.Samba
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapGet("api/v1/sambas", async (ISender sender) =>
-            {
-                var query = new GetAllSambas.Query();
-                var result = await sender.Send(query);
+            app.MapGet($"{Global.version}sambas", async (ISender sender) =>
+                {
+                    var query = new GetAllSambas.Query();
+                    var result = await sender.Send(query);
 
-                return Results.Ok(result.Value);
-            }).WithTags("Samba");
+                    return Results.Ok(result.Value);
+                }).WithTags("Samba")
+                .WithDescription("Endpoint for retrieving details of all Samba accounts.")
+                .Produces<List<SambaResponse>>(StatusCodes.Status200OK)
+                .Produces<Error>(StatusCodes.Status500InternalServerError);
         }
     }
 }

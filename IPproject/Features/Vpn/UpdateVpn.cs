@@ -1,5 +1,8 @@
 ﻿using Carter;
+using FluentValidation;
+using IP.Project.Contracts;
 using IP.Project.Database;
+using IP.Project.Extensions;
 using IP.Project.Shared;
 using MediatR;
 
@@ -8,7 +11,16 @@ namespace IP.Project.Features.Vpn
 {
     public static class UpdateVpnInstance
     {
-        public record Command(Guid Id, string NewIpAddress, string? NewDescription) : IRequest<Result<Guid>>;
+        public record Command(Guid Id, UpdateVpnRequest Request) : IRequest<Result<Guid>>
+        {
+            public class Validator : AbstractValidator<Command>
+            {
+                public Validator()
+                {
+                    RuleFor(x => x.Request.NewIpAddress).NotEmpty().IpAddress(); 
+                }
+            }
+        }
         public class Handler : IRequestHandler<Command, Result<Guid>>
         {
             private readonly ApplicationDBContext context;
@@ -26,8 +38,8 @@ namespace IP.Project.Features.Vpn
                     return Result.Failure<Guid>(new Error("UpdateVpn.Null", $"Vpn instance with ID {request.Id} not found."));
                 }
 
-                vpnInstance.IPv4Address = request.NewIpAddress;
-                if (request.NewDescription != null) { vpnInstance.Description = request.NewDescription; }
+                vpnInstance.IPv4Address = request.Request.NewIpAddress;
+                if (request.Request.NewDescription != null) { vpnInstance.Description = request.Request.NewDescription; }
                 await context.SaveChangesAsync(cancellationToken);
 
                 return Result.Success(request.Id);
@@ -38,9 +50,9 @@ namespace IP.Project.Features.Vpn
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPut("api/v1/vpns/update/{id}", async (Guid id, string newIpAddress, string? newDescription, ISender sender) =>
+            app.MapPut("api/v1/vpns/{id}", async (Guid id, UpdateVpnRequest request, ISender sender) =>
             {
-                var command = new UpdateVpnInstance.Command(id, newIpAddress, newDescription);
+                var command = new UpdateVpnInstance.Command(id, request);
                 var result = await sender.Send(command);
                 if (result.IsSuccess)
                 {

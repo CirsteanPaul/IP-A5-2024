@@ -15,7 +15,7 @@ namespace IP.Project.Features.Vpn
         {
         }
 
-        internal sealed class Handler : IRequestHandler<Query, Result<List<VpnResponse>>>
+        public class Handler : IRequestHandler<Query, Result<List<VpnResponse>>>
         {
             private readonly ApplicationDBContext context;
 
@@ -28,10 +28,9 @@ namespace IP.Project.Features.Vpn
             {
                 var vpns = await context.Vpns.ToListAsync(cancellationToken);
 
-                if (vpns == null || vpns.Count == 0)
+                if (vpns.Count == 0)
                 {
-                    return Result.Failure<List<VpnResponse>>(
-                        new Error("GetAllVpns.Empty", "No VPNs found"));
+                    return Result.Success(new List<VpnResponse>());
                 }
 
                 var vpnResponses = vpns.Adapt<List<VpnResponse>>();

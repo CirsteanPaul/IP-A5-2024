@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using FluentAssertions;
+using IP.Project.Contracts;
 using IP.Project.Database;
 using IP.Project.Entities;
 using IP.Project.Features.Vpn;
@@ -32,7 +33,11 @@ namespace IP.Project.Tests.Features.Vpn
             mockContext.Vpns.Returns(mockSet);
 
             var handler = new UpdateVpnInstance.Handler(mockContext);
-            var command = new UpdateVpnInstance.Command(vpnId, newIpAddress, newDescription);
+            var command = new UpdateVpnInstance.Command(vpnId, new UpdateVpnRequest
+            {
+                NewIpAddress = newIpAddress,
+                NewDescription = newDescription,
+            });
             
             var result = await handler.Handle(command, CancellationToken.None);
             
@@ -45,7 +50,7 @@ namespace IP.Project.Tests.Features.Vpn
         [Fact]
         public async Task Handle_GivenInvalidId_ReturnsFailure()
         {
-            var vpnId = Guid.NewGuid();
+            var vpnId = Guid.Parse("4c727215-0522-4384-8481-4a2d1e094fb7");
             var mockContext = Substitute.For<ApplicationDBContext>(new DbContextOptions<ApplicationDBContext>());
             var mockSet = Substitute.For<DbSet<VpnAccount>>();
 
@@ -53,7 +58,11 @@ namespace IP.Project.Tests.Features.Vpn
             mockContext.Vpns.Returns(mockSet);
 
             var handler = new UpdateVpnInstance.Handler(mockContext);
-            var command = new UpdateVpnInstance.Command(vpnId, "192.168.0.2", "Updated Description");
+            var command = new UpdateVpnInstance.Command(vpnId, new UpdateVpnRequest
+            {
+             NewIpAddress = "192.168.0.2", 
+             NewDescription = "Updated Description"
+             });
             
             var result = await handler.Handle(command, CancellationToken.None);
 

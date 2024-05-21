@@ -4,6 +4,7 @@ using IP.Project.Database;
 using IP.Project.Features.Vpn;
 using IP.Project.Shared;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace IP.Project.Features.Vpn
 {
@@ -11,38 +12,24 @@ namespace IP.Project.Features.Vpn
     {
         public record Command(Guid Id) : IRequest<Result>;
 
-        public class Validator : AbstractValidator<Command>
-        {
-            public Validator()
-            {
-                RuleFor(x => x.Id).NotEmpty();
-            }
-        }
-
         public class Handler : IRequestHandler<Command, Result>
         {
             private readonly ApplicationDBContext dbContext;
-            private readonly IValidator<Command> validator;
 
-            public Handler(ApplicationDBContext dbContext, IValidator<Command> validator)
+            public Handler(ApplicationDBContext dbContext)
             {
                 this.dbContext = dbContext;
-                this.validator = validator;
             }
 
             public async Task<Result> Handle(Command request, CancellationToken cancellationToken)
             {
-                var validationResult = validator.Validate(request);
-                if (!validationResult.IsValid)
-                {
-                    return Result.Failure<Guid>(new Error("DeleteVpn.Validator", validationResult.ToString()!));
-                }
-                var vpn = await dbContext.Vpns.FindAsync(request.Id);
-                if (vpn == null)
+                var vpnToBeDeleted = await dbContext.Vpns.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+
+                if (vpnToBeDeleted is null)
                 {
                     return Result.Failure<Guid>(new Error("DeleteVpn.Null", $"Vpn with id {request.Id} not found"));
                 }
-                dbContext.Vpns.Remove(vpn);
+                dbContext.Vpns.Remove(vpnToBeDeleted);
                 await dbContext.SaveChangesAsync(cancellationToken);
 
                 return Result.Success();
@@ -69,6 +56,12 @@ public class DeleteVpnEndpoint :ICarterModule
             }
             return Results.NoContent();
         })
-        .WithTags("Vpn");
+        .WithTags("Vpn")
+        .WithDescription("Endpoint for deleting a specific Vpn. " +
+                         "If the request is successful, it will return status code 204 (No content).")
+        .Produces(StatusCodes.Status204NoContent)
+        .Produces<Error>(StatusCodes.Status404NotFound)
+        .WithOpenApi();
     }   
 }
+
