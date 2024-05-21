@@ -1,50 +1,43 @@
 ﻿using Carter;
 using IP.Project.Contracts;
-using IP.Project.Database;
+using IP.Project.Entities;
 using IP.Project.Shared;
+using IP.Project.Database;
 using Mapster;
 using MediatR;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
 using Dapper;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace IP.Project.Features.Vpn
 {
     public class GetAllVpns
     {
-        public class Query : IRequest<Result<List<VpnResponse>>>
-        {
-        }
+        public class Query : IRequest<Result<List<VpnResponse>>>;
 
         public class Handler : IRequestHandler<Query, Result<List<VpnResponse>>>
         {
-            private readonly IConfiguration _configuration;
+            private readonly ISqlConnectionFactory _factory;
 
-            public Handler(IConfiguration configuration)
+            public Handler(ISqlConnectionFactory factory)
             {
-                _configuration = configuration;
+                this._factory = factory;
             }
 
             public async Task<Result<List<VpnResponse>>> Handle(Query request, CancellationToken cancellationToken)
             {
-                using (var connection = new SqlConnection(_configuration.GetConnectionString("Database")))
+                using (var connection = _factory.CreateConnection())
                 {
-                    await connection.OpenAsync(cancellationToken);
-
                     var query = "SELECT * FROM Vpns";
-                    var vpns = await connection.QueryAsync<IP.Project.Entities.VpnAccount>(query);
+                    var vpns = await connection.QueryAsync<VpnAccount>(query);
 
 
-                    if (vpns == null || vpns.AsList().Count == 0)
+                    if (!vpns.Any())
                     {
                         return Result.Success(new List<VpnResponse>());
                     }
 
-                    var vpnResponses = vpns.Adapt<List<VpnResponse>>();
-                    return Result.Success(vpnResponses);
+                    var vpnResponse = vpns.Adapt<List<VpnResponse>>();
+
+                    return Result.Success(vpnResponse);
                 }
             }
         }

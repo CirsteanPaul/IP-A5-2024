@@ -3,6 +3,7 @@ using IP.Project.Database;
 using IP.Project.Entities;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
+using System.Data;
 
 namespace IP.Project.Tests.Base;
 
