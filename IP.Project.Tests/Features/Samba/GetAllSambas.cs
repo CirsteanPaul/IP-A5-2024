@@ -1,9 +1,11 @@
+using System.Data;
 using FluentAssertions;
 using IP.Project.Contracts;
 using IP.Project.Features.Samba;
 using IP.Project.Entities;
 using IP.Project.Tests.Base;
-
+using NSubstitute;
+using NSubstitute.DbConnection;
 
 namespace IP.Project.Tests.Features.Samba
 {
@@ -20,16 +22,15 @@ namespace IP.Project.Tests.Features.Samba
                 new SambaAccount { Id = Guid.Parse("4c727215-0522-4384-8481-4a2d1e094fb9"), Description = "Samba 3", IPv4Address = "192.168.1.3" }
             };
             
-            // var mock = SetupDapper(() =>
-            // {
-            //     var sqlConnection = Substitute.For<IDbConnection>().SetupCommands();
-            //     sqlConnection
-            //         .SetupQuery("SELECT * FROM SambaAccounts")
-            //         .Returns(sambas);
-            //
-            //     return sqlConnection;
-            // });
-            var mock = Setup(sambas);
+            var mock = SetupDapper(() =>
+            {
+                var sqlConnection = Substitute.For<IDbConnection>().SetupCommands();
+                sqlConnection
+                    .SetupQuery("SELECT * FROM SambaAccounts")
+                    .Returns(sambas);
+            
+                return sqlConnection;
+            });
             
             var sut = new GetAllSambas.Handler(mock);
             var query = new GetAllSambas.Query();
@@ -56,8 +57,17 @@ namespace IP.Project.Tests.Features.Samba
         [Fact]
         public async Task GetAllSambasHandler_ReturnsEmptyListWhenNoSambasExist()
         {
+            var mock = SetupDapper(() =>
+            {
+                var sqlConnection = Substitute.For<IDbConnection>().SetupCommands();
+                sqlConnection
+                    .SetupQuery("SELECT * FROM SambaAccounts")
+                    .Returns(new List<SambaAccount>());
+            
+                return sqlConnection;
+            });
             // Arrange
-            var sut = new GetAllSambas.Handler(Setup(new List<SambaAccount>()));
+            var sut = new GetAllSambas.Handler(mock);
             var query = new GetAllSambas.Query();
 
             // Act
