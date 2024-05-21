@@ -1,18 +1,14 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
 	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer /&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=797a6aba_002D8240_002D480a_002Db8cf_002D382c97ca3cd3/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="UpdateVpnTests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;Project Location="C:\Users\cgame\Desktop\Documente\Faculta\Ingineria Progamarii\IP-A5-2024" Presentation="&amp;lt;tests&amp;gt;" /&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=d935ea61_002D4f50_002D41e7_002Da5ca_002D9ffa4b025d61/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="GetVpnTests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;xUnit::1B1B2D28-2913-459B-948F-5248C2229FB6::net8.0::IP.Project.Tests.Features.Vpn.GetVpnTests&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	
 	
 	
 	
 	
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=eccccedf_002De255_002D4195_002Dafac_002D0347011131c1/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Handle_GivenValidId_UpdatesVpn" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;xUnit::1B1B2D28-2913-459B-948F-5248C2229FB6::net8.0::IP.Project.Tests.Features.Vpn.UpdateVpnTests.Handle_GivenValidId_UpdatesVpn&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::1B1B2D28-2913-459B-948F-5248C2229FB6::net8.0::IP.Project.Tests.Features.Vpn.UpdateVpnTests.Handle_GivenInvalidId_ReturnsFailure&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::1B1B2D28-2913-459B-948F-5248C2229FB6::net8.0::IP.Project.Tests.Features.Vpn.CreateVpnTests&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::D3E46733-75FD-46C7-8B29-1A4D376BC7C8::net8.0::IP.Project.IntegrationTests.Controllers.VpnCreateControllerTests&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
+	
+	</wpf:ResourceDictionary>

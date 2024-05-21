@@ -12,6 +12,7 @@ using System;
 using System.Data;
 using Microsoft.AspNetCore.Mvc;
 using FluentValidation;
+using IP.Project.Database;
 using Mapster;
 
 namespace IP.Project.Features.Vpn
@@ -33,19 +34,17 @@ namespace IP.Project.Features.Vpn
 
         public sealed class Handler : IRequestHandler<Query, Result<VpnResponse>>
         {
-            private readonly IConfiguration _configuration;
+            private readonly ISqlConnectionFactory factory;
 
-            public Handler(IConfiguration configuration)
+            public Handler(ISqlConnectionFactory factory)
             {
-                _configuration = configuration;
+                factory = factory;
             }
 
             public async Task<Result<VpnResponse>> Handle(Query request, CancellationToken cancellationToken)
             {
-                using (var connection = new SqlConnection(_configuration.GetConnectionString("Database")))
+                using (var connection = factory.CreateConnection())
                 {
-                    await connection.OpenAsync(cancellationToken);
-
                     var query = "SELECT * FROM dbo.Vpns WHERE Id = @Id";
                     var vpnAccount = await connection.QuerySingleOrDefaultAsync<VpnAccount>(query, new { request.Id });
 
