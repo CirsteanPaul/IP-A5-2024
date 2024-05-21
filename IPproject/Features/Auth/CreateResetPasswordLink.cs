@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using IP.Project.Models;
-using IP.Project.Models.Identity;
+using IP.Project.Contracts;
+
 using IP.Project.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Identity;

@@ -3,37 +3,41 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
-using IP.Project.Services;
+using IP.Project.Models;
 using IP.Project.Shared;
+using Microsoft.AspNetCore.Identity;
 
 namespace IP.Project.Features.Auth
 {
     public class Logout
     {
-        public record Command : IRequest<Result>;
+        public record Command : IRequest<Result>
+        {
+        }
 
         
         public class Handler : IRequestHandler<Command, Result>
         {
-            private readonly AuthService _authService;
+            private readonly SignInManager<ApplicationUser> signInManager;
 
-            public Handler(AuthService authService)
+            public Handler(SignInManager<ApplicationUser> signInManager)
             {
-                _authService = authService ?? throw new ArgumentNullException(nameof(authService), "AuthService cannot be null");
+                this.signInManager = signInManager;
             }
 
             public async Task<Result> Handle(Command request, CancellationToken cancellationToken)
             {
                 
-                var (status, message) = await _authService.Logout();
-                if (status == 1)
+                try
                 {
-                    return Result.Success(); 
+                    await signInManager.SignOutAsync();
                 }
-                else
+                catch (Exception e)
                 {
-                    return Result.Failure(new Error("LogoutFailed", message));  
+                    return Result.Failure(new Error("InternalServerError", e.Message));
                 }
+
+                return Result.Success();
             }
         }
     }

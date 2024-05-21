@@ -1,33 +1,50 @@
-﻿
-using Carter;
-using IP.Project.Services;
+﻿using Carter;
 using MediatR;
 using System.Threading.Tasks;
 using IP.Project.Shared;
 using Microsoft.AspNetCore.Authorization;
 using System.Linq;
-using IP.Project.Models;
+using System.Security.Claims;
+using IP.Project.Contracts;
+using Microsoft.Identity.Web;
+
 
 namespace IP.Project.Features.Auth
 {
     public class GetCurrentUserDetails
     {
-        public record Query : IRequest<Result<CurrentUser>>;
+        public class Query : IRequest<Result<CurrentUser>>
+        {
+        }
 
         public class Handler : IRequestHandler<Query, Result<CurrentUser>>
         {
-            private readonly CurrentUserService _currentUserService;
+            private readonly IHttpContextAccessor httpContextAccessor;
+     
 
-            public Handler(CurrentUserService currentUserService)
+            public Handler(IHttpContextAccessor httpContextAccessor)
             {
-                _currentUserService = currentUserService;
+                this.httpContextAccessor = httpContextAccessor;
             }
+            public string UserId => httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            public ClaimsPrincipal GetCurrentClaimsPrincipal()
+            {
+                if (httpContextAccessor.HttpContext != null && httpContextAccessor.HttpContext.User != null)
+                {
+                    return httpContextAccessor.HttpContext.User;
+                }
 
+                return null!;
+            }
+            public string GetCurrentUserId()
+            {
+                return GetCurrentClaimsPrincipal()?.GetObjectId()!;
+            }
             public Task<Result<CurrentUser>> Handle(Query request, CancellationToken cancellationToken)
             {
                 try
                 {
-                    var user = _currentUserService.GetCurrentClaimsPrincipal();
+                    var user = GetCurrentClaimsPrincipal();
                     if (user == null)
                         return Task.FromResult(Result.Failure<CurrentUser>(new Error("User.NotFound", "No current user found")));
 

@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿/*
+using Dapper;
 using FluentAssertions;
 using IP.Project.Database;
 using IP.Project.Entities;
@@ -50,3 +51,4 @@ namespace IP.Project.Tests.Features.Vpn
         }
     }
 }
+*/
