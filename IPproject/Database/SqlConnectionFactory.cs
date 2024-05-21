@@ -11,7 +11,7 @@ public class SqlConnectionFactory : ISqlConnectionFactory
     {
         this.configuration = configuration;
     }
-
+    
     public SqlConnectionFactory()
     {
     }

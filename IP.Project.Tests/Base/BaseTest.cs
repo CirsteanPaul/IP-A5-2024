@@ -1,3 +1,4 @@
+using System.Data;
 using IP.Project.Database;
 using IP.Project.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -18,19 +19,6 @@ public class BaseTest<TEntity> where TEntity : class
 
         return contextMock;
     }
-
-
-    /**
-     * <summary>Method which should be used when dapper is needed in tests.</summary>
-     * <example>
-     * var sqlConnection = Substiture.For&lt;IDbConnection&gt;().SetupCommands()
-     * Your configurations...
-     * <code>
-     * return sqlConnection
-     * </code>
-     * </example>
-     * <returns>A new factory which will be injected in the handlers using Dapper</returns>
-     */
     protected ISqlConnectionFactory SetupDapper(Func<IDbConnection> func)
     {
         var factory = Substitute.For<ISqlConnectionFactory>();
@@ -38,10 +26,9 @@ public class BaseTest<TEntity> where TEntity : class
         var connection = func();
 
         factory.CreateConnection().Returns(connection);
-
+        
         return factory;
     }
-
     private static ApplicationDBContext SetupDbSetMock(IQueryable<TEntity> entities, out DbSet<TEntity> setMock)
     {
         var contextMock = Substitute.For<ApplicationDBContext>(new DbContextOptions<ApplicationDBContext>());
