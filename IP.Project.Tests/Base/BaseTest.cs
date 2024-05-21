@@ -1,3 +1,4 @@
+using System.Data;
 using IP.Project.Database;
 using IP.Project.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +18,16 @@ public class BaseTest<TEntity> where TEntity : class
 
         return contextMock;
     }
+    protected ISqlConnectionFactory SetupDapper(Func<IDbConnection> func)
+    {
+        var factory = Substitute.For<ISqlConnectionFactory>();
 
+        var connection = func();
+
+        factory.CreateConnection().Returns(connection);
+        
+        return factory;
+    }
     private static ApplicationDBContext SetupDbSetMock(IQueryable<TEntity> entities, out DbSet<TEntity> setMock)
     {
         var contextMock = Substitute.For<ApplicationDBContext>(new DbContextOptions<ApplicationDBContext>());

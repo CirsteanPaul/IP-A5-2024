@@ -68,7 +68,8 @@ namespace IP.Project.Features.Auth
         {
             public void AddRoutes(IEndpointRouteBuilder app)
             {
-                app.MapGet("api/v1/auth/current-user", async (ISender sender) =>
+                string apiVersion = Global.version;
+                app.MapGet($"{apiVersion}auth/getcurrentdetails", async (ISender sender) =>
                 {
                     var result = await sender.Send(new GetCurrentUserDetails.Query());
                     if (result.IsSuccess)
