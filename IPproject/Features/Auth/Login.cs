@@ -1,10 +1,7 @@
 using Carter;
 using FluentValidation;
 using IP.Project.Contracts;
-using IP.Project.Contracts.Interfaces;
 using IP.Project.Models;
-using IP.Project.Models.Identity;
-using IP.Project.Services;
 using IP.Project.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -35,21 +32,19 @@ namespace IP.Project.Features.Auth
 
     public class Login
     {
-        public record Command(LoginRequest Request) : IRequest<Result<LoginResponse>>;
-
-        public class Validator : AbstractValidator<Command>
+        public record Command: IRequest<Result<LoginResponse>>
         {
-            public Validator()
+            public LoginRequest Request { get; init; }
+
+            public class Validator : AbstractValidator<Command>
             {
-                RuleFor(x => x.Request.Username).NotEmpty().MinimumLength(6);
-                RuleFor(x => x.Request.Password).NotEmpty().MinimumLength(8)
-                    .Matches("[A-Z]").WithMessage("Password must contain at least one uppercase letter.")
-                    .Matches("[a-z]").WithMessage("Password must contain at least one lowercase letter.")
-                    .Matches("[0-9]").WithMessage("Password must contain at least one number.")
-                    .Matches("[^a-zA-Z0-9]").WithMessage("Password must contain at least one special character.");
+                public Validator()
+                {
+                    RuleFor(x => x.Request.Username).NotEmpty().MinimumLength(6);
+                    RuleFor(x => x.Request.Password).NotEmpty().MinimumLength(8);
+                }
             }
         }
-
         public class Handler : IRequestHandler<Command, Result<LoginResponse>>
         {
             private readonly UserManager<ApplicationUser> _userManager;
@@ -63,7 +58,7 @@ namespace IP.Project.Features.Auth
 
             public async Task<Result<LoginResponse>> Handle(Command command, CancellationToken cancellationToken)
             {
-                var validationResult = new Validator().Validate(command);
+                var validationResult = new Command.Validator().Validate(command);
                 if (!validationResult.IsValid)
                 {
                     return Result.Failure<LoginResponse>(new Error("ValidationError", string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage))));
@@ -116,8 +111,11 @@ namespace IP.Project.Features.Auth
             string apiVersion = Global.version;
 
             app.MapPost($"{apiVersion}auth/login", async (LoginRequest request, ISender sender) =>
-            {
-                var command = new Login.Command(request);
+                {
+                    var command = new Login.Command
+                    {
+                        Request = request
+                    };
                 var result = await sender.Send(command);
 
                 if (result.IsSuccess)
@@ -139,7 +137,7 @@ namespace IP.Project.Features.Auth
             .Produces<LoginResponse>(StatusCodes.Status200OK)
             .Produces<Error>(StatusCodes.Status400BadRequest)
             .Produces<Error>(StatusCodes.Status500InternalServerError)
-            .WithTags("Authentication")
+            .WithTags("Auth")
             .WithDescription("Logs in a user and returns a JWT token on successful authentication.")
             .WithOpenApi();
         }

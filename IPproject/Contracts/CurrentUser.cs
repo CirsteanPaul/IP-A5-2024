@@ -1,4 +1,4 @@
-﻿namespace IP.Project.Models
+﻿namespace IP.Project.Contracts
 {
     public class CurrentUser
     {

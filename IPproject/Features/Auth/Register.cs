@@ -1,10 +1,7 @@
 ﻿using Carter;
 using FluentValidation;
 using IP.Project.Contracts;
-using IP.Project.Contracts.Interfaces;
 using IP.Project.Models;
-using IP.Project.Models.Identity;
-using IP.Project.Services;
 using IP.Project.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -33,24 +30,26 @@ namespace IP.Project.Features.Auth
 
     public class Register
     {
-        public record Command(RegisterRequest Request) : IRequest<Result<RegisterResponse>>
+        public record Command : IRequest<Result<RegisterResponse>>
         {
+            public RegisterRequest Request { get; init; }
             public string Role { get; init; } = UserRoles.User; 
+            public class Validator : AbstractValidator<Command>
+            {
+                public Validator()
+                {
+                    RuleFor(x => x.Request.Username).NotEmpty().MinimumLength(6);
+                    RuleFor(x => x.Request.Email).NotEmpty().EmailAddress();
+                    RuleFor(x => x.Request.Password).NotEmpty().MinimumLength(8)
+                        .Matches("[A-Z]").WithMessage("Password must contain at least one uppercase letter.")
+                        .Matches("[a-z]").WithMessage("Password must contain at least one lowercase letter.")
+                        .Matches("[0-9]").WithMessage("Password must contain at least one number.")
+                        .Matches("[^a-zA-Z0-9]").WithMessage("Password must contain at least one special character.");
+                }
+            }
         };
 
-        public class Validator : AbstractValidator<Command>
-        {
-            public Validator()
-            {
-                RuleFor(x => x.Request.Username).NotEmpty().MinimumLength(6);
-                RuleFor(x => x.Request.Email).NotEmpty().EmailAddress();
-                RuleFor(x => x.Request.Password).NotEmpty().MinimumLength(8)
-                    .Matches("[A-Z]").WithMessage("Password must contain at least one uppercase letter.")
-                    .Matches("[a-z]").WithMessage("Password must contain at least one lowercase letter.")
-                    .Matches("[0-9]").WithMessage("Password must contain at least one number.")
-                    .Matches("[^a-zA-Z0-9]").WithMessage("Password must contain at least one special character.");
-            }
-        }
+       
 
         public class Handler : IRequestHandler<Command, Result<RegisterResponse>>
         {
@@ -65,7 +64,7 @@ namespace IP.Project.Features.Auth
 
             public async Task<Result<RegisterResponse>> Handle(Command command, CancellationToken cancellationToken)
             {
-                var validationResult = new Validator().Validate(command);
+                var validationResult = new Command.Validator().Validate(command);
                 if (!validationResult.IsValid)
                 {
                     return Result.Failure<RegisterResponse>(new Error("ValidationError", string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage))));
@@ -79,7 +78,7 @@ namespace IP.Project.Features.Auth
                 if (emailExists != null)
                     return Result.Failure<RegisterResponse>(new Error("EmailAlreadyExists", "A user with this email already exists."));
 
-                ApplicationUser user = new ApplicationUser()
+                var user = new ApplicationUser()
                 {
                     UserName = command.Request.Username,
                     Email = command.Request.Email,
@@ -109,8 +108,11 @@ namespace IP.Project.Features.Auth
             string apiVersion = Global.version;
 
             app.MapPost($"{apiVersion}auth/register", async (RegisterRequest request, ISender sender) =>
-            {
-                var command = new Register.Command(request);
+                {
+                    var command = new Register.Command
+                    {
+                        Request = request
+                    };
                 var result = await sender.Send(command);
 
                 if (result.IsSuccess)
@@ -132,7 +134,7 @@ namespace IP.Project.Features.Auth
             .Produces<RegisterResponse>(StatusCodes.Status201Created)
             .Produces<Error>(StatusCodes.Status400BadRequest)
             .Produces<Error>(StatusCodes.Status500InternalServerError)
-            .WithTags("Authentication")
+            .WithTags("Auth")
             .WithDescription("Registers a new user and returns the user details on successful registration.")
             .WithOpenApi();
         }

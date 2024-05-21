@@ -1,7 +1,5 @@
 ﻿using IP.Project.Models;
 using IP.Project.Database;
-using IP.Project.Contracts.Interfaces;
-using IP.Project.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -53,8 +51,6 @@ namespace IP.Project.Infrastucture
                                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]!))
                             };
                         });
-            services.AddScoped
-               <IAuthService, AuthService>();
             return services;
         }
 

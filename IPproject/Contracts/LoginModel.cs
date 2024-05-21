@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace IP.Project.Models.Identity
+namespace IP.Project.Contracts
 {
     public class LoginModel
     {
