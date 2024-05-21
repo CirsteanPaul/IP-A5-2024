@@ -15,21 +15,19 @@ namespace IP.Project.Features.Vpn
 
         public class Handler : IRequestHandler<Query, Result<List<VpnResponse>>>
         {
-            private readonly ISqlConnectionFactory _factory;
+            private readonly ISqlConnectionFactory factory;
 
             public Handler(ISqlConnectionFactory factory)
             {
-                this._factory = factory;
+                this.factory = factory;
             }
 
             public async Task<Result<List<VpnResponse>>> Handle(Query request, CancellationToken cancellationToken)
             {
-                using (var connection = _factory.CreateConnection())
+                using (var connection = factory.CreateConnection())
                 {
                     var query = "SELECT * FROM Vpns";
                     var vpns = await connection.QueryAsync<VpnAccount>(query);
-
-
                     if (!vpns.Any())
                     {
                         return Result.Success(new List<VpnResponse>());

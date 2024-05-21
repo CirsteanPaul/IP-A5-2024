@@ -38,14 +38,14 @@ namespace IP.Project.Features.Vpn
 
             public Handler(ISqlConnectionFactory factory)
             {
-                factory = factory;
+                this.factory = factory;
             }
 
             public async Task<Result<VpnResponse>> Handle(Query request, CancellationToken cancellationToken)
             {
                 using (var connection = factory.CreateConnection())
                 {
-                    var query = "SELECT * FROM dbo.Vpns WHERE Id = @Id";
+                    var query = "SELECT * FROM Vpns WHERE Id = @Id";
                     var vpnAccount = await connection.QuerySingleOrDefaultAsync<VpnAccount>(query, new { request.Id });
 
                     if (vpnAccount == null)

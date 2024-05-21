@@ -82,8 +82,8 @@ namespace IP.Project.Tests.Features.Vpn
 
             // Assert
             result.IsFailure.Should().BeTrue();
-            result.Error.Code.Should().Be("GetVpn.Null");
-            result.Error.Message.Should().Be("Vpn not found");
+            result.Error.Code.Should().Be("GetVpn.NotFound");
+            result.Error.Message.Should().Be("VPN account not found");
         }
     }
 }
