@@ -1,16 +1,10 @@
-﻿// REDO GET ALL VPN TESTS
-
-
-/*using FluentAssertions;
+﻿using FluentAssertions;
 using IP.Project.Entities;
 using IP.Project.Features.Vpn;
 using IP.Project.Tests.Base;
-using Moq;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Threading.Tasks;
-using Xunit;
+using NSubstitute;
+using NSubstitute.DbConnection;
 
 namespace IP.Project.Tests.Features.Vpn
 {
@@ -20,14 +14,22 @@ namespace IP.Project.Tests.Features.Vpn
         public async Task GetAllVpnHandler_ReturnsListOfVpnAccounts()
         {
             // Arrange
-            var vpnAccounts = new List<VpnAccount>
+            IEnumerable<VpnAccount> vpnAccounts = new List<VpnAccount>
             {
                 new VpnAccount { Id = Guid.NewGuid(), Description = "VPN 1", IPv4Address = "192.168.1.1" },
                 new VpnAccount { Id = Guid.NewGuid(), Description = "VPN 2", IPv4Address = "192.168.1.2" }
             };
 
-            var mockDbConnection = SetupDapper.SetupDapperForVpn(vpnAccounts);
-            var sut = new GetAllVpns.Handler(mockDbConnection.Object);
+            var mock = SetupDapper(() =>
+            {
+                var sqlConnection = Substitute.For<IDbConnection>().SetupCommands();
+                sqlConnection
+                    .SetupQuery("SELECT * FROM Vpns")
+                    .Returns(vpnAccounts);
+
+                return sqlConnection;
+            });
+            var sut = new GetAllVpns.Handler(mock);
             var query = new GetAllVpns.Query();
 
             // Act
@@ -45,8 +47,16 @@ namespace IP.Project.Tests.Features.Vpn
         public async Task GetAllVpnHandler_NoVpnAccounts_ReturnsEmptyList()
         {
             // Arrange
-            var mockDbConnection = SetupDapper.SetupDapperForVpn(new List<VpnAccount>());
-            var sut = new GetAllVpns.Handler(mockDbConnection.Object);
+            var mock = SetupDapper(() =>
+            {
+                var sqlConnection = Substitute.For<IDbConnection>().SetupCommands();
+                sqlConnection
+                    .SetupQuery("SELECT * FROM Vpns")
+                    .Returns(new List<VpnAccount>());
+
+                return sqlConnection;
+            });
+            var sut = new GetAllVpns.Handler(mock);
             var query = new GetAllVpns.Query();
 
             // Act
@@ -54,8 +64,8 @@ namespace IP.Project.Tests.Features.Vpn
 
             // Assert
             result.IsSuccess.Should().BeTrue();
+            result.Value.Should().NotBeNull();
             result.Value.Should().BeEmpty();
         }
     }
 }
-*/
