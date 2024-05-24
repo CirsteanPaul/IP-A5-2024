@@ -16,14 +16,17 @@ namespace IP.Project.Features.Samba
         public class Handler : IRequestHandler<Query, Result<List<SambaResponse>>>
         {
             private readonly ISqlConnectionFactory _factory;
+            private readonly ApplicationDBContext _dbContext;
 
-            public Handler(ISqlConnectionFactory factory)
+            public Handler(ISqlConnectionFactory factory, ApplicationDBContext dbContext)
             {
                 this._factory = factory;
+                _dbContext = dbContext;
             }
 
             public async Task<Result<List<SambaResponse>>> Handle(Query request, CancellationToken cancellationToken)
             {
+                var u = _dbContext.SambaAccounts.ToList();
                 using (var connection = _factory.CreateConnection())
                 {
                     var query = "SELECT * FROM SambaAccounts";

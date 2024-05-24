@@ -1,9 +1,6 @@
-﻿using System;
-using System.Net;
-using System.Threading.Tasks;
+﻿using System.Net;
 using FluentAssertions;
-using IP.Project.IntegrationTests.Base.TestingBaseWebApplicationFactory;
-using Xunit;
+using IP.Project.IntegrationTests.Base;
 
 namespace IP.Project.IntegrationTests.Controllers.Vpns
 {
