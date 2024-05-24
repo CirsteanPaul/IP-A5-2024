@@ -1,9 +1,7 @@
 ﻿using System.Net;
-using System.Threading.Tasks;
 using FluentAssertions;
-using IP.Project.IntegrationTests.Base.TestingBaseWebApplicationFactory;
+using IP.Project.IntegrationTests.Base;
 using IP.Project.Shared;
-using Xunit;
 
 namespace IP.Project.IntegrationTests.Controllers.Sambas
 {

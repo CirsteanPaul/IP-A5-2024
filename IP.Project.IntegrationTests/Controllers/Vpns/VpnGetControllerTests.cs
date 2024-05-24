@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using FluentAssertions;
 using IP.Project.Contracts;
-using IP.Project.IntegrationTests.Base.TestingBaseWebApplicationFactory;
+using IP.Project.IntegrationTests.Base;
 using Newtonsoft.Json;
 
 namespace IP.Project.IntegrationTests.Controllers.Vpns
