@@ -2,7 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using IP.Project.Contracts;
-using IP.Project.IntegrationTests.Base.TestingBaseWebApplicationFactory;
+using IP.Project.IntegrationTests.Base;
 
 namespace IP.Project.IntegrationTests.Controllers.Vpns
 {

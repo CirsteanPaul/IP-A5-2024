@@ -24,6 +24,7 @@ builder.Services.AddValidatorsFromAssembly(assembly);
 builder.Services.AddCarter();
 builder.Services.AddIdentity(builder.Configuration);
 builder.Services.AddAuthorization();
+builder.Services.AddSingleton<ISqlConnectionFactory, SqlConnectionFactory>();
 
 var app = builder.Build();
 
