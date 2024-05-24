@@ -108,7 +108,8 @@ public class LoginEndPoint : ICarterModule
                 {
                     return Results.StatusCode(500);
                 }
-                else return Results.BadRequest(result.Error);
+                
+                return Results.BadRequest(result.Error);
             }
 
             return Results.Ok(result.Value);

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using FluentValidation;
+using Mapster;
 
 namespace IP.Project.Features.Auth
 {
@@ -60,10 +61,8 @@ namespace IP.Project.Features.Auth
                 {
                     return Result.Success();
                 }
-                else
-                {
-                    return Result.Failure(new Error("ResetPasswordFailed", string.Join("\n", result.Errors.Select(x => x.Description))));
-                }
+                
+                return Result.Failure(new Error("ResetPasswordFailed", string.Join("\n", result.Errors.Select(x => x.Description))));
             }
         }
     }
@@ -73,28 +72,24 @@ namespace IP.Project.Features.Auth
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             app.MapPost($"{Global.version}auth/reset-password",
-                    async ([FromBody] ResetPasswordRequest request, ISender sender) =>
-                    {
-                        var command = new ResetPassword.Command
-                        {
-                            Email = request.Email,
-                            NewPassword = request.NewPassword,
-                            ResetCode = request.ResetCode
-                        };
-                        var result = await sender.Send(command);
+            async ([FromBody] ResetPasswordRequest request, ISender sender) =>
+            {
+                var command = request.Adapt<ResetPassword.Command>();
+                
+                var result = await sender.Send(command);
 
-                        if (!result.IsSuccess)
-                        {
-                            return Results.BadRequest(result.Error);
-                        }
+                if (!result.IsSuccess)
+                {
+                    return Results.BadRequest(result.Error);
+                }
 
-                        return Results.Ok();
-                    })
-                .WithTags("Auth")
-                .WithDescription("Endpoint for resetting user's password using the reset token.")
-                .Produces(StatusCodes.Status200OK)
-                .Produces<Error>(StatusCodes.Status400BadRequest)
-                .WithOpenApi();
+                return Results.Ok();
+            })
+            .WithTags("Auth")
+            .WithDescription("Endpoint for resetting user's password using the reset token.")
+            .Produces(StatusCodes.Status200OK)
+            .Produces<Error>(StatusCodes.Status400BadRequest)
+            .WithOpenApi();
         }
     }
 }

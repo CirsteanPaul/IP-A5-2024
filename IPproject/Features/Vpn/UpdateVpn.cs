@@ -6,7 +6,6 @@ using IP.Project.Extensions;
 using IP.Project.Shared;
 using MediatR;
 
-
 namespace IP.Project.Features.Vpn
 {
     public static class UpdateVpnInstance

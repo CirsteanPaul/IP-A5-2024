@@ -8,7 +8,6 @@ using IP.Project.Extensions;
 using IP.Project.Shared;
 using Mapster;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IP.Project.Features.Accounts
@@ -51,12 +50,11 @@ namespace IP.Project.Features.Accounts
                 if (!validationResult.IsValid)
                 {
                     return Result.Failure<Guid>(
-                                               new Error("CreateAccount.Validator", 
-                                                                      validationResult.ToString()!));
+                           new Error("CreateAccount.Validator", 
+                                                  validationResult.ToString()!));
                 }
                 var account = new Account
                 {
-                    //Id = Guid.NewGuid(),
                     Username = request.Username,
                     Password = request.Password,
                     Email = request.Email,

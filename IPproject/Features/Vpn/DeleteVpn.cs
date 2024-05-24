@@ -1,5 +1,4 @@
 ﻿using Carter;
-using FluentValidation;
 using IP.Project.Database;
 using IP.Project.Features.Vpn;
 using IP.Project.Shared;

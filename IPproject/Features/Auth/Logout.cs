@@ -1,7 +1,6 @@
 ﻿using Carter;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using IP.Project.Shared;
 using IP.Project.Entities;
 
@@ -54,11 +53,11 @@ namespace IP.Project.Features.Auth
 
                 return Results.Ok();
             })
-                .WithTags("Auth")
-                .WithDescription("Endpoint for logging out the current user.")
-                .Produces(StatusCodes.Status200OK)
-                .Produces<Error>(StatusCodes.Status400BadRequest)
-                .WithOpenApi();
+            .WithTags("Auth")
+            .WithDescription("Endpoint for logging out the current user.")
+            .Produces(StatusCodes.Status200OK)
+            .Produces<Error>(StatusCodes.Status400BadRequest)
+            .WithOpenApi();
         }
     }
 }

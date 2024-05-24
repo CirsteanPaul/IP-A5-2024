@@ -1,6 +1,5 @@
 using Carter;
 using IP.Project.Contracts;
-using IP.Project.Database;
 using IP.Project.Entities;
 using IP.Project.Features.Auth;
 using IP.Project.Resources;
@@ -9,8 +8,6 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using FluentValidation;
-using System;
-using System.Data;
 
 namespace IP.Project.Features.Auth
 {
@@ -25,7 +22,7 @@ namespace IP.Project.Features.Auth
         public record Command : IRequest<Result<RegisterResponse>>
         {
             public RegisterRequest Request { get; init; }
-            public string Role { get; init; } = UserRoles.User;
+
             public class Validator : AbstractValidator<Command>
             {
                 public Validator()
@@ -67,8 +64,7 @@ namespace IP.Project.Features.Auth
                     var emailExists = await userManager.FindByEmailAsync(request.Request.Email);
                     if (emailExists != null)
                         return Result.Failure<RegisterResponse>(new Error("EmailAlreadyExists", "A user with this email already exists."));
-
-
+                    
                     ApplicationUser user = new ApplicationUser()
                     {
                         Email = request.Request.Email,
@@ -83,10 +79,14 @@ namespace IP.Project.Features.Auth
                     }
 
                     if (!await roleManager.RoleExistsAsync(UserRoles.User))
+                    {
                         await roleManager.CreateAsync(new IdentityRole(UserRoles.User));
+                    }
 
                     if (await roleManager.RoleExistsAsync(UserRoles.User))
+                    {
                         await userManager.AddToRoleAsync(user, UserRoles.User);
+                    }
 
                     var response = new RegisterResponse
                     {
@@ -115,6 +115,7 @@ public class RegisterEndPoint : ICarterModule
             {
                 Request = request
             };
+            
             var result = await sender.Send(command);
 
             if (result.IsFailure)
@@ -123,15 +124,14 @@ public class RegisterEndPoint : ICarterModule
                 {
                     return Results.StatusCode(500);
                 }
-                else
-                {
-                    return Results.BadRequest(result.Error);
-                }
+                
+                return Results.BadRequest(result.Error);
             }
 
             return Results.Created($"{Global.version}auth/register/{result.Value}", result.Value);
 
-        }).WithTags("Auth")
+        })
+            .WithTags("Auth")
             .WithDescription("Endpoint for registering a new user account." +
                                                                         "If the request is successful, it will return status code 201 (Created)). ")
             .Produces<RegisterResponse>(StatusCodes.Status201Created)

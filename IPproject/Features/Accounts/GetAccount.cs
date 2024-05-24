@@ -69,7 +69,8 @@ public class GetAccountEndpoint : ICarterModule
                 return Results.NotFound(result.Error);
             }
             return Results.Ok(result.Value);
-        }).WithTags("Accounts")
+        })
+        .WithTags("Accounts")
         .WithDescription("Endpoint for getting an account by id. " +
         "If the request succeeds, in the response body you can find the account details.")
         .Produces<AccountResponse>(StatusCodes.Status200OK)
