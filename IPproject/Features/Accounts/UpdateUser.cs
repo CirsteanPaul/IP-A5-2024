@@ -17,8 +17,8 @@ namespace IP.Project.Features.Accounts
             {
                 public Validator()
                 {
-                    RuleFor(x => x.Request.Mail).NotNull().NotEmpty().EmailAddress();
-                    RuleFor(x => x.Request.MailAlternateAddress).NotNull().NotEmpty().EmailAddress();
+                    RuleFor(x => x.Request.Mail).EmailAddress().When(x => x.Request.Mail != null);
+                    RuleFor(x => x.Request.MailAlternateAddress).EmailAddress().When(x => x.Request.MailAlternateAddress != null);
                 }
             }
         }
