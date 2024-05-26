@@ -7,7 +7,7 @@ using IP.Project.Shared;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
-using IP.Project.Entities;
+using System.DirectoryServices;
 
 namespace IP.Project.Features.Accounts
 {
@@ -68,41 +68,41 @@ namespace IP.Project.Features.Accounts
                 await context.SaveChangesAsync(cancellationToken);
 
                 var ldapPath = "";
-                var username = "";
-                var password = "";
+                var username = "admin";
+                var password = "secret";
 
                 using (DirectoryEntry entry = new DirectoryEntry(ldapPath, username, password))
                 {
                     // Create a new entry
-                    DirectoryEntry newUser = entry.Children.Add($"CN={account.cn}", "user");
+                    DirectoryEntry newUser = entry.Children.Add($"CN={userInstance.cn}", "user");
 
                     // Set the properties
-                    newUser.Properties["cn"].Value = account.cn;
-                    newUser.Properties["sn"].Value = account.sn;
-                    newUser.Properties["gidNumber"].Value = account.gidNumber;
-                    newUser.Properties["uidNumber"].Value = account.uidNumber;
-                    newUser.Properties["uid"].Value = account.uid;
-                    newUser.Properties["homeDirectory"].Value = account.homeDirectory;
-                    newUser.Properties["displayName"].Value = account.displayName;
-                    newUser.Properties["employeeNumber"].Value = account.employeeNumber;
-                    newUser.Properties["givenName"].Value = account.givenName;
-                    newUser.Properties["homePhone"].Value = account.homePhone;
-                    newUser.Properties["initials"].Value = account.initials;
-                    newUser.Properties["localityName"].Value = account.localityName;
-                    newUser.Properties["mail"].Value = account.mail;
-                    newUser.Properties["mailAlternateAddress"].Value = account.mailAlternateAddress;
-                    newUser.Properties["mobile"].Value = account.mobile;
-                    newUser.Properties["ou"].Value = account.ou;
-                    newUser.Properties["postalCode"].Value = account.postalCode;
-                    newUser.Properties["roomNumber"].Value = account.roomNumber;
-                    newUser.Properties["shadowInactive"].Value = account.shadowInactive;
-                    newUser.Properties["street"].Value = account.street;
-                    newUser.Properties["telephoneNumber"].Value = account.telephoneNumber;
-                    newUser.Properties["title"].Value = account.title;
-                    newUser.Properties["description"].Value = account.description;
+                    newUser.Properties["cn"].Value = userInstance.cn;
+                    newUser.Properties["sn"].Value = userInstance.sn;
+                    newUser.Properties["gidNumber"].Value = userInstance.gidNumber;
+                    newUser.Properties["uidNumber"].Value = userInstance.uidNumber;
+                    newUser.Properties["uid"].Value = userInstance.uid;
+                    newUser.Properties["homeDirectory"].Value = userInstance.homeDirectory;
+                    newUser.Properties["displayName"].Value = userInstance.displayName;
+                    newUser.Properties["employeeNumber"].Value = userInstance.employeeNumber;
+                    newUser.Properties["givenName"].Value = userInstance.givenName;
+                    newUser.Properties["homePhone"].Value = userInstance.homePhone;
+                    newUser.Properties["initials"].Value = userInstance.initials;
+                    newUser.Properties["localityName"].Value = userInstance.localityName;
+                    newUser.Properties["mail"].Value = userInstance.mail;
+                    newUser.Properties["mailAlternateAddress"].Value = userInstance.mailAlternateAddress;
+                    newUser.Properties["mobile"].Value = userInstance.mobile;
+                    newUser.Properties["ou"].Value = userInstance.ou;
+                    newUser.Properties["postalCode"].Value = userInstance.postalCode;
+                    newUser.Properties["roomNumber"].Value = userInstance.roomNumber;
+                    newUser.Properties["shadowInactive"].Value = userInstance.shadowInactive;
+                    newUser.Properties["street"].Value = userInstance.street;
+                    newUser.Properties["telephoneNumber"].Value = userInstance.telephoneNumber;
+                    newUser.Properties["title"].Value = userInstance.title;
+                    newUser.Properties["description"].Value = userInstance.description;
 
                     // Set the password
-                    newUser.Invoke("SetPassword", new object[] { account.userPassword });
+                    newUser.Invoke("SetPassword", new object[] { userInstance.userPassword });
 
                     // Commit the new entry
                     newUser.CommitChanges();
