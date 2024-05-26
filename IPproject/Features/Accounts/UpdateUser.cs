@@ -7,6 +7,8 @@ using IP.Project.Shared;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
+using IP.Project.Entities;
+
 namespace IP.Project.Features.Accounts
 {
     public class UpdateUserInstance
@@ -64,6 +66,50 @@ namespace IP.Project.Features.Accounts
                 userInstance.LastUpdatedOnUtc = DateTime.UtcNow;
 
                 await context.SaveChangesAsync(cancellationToken);
+
+                var ldapPath = "";
+                var username = "";
+                var password = "";
+
+                using (DirectoryEntry entry = new DirectoryEntry(ldapPath, username, password))
+                {
+                    // Create a new entry
+                    DirectoryEntry newUser = entry.Children.Add($"CN={account.cn}", "user");
+
+                    // Set the properties
+                    newUser.Properties["cn"].Value = account.cn;
+                    newUser.Properties["sn"].Value = account.sn;
+                    newUser.Properties["gidNumber"].Value = account.gidNumber;
+                    newUser.Properties["uidNumber"].Value = account.uidNumber;
+                    newUser.Properties["uid"].Value = account.uid;
+                    newUser.Properties["homeDirectory"].Value = account.homeDirectory;
+                    newUser.Properties["displayName"].Value = account.displayName;
+                    newUser.Properties["employeeNumber"].Value = account.employeeNumber;
+                    newUser.Properties["givenName"].Value = account.givenName;
+                    newUser.Properties["homePhone"].Value = account.homePhone;
+                    newUser.Properties["initials"].Value = account.initials;
+                    newUser.Properties["localityName"].Value = account.localityName;
+                    newUser.Properties["mail"].Value = account.mail;
+                    newUser.Properties["mailAlternateAddress"].Value = account.mailAlternateAddress;
+                    newUser.Properties["mobile"].Value = account.mobile;
+                    newUser.Properties["ou"].Value = account.ou;
+                    newUser.Properties["postalCode"].Value = account.postalCode;
+                    newUser.Properties["roomNumber"].Value = account.roomNumber;
+                    newUser.Properties["shadowInactive"].Value = account.shadowInactive;
+                    newUser.Properties["street"].Value = account.street;
+                    newUser.Properties["telephoneNumber"].Value = account.telephoneNumber;
+                    newUser.Properties["title"].Value = account.title;
+                    newUser.Properties["description"].Value = account.description;
+
+                    // Set the password
+                    newUser.Invoke("SetPassword", new object[] { account.userPassword });
+
+                    // Commit the new entry
+                    newUser.CommitChanges();
+
+                    Console.WriteLine("New LDAP entry created successfully.");
+                }
+
                 return Result.Success(request.uidNumber);
             }
         }
