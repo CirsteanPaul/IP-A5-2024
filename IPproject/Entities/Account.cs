@@ -32,6 +32,8 @@
 
         public string mail { get; set; } = string.Empty;
 
+        public string mailAlternateAddress { get; set; } = string.Empty;
+
         public string mobile { get; set; } = string.Empty;
 
         public string ou { get; set; } = string.Empty; 
