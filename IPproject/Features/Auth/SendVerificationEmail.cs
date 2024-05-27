@@ -53,7 +53,8 @@ public static class SendVerificationEmail
             }
 
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var verificationLink = $"http://localhost:3000/verify-email?userId={Uri.EscapeDataString(user.Id)}&token={Uri.EscapeDataString(token)}";
+            var verificationLink =
+                $"http://localhost:3000/verify-email?userId={Uri.EscapeDataString(user.Id)}&token={Uri.EscapeDataString(token)}";
             
             var email = new MimeMessage();
             email.From.Add(MailboxAddress.Parse("App <app@example.com>"));
@@ -61,7 +62,8 @@ public static class SendVerificationEmail
             email.Subject = "Email Verification";
             email.Body = new TextPart("plain")
             {
-                Text = $"Hello {user.UserName},\n\nPlease click the following link to verify your email:\n{verificationLink}\n\nIf you did not request email verification, please ignore this email."
+                Text =
+                    $"Hello {user.UserName},\n\nPlease click the following link to verify your email:\n{verificationLink}\n\nIf you did not request email verification, please ignore this email."
             };
 
             try
@@ -82,28 +84,28 @@ public static class SendVerificationEmail
             return Result.Success();
         }
     }
+}
 
-    public class SendVerificationEmailEndpoint : ICarterModule
+public class SendVerificationEmailEndpoint : ICarterModule
+{
+    public void AddRoutes(IEndpointRouteBuilder app)
     {
-        public void AddRoutes(IEndpointRouteBuilder app)
-        {
-            app.MapPost($"{Global.version}auth/send-verification-email", async ([FromBody] SendVerificationEmailRequest request, ISender sender) =>
+        app.MapPost($"{Global.version}auth/send-verification-email", async ([FromBody] SendVerificationEmailRequest request, ISender sender) =>
+            {
+                var command = new SendVerificationEmail.Command { Email = request.Email };
+                var result = await sender.Send(command);
+
+                if (!result.IsSuccess)
                 {
-                    var command = new SendVerificationEmail.Command { Email = request.Email };
-                    var result = await sender.Send(command);
+                    return Results.BadRequest(result.Error);
+                }
 
-                    if (!result.IsSuccess)
-                    {
-                        return Results.BadRequest(result.Error);
-                    }
-
-                    return Results.Ok();
-                })
-                .WithTags("Auth")
-                .WithDescription("Endpoint for sending email verification links.")
-                .Produces(StatusCodes.Status200OK)
-                .Produces<Error>(StatusCodes.Status400BadRequest)
-                .WithOpenApi();
-        }
+                return Results.Ok();
+            })
+            .WithTags("Auth")
+            .WithDescription("Endpoint for sending email verification links.")
+            .Produces(StatusCodes.Status200OK)
+            .Produces<Error>(StatusCodes.Status400BadRequest)
+            .WithOpenApi();
     }
 }
