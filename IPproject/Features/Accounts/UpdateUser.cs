@@ -127,10 +127,9 @@ public class UpdateUserInstance
                     userEntry.Properties["street"].Value = userInstance.street;
                     userEntry.Properties["telephoneNumber"].Value = userInstance.telephoneNumber;
                     userEntry.Properties["title"].Value = userInstance.title;
-                    //userEntry.Properties["description"].Value = userInstance.description;
+                    userEntry.Properties["description"].Value = userInstance.description;
 
-                    // Set the password
-                    //userEntry.Invoke("SetPassword", new object[] { userInstance.userPassword });
+                    userEntry.Properties["userPassword"].Add(userInstance.userPassword);
 
 
                     userEntry.CommitChanges();

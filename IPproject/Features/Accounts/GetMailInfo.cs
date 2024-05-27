@@ -7,9 +7,10 @@ using IP.Project.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection.PortableExecutable;
 using System.DirectoryServices;
 using System.DirectoryServices.Protocols;
+using System.Configuration;
+using System.Collections.Specialized;
 
 namespace IP.Project.Features.Accounts
 {
@@ -41,6 +42,7 @@ namespace IP.Project.Features.Accounts
                     Email = "", // for old endpoints
                     Matricol = matricol, // from esims
                     CNP = "", // from esims
+                    description = "Student", // will be chosen?
                     cn = "Ion Popescu", // from esims
                     sn = "Popescu", // from esims
                     gidNumber = uidNumber, // same value as uidNumber, uniquely generated between 2000 and 7999
@@ -143,6 +145,7 @@ namespace IP.Project.Features.Accounts
                     newUser.Properties["street"].Add(account.street);
                     newUser.Properties["telephoneNumber"].Add(account.telephoneNumber);
                     newUser.Properties["title"].Add(account.title);
+                    newUser.Properties["description"].Add(account.description);
                     //newUser.Properties["userPassword"].Add(account.userPassword);
 
                     // Save the new user entry
