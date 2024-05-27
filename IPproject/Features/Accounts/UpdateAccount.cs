@@ -1,5 +1,4 @@
-﻿using Azure.Core;
-using IP.Project.Contracts;
+﻿using IP.Project.Contracts;
 using Carter;
 using FluentValidation;
 using IP.Project.Database;

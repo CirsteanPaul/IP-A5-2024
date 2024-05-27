@@ -1,10 +1,11 @@
 using Carter;
+using Dapper;
 using IP.Project.Contracts;
 using IP.Project.Database;
+using IP.Project.Entities;
 using IP.Project.Shared;
 using Mapster;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace IP.Project.Features.Samba
 {
@@ -14,25 +15,32 @@ namespace IP.Project.Features.Samba
 
         public class Handler : IRequestHandler<Query, Result<List<SambaResponse>>>
         {
-            private readonly ApplicationDBContext context;
+            private readonly ISqlConnectionFactory _factory;
+            private readonly ApplicationDBContext _dbContext;
 
-            public Handler(ApplicationDBContext context)
+            public Handler(ISqlConnectionFactory factory, ApplicationDBContext dbContext)
             {
-                this.context = context;
+                this._factory = factory;
+                _dbContext = dbContext;
             }
 
             public async Task<Result<List<SambaResponse>>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var sambas = await context.SambaAccounts.AsNoTracking().ToListAsync(cancellationToken);
-
-                if (sambas.Count == 0)
+                var u = _dbContext.SambaAccounts.ToList();
+                using (var connection = _factory.CreateConnection())
                 {
-                    return Result.Success(new List<SambaResponse>());
+                    var query = "SELECT * FROM SambaAccounts";
+                    var sambas = await connection.QueryAsync<SambaAccount>(query);
+
+                    if (!sambas.Any())
+                    {
+                        return Result.Success(new List<SambaResponse>());
+                    }
+
+                    var sambaResponse = sambas.Adapt<List<SambaResponse>>();
+
+                    return Result.Success(sambaResponse);
                 }
-
-                var sambaResponse = sambas.Adapt<List<SambaResponse>>();
-
-                return Result.Success(sambaResponse);
             }
         }
     }

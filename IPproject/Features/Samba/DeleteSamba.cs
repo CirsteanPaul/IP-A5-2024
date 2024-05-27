@@ -1,9 +1,7 @@
 using Carter;
 using IP.Project.Database;
-using IP.Project.Entities;
 using IP.Project.Shared;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace IP.Project.Features.Samba

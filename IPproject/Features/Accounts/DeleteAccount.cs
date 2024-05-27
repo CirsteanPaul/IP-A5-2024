@@ -1,6 +1,5 @@
 ﻿using Carter;
 using IP.Project.Database;
-using IP.Project.Entities;
 using IP.Project.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -53,7 +52,8 @@ public class DeleteAccountEndpoint : ICarterModule
                 return Results.NotFound(result.Error);
             }
             return Results.NoContent();
-        }).WithTags("Accounts")
+        })
+        .WithTags("Accounts")
         .WithDescription("Endpoint for deleting an account by id. " + "If the account doesn't exist, a not found error will be returned.")
         .Produces(StatusCodes.Status204NoContent)
         .Produces<Error>(StatusCodes.Status404NotFound)

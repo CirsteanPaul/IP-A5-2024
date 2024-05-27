@@ -1,11 +1,11 @@
 ﻿using Carter;
+using Dapper;
 using IP.Project.Contracts;
 using IP.Project.Database;
+using IP.Project.Entities;
 using IP.Project.Shared;
 using Mapster;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-
 
 namespace IP.Project.Features.Vpn
 {
@@ -17,18 +17,19 @@ namespace IP.Project.Features.Vpn
 
         public class Handler : IRequestHandler<Query, Result<List<VpnResponse>>>
         {
-            private readonly ApplicationDBContext context;
+            private readonly ISqlConnectionFactory factory;
 
-            public Handler(ApplicationDBContext context)
+            public Handler(ISqlConnectionFactory factory)
             {
-                this.context = context;
+                this.factory = factory;
             }
 
             public async Task<Result<List<VpnResponse>>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var vpns = await context.Vpns.ToListAsync(cancellationToken);
+                using var connection = factory.CreateConnection();
+                var vpns = await connection.QueryAsync<VpnAccount>("SELECT * FROM Vpns");
 
-                if (vpns.Count == 0)
+                if (!vpns.Any())
                 {
                     return Result.Success(new List<VpnResponse>());
                 }

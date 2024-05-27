@@ -2,7 +2,7 @@
 using System.Text;
 using FluentAssertions;
 using IP.Project.Features.Samba;
-using IP.Project.IntegrationTests.Base.TestingBaseWebApplicationFactory;
+using IP.Project.IntegrationTests.Base;
 using IP.Project.Shared;
 using Newtonsoft.Json;
 
