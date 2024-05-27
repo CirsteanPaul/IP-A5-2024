@@ -1,41 +1,42 @@
 ﻿using Carter;
 using IP.Project.Contracts;
-using IP.Project.Database;
+using IP.Project.Entities;
 using IP.Project.Shared;
+using IP.Project.Database;
 using Mapster;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-
+using Dapper;
 
 namespace IP.Project.Features.Vpn
 {
     public class GetAllVpns
     {
-        public class Query : IRequest<Result<List<VpnResponse>>>
-        {
-        }
+        public class Query : IRequest<Result<List<VpnResponse>>>;
 
         public class Handler : IRequestHandler<Query, Result<List<VpnResponse>>>
         {
-            private readonly ApplicationDBContext context;
+            private readonly ISqlConnectionFactory factory;
 
-            public Handler(ApplicationDBContext context)
+            public Handler(ISqlConnectionFactory factory)
             {
-                this.context = context;
+                this.factory = factory;
             }
 
             public async Task<Result<List<VpnResponse>>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var vpns = await context.Vpns.ToListAsync(cancellationToken);
-
-                if (vpns.Count == 0)
+                using (var connection = factory.CreateConnection())
                 {
-                    return Result.Success(new List<VpnResponse>());
+                    var query = "SELECT * FROM Vpns";
+                    var vpns = await connection.QueryAsync<VpnAccount>(query);
+                    if (!vpns.Any())
+                    {
+                        return Result.Success(new List<VpnResponse>());
+                    }
+
+                    var vpnResponse = vpns.Adapt<List<VpnResponse>>();
+
+                    return Result.Success(vpnResponse);
                 }
-
-                var vpnResponses = vpns.Adapt<List<VpnResponse>>();
-
-                return Result.Success(vpnResponses);
             }
         }
     }
@@ -45,15 +46,15 @@ namespace IP.Project.Features.Vpn
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             app.MapGet("api/v1/vpns", async (ISender sender) =>
-            {
-                var query = new GetAllVpns.Query();
-                var result = await sender.Send(query);
+                {
+                    var query = new GetAllVpns.Query();
+                    var result = await sender.Send(query);
 
-                return result.IsSuccess ?
-                    Results.Ok(result.Value) :
-                    Results.NotFound(result.Error);
-            })
-            .WithTags("Vpn");
+                    return result.IsSuccess ?
+                        Results.Ok(result.Value) :
+                        Results.NotFound(result.Error);
+                })
+                .WithTags("Vpn");
         }
     }
 }
