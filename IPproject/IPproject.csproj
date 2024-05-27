@@ -31,6 +31,7 @@
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
         <PackageReference Include="MimeKit" Version="4.6.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="Novell.Directory.Ldap.NETStandard" Version="3.6.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
         <PackageReference Include="System.DirectoryServices" Version="8.0.0" />
         <PackageReference Include="System.DirectoryServices.Protocols" Version="8.0.0" />

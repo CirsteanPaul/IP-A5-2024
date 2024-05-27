@@ -7,8 +7,8 @@ using IP.Project.Shared;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
-using System.DirectoryServices;
 using System.Text.RegularExpressions;
+using Novell.Directory.Ldap;
 
 namespace IP.Project.Features.Accounts;
 
@@ -73,79 +73,89 @@ public class UpdateUserInstance
 
             await context.SaveChangesAsync(cancellationToken);
 
-
-
-            // Update user in ldap server
-            var directoryEntry = new System.DirectoryServices.DirectoryEntry(ldapServer, adminUserName, adminPassword, AuthenticationTypes.ServerBind);
-            directoryEntry.Path = "LDAP://localhost:10389/dc=info,dc=uaic,dc=ro";
+            string ldapServer = "localhost";
+            int ldapPort = 10389;
+            string adminUserName = "uid=admin,ou=system";
+            string adminPassword = "secret";
+            string baseDn = "dc=info,dc=uaic,dc=ro";
 
             var role = UidNumberToRole(userInstance.uidNumber);
-            var fullOuPath = "";
-            if (role == "students")
-            {
-                fullOuPath = OuToFullOuPath(userInstance.ou);
-            }
-
-            directoryEntry.Path = ldapServer + $"/ou={userInstance.ou} {fullOuPath},ou={role},dc=info, dc=uaic, dc=ro";
+            var fullOuPath = role == "students" ? OuToFullOuPath(userInstance.ou) : "";
+            var userDn = $"uid={userInstance.uid},ou={userInstance.ou},{fullOuPath},ou={role},{baseDn}";
 
             try
             {
-                // Create a new entry
-                DirectorySearcher searcher = new DirectorySearcher(directoryEntry)
+                using (var ldapConnection = new LdapConnection())
                 {
-                    PageSize = int.MaxValue,
-                    Filter = $"(gidNumber={userInstance.gidNumber})"
-                };
+                    // Connect and authenticate
+                    ldapConnection.Connect(ldapServer, ldapPort);
+                    ldapConnection.Bind(adminUserName, adminPassword);
+                    Console.WriteLine("Authenticated");
 
-                // Find the user entry
-                SearchResult result = searcher.FindOne();
+                    // Search for the user by gidNumber
+                    string searchFilter = $"(gidNumber={userInstance.gidNumber})";
+                    var searchResults = ldapConnection.Search(
+                        baseDn,
+                        LdapConnection.ScopeSub,
+                        searchFilter,
+                        null, // retrieve all attributes
+                        false
+                    );
 
-                if (result != null)
-                {
-                    // Get the user entry
-                    DirectoryEntry userEntry = result.GetDirectoryEntry();
+                    if (searchResults.HasMore())
+                    {
+                        var userEntry = searchResults.Next();
+                        userDn = userEntry.Dn;
 
-                    // Set the properties
-                    userEntry.Properties["cn"].Value = userInstance.cn;
-                    userEntry.Properties["sn"].Value = userInstance.sn;
-                    userEntry.Properties["gidNumber"].Value = userInstance.gidNumber;
-                    userEntry.Properties["uidNumber"].Value = userInstance.uidNumber;
-                    userEntry.Properties["uid"].Value = userInstance.uid;
-                    userEntry.Properties["homeDirectory"].Value = userInstance.homeDirectory;
-                    userEntry.Properties["displayName"].Value = userInstance.displayName;
-                    userEntry.Properties["employeeNumber"].Value = userInstance.employeeNumber;
-                    userEntry.Properties["givenName"].Value = userInstance.givenName;
-                    userEntry.Properties["homePhone"].Value = userInstance.homePhone;
-                    userEntry.Properties["initials"].Value = userInstance.initials;
-                    userEntry.Properties["localityName"].Value = userInstance.localityName;
-                    userEntry.Properties["mail"].Value = userInstance.mail;
-                    userEntry.Properties["mobile"].Value = userInstance.mobile;
-                    userEntry.Properties["ou"].Value = userInstance.ou;
-                    userEntry.Properties["postalCode"].Value = userInstance.postalCode;
-                    userEntry.Properties["roomNumber"].Value = userInstance.roomNumber;
-                    userEntry.Properties["shadowInactive"].Value = userInstance.shadowInactive;
-                    userEntry.Properties["street"].Value = userInstance.street;
-                    userEntry.Properties["telephoneNumber"].Value = userInstance.telephoneNumber;
-                    userEntry.Properties["title"].Value = userInstance.title;
-                    userEntry.Properties["description"].Value = userInstance.description;
+                        // Prepare modifications
+                        var modifications = new[]
+                        {
+                        new LdapModification(LdapModification.Replace, new LdapAttribute("cn", userInstance.cn)),
+                        new LdapModification(LdapModification.Replace, new LdapAttribute("sn", userInstance.sn)),
+                        new LdapModification(LdapModification.Replace, new LdapAttribute("gidNumber", userInstance.gidNumber.ToString())),
+                        new LdapModification(LdapModification.Replace, new LdapAttribute("uidNumber", userInstance.uidNumber.ToString())),
+                        new LdapModification(LdapModification.Replace, new LdapAttribute("uid", userInstance.uid)),
+                        new LdapModification(LdapModification.Replace, new LdapAttribute("homeDirectory", userInstance.homeDirectory)),
+                        new LdapModification(LdapModification.Replace, new LdapAttribute("displayName", userInstance.displayName)),
+                        new LdapModification(LdapModification.Replace, new LdapAttribute("employeeNumber", userInstance.employeeNumber)),
+                        new LdapModification(LdapModification.Replace, new LdapAttribute("givenName", userInstance.givenName)),
+                        new LdapModification(LdapModification.Replace, new LdapAttribute("homePhone", userInstance.homePhone)),
+                        new LdapModification(LdapModification.Replace, new LdapAttribute("initials", userInstance.initials)),
+                        new LdapModification(LdapModification.Replace, new LdapAttribute("localityName", userInstance.localityName)),
+                        new LdapModification(LdapModification.Replace, new LdapAttribute("mail", userInstance.mail)),
+                        new LdapModification(LdapModification.Replace, new LdapAttribute("mobile", userInstance.mobile)),
+                        new LdapModification(LdapModification.Replace, new LdapAttribute("ou", userInstance.ou)),
+                        new LdapModification(LdapModification.Replace, new LdapAttribute("postalCode", userInstance.postalCode)),
+                        new LdapModification(LdapModification.Replace, new LdapAttribute("roomNumber", userInstance.roomNumber)),
+                        new LdapModification(LdapModification.Replace, new LdapAttribute("shadowInactive", userInstance.shadowInactive)),
+                        new LdapModification(LdapModification.Replace, new LdapAttribute("street", userInstance.street)),
+                        new LdapModification(LdapModification.Replace, new LdapAttribute("telephoneNumber", userInstance.telephoneNumber)),
+                        new LdapModification(LdapModification.Replace, new LdapAttribute("title", userInstance.title)),
+                        new LdapModification(LdapModification.Replace, new LdapAttribute("description", userInstance.description)),
+                        new LdapModification(LdapModification.Replace, new LdapAttribute("userPassword", userInstance.userPassword))
+                    };
 
-                    userEntry.Properties["userPassword"].Add(userInstance.userPassword);
-
-
-                    userEntry.CommitChanges();
-                    Console.WriteLine("User attributes updated successfully.");
+                        // Apply modifications
+                        ldapConnection.Modify(userDn, modifications);
+                        Console.WriteLine("User attributes updated successfully.");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"No user found with gidNumber={userInstance.gidNumber}");
+                    }
                 }
-                else
-                {
-                    Console.WriteLine($"No user found with gidNumber={userInstance.uidNumber}");
-                }
-
-                Console.WriteLine("New LDAP entry created successfully.");
             }
-            catch (Exception ex) 
-            { 
-                Console.WriteLine(ex.Message);
-                return Result.Failure<int>(new Error("UpdateUser.Ldap", $"Failed to create user in ldap server"));
+            catch (LdapException ex)
+            {
+                Console.WriteLine("LDAP Error: " + ex.Message);
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine("Inner exception: " + ex.InnerException.Message);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
             }
 
             return Result.Success(request.UidNumber);
