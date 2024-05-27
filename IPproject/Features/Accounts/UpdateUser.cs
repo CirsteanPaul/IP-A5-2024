@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using System.DirectoryServices;
 using System.Text.RegularExpressions;
+using IP.Project.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace IP.Project.Features.Accounts;
 
@@ -29,15 +31,13 @@ public class UpdateUserInstance
     public class Handler : IRequestHandler<Command, Result<int>>
     {
         private readonly ApplicationDBContext context;
+        private readonly LdapSettings ldapSettings;
 
-        public Handler(ApplicationDBContext dbContext)
+        public Handler(ApplicationDBContext dbContext, IOptions<LdapSettings> ldapSettings)
         {
             this.context = dbContext;
+            this.ldapSettings = ldapSettings.Value;
         }
-
-        static private readonly string ldapServer = "LDAP://localhost:10389";
-        static private readonly string adminUserName = "uid=admin,ou=system";
-        static private readonly string adminPassword = "secret";
 
         public async Task<Result<int>> Handle(Command request, CancellationToken cancellationToken)
         {
@@ -76,8 +76,8 @@ public class UpdateUserInstance
 
 
             // Update user in ldap server
-            var directoryEntry = new System.DirectoryServices.DirectoryEntry(ldapServer, adminUserName, adminPassword, AuthenticationTypes.ServerBind);
-            directoryEntry.Path = "LDAP://localhost:10389/dc=info,dc=uaic,dc=ro";
+            var directoryEntry = new DirectoryEntry(ldapSettings.Server, ldapSettings.AdminUserName, ldapSettings.AdminPassword, AuthenticationTypes.ServerBind);
+            directoryEntry.Path = ldapSettings.Server + "/dc=info,dc=uaic,dc=ro";
 
             var role = UidNumberToRole(userInstance.uidNumber);
             var fullOuPath = "";
@@ -86,7 +86,7 @@ public class UpdateUserInstance
                 fullOuPath = OuToFullOuPath(userInstance.ou);
             }
 
-            directoryEntry.Path = ldapServer + $"/ou={userInstance.ou} {fullOuPath},ou={role},dc=info, dc=uaic, dc=ro";
+            directoryEntry.Path = ldapSettings.Server + $"/ou={userInstance.ou}{fullOuPath},ou={role},dc=info,dc=uaic,dc=ro";
 
             try
             {

@@ -3,20 +3,22 @@ using FluentValidation;
 using IP.Project.Database;
 using IP.Project.Extensions;
 using Microsoft.EntityFrameworkCore;
+using IP.Project.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwagger();
+
 // We need to add cors policy so other HOSTS, PORTS can connect to our application. Without it the integration tests
 // will not work and neither the React app.
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Open", b => b.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod().WithExposedHeaders("Location"));
 });
-builder.Services.AddDbContext<ApplicationDBContext>(db => 
-db.UseSqlServer(builder.Configuration.GetConnectionString("Database")));
+builder.Services.AddDbContext<ApplicationDBContext>(db =>
+    db.UseSqlServer(builder.Configuration.GetConnectionString("Database")));
 builder.Services.AddSingleton<ISqlConnectionFactory, SqlConnectionFactory>();
 
 var assembly = typeof(Program).Assembly;
@@ -25,6 +27,12 @@ builder.Services.AddValidatorsFromAssembly(assembly);
 builder.Services.AddCarter();
 builder.Services.AddIdentity(builder.Configuration);
 builder.Services.AddAuthorization();
+
+var ldapSettings = builder.Configuration.GetSection("LdapSettings");
+var esimsSettings = builder.Configuration.GetSection("EsimsSettings");
+
+builder.Services.Configure<LdapSettings>(ldapSettings);
+builder.Services.Configure<EsimsSettings>(esimsSettings);
 
 var app = builder.Build();
 

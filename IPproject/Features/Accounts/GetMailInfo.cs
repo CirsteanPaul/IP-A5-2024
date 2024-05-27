@@ -11,6 +11,8 @@ using System.DirectoryServices;
 using System.DirectoryServices.Protocols;
 using System.Configuration;
 using System.Collections.Specialized;
+using IP.Project.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace IP.Project.Features.Accounts
 {
@@ -24,11 +26,14 @@ namespace IP.Project.Features.Accounts
         internal sealed class Handler : IRequestHandler<Query, Result<MailInfoResponse>>
         {
             private readonly ApplicationDBContext dbContext;
+            private readonly LdapSettings ldapSettings;
 
-            public Handler(ApplicationDBContext dbContext)
+            public Handler(ApplicationDBContext dbContext, IOptions<LdapSettings> ldapSettings)
             {
                 this.dbContext = dbContext;
+                this.ldapSettings = ldapSettings.Value;
             }
+
 
             public async Task<Result<int>> addPartialEntryToDb(string matricol, CancellationToken cancellationToken)
             {
@@ -74,13 +79,9 @@ namespace IP.Project.Features.Accounts
                 dbContext.Accounts.Add(account);
                 await dbContext.SaveChangesAsync(cancellationToken);
 
-                //add partial entry to ldap
-                string ldapServer = "LDAP://localhost:10389";
-                string userName = "uid=admin, ou=system"; // admin user
-                string password = "secret";
+                var directoryEntry = new DirectoryEntry(ldapSettings.Server, ldapSettings.AdminUserName, ldapSettings.AdminPassword, AuthenticationTypes.ServerBind);
+                directoryEntry.Path = $"{ldapSettings.Server}/ou=license,ou=students,dc=info,dc=uaic,dc=ro";
 
-                var directoryEntry = new System.DirectoryServices.DirectoryEntry(ldapServer, userName, password, AuthenticationTypes.ServerBind);
-                directoryEntry.Path = "LDAP://localhost:10389/ou=license,ou=students,dc=info,dc=uaic,dc=ro";
 
                 try
                 {
@@ -110,7 +111,7 @@ namespace IP.Project.Features.Accounts
 
 
                     // Create a new user entry
-                    directoryEntry.Path = "LDAP://localhost:10389/ou=" + account.ou + ",ou=license, ou=students, dc=info, dc=uaic, dc=ro";
+                    directoryEntry.Path = $"{ldapSettings.Server}/ou=" + account.ou + ",ou=license,ou=students,dc=info,dc=uaic,dc=ro";
                     System.DirectoryServices.DirectoryEntry newUser = directoryEntry.Children.Add("cn=" + account.displayName, "inetOrgPerson");
 
                     // Set user attributes
