@@ -50,6 +50,7 @@ public class UpdateUserInstance
                 return Result.Failure<int>(new Error("UpdateUser.ValidationFailed", string.Join(" ", errorMessages)));
             }
 
+            // Update user in database
             var userInstance = await context.Accounts.FirstOrDefaultAsync(x => x.uidNumber == request.UidNumber, cancellationToken);
 
             if (userInstance == null)
@@ -72,6 +73,12 @@ public class UpdateUserInstance
 
             await context.SaveChangesAsync(cancellationToken);
 
+
+
+            // Update user in ldap server
+            var directoryEntry = new System.DirectoryServices.DirectoryEntry(ldapServer, adminUserName, adminPassword, AuthenticationTypes.ServerBind);
+            directoryEntry.Path = "LDAP://localhost:10389/dc=info,dc=uaic,dc=ro";
+
             var role = UidNumberToRole(userInstance.uidNumber);
             var fullOuPath = "";
             if (role == "students")
@@ -79,44 +86,60 @@ public class UpdateUserInstance
                 fullOuPath = OuToFullOuPath(userInstance.ou);
             }
 
-            var ouPath = ldapServer + $"/ou={userInstance.ou} {fullOuPath},ou={role},dc=info, dc=uaic, dc=ro";
+            directoryEntry.Path = ldapServer + $"/ou={userInstance.ou} {fullOuPath},ou={role},dc=info, dc=uaic, dc=ro";
 
             try
             {
-                using DirectoryEntry entry = new(ouPath, adminUserName, adminPassword);
                 // Create a new entry
-                DirectoryEntry newUser = entry.Children.Add($"CN={userInstance.cn}", "user");
+                DirectorySearcher searcher = new DirectorySearcher(directoryEntry)
+                {
+                    PageSize = int.MaxValue,
+                    Filter = $"(gidNumber={userInstance.gidNumber})"
+                };
 
-                // Set the properties
-                newUser.Properties["cn"].Value = userInstance.cn;
-                newUser.Properties["sn"].Value = userInstance.sn;
-                newUser.Properties["gidNumber"].Value = userInstance.gidNumber;
-                newUser.Properties["uidNumber"].Value = userInstance.uidNumber;
-                newUser.Properties["uid"].Value = userInstance.uid;
-                newUser.Properties["homeDirectory"].Value = userInstance.homeDirectory;
-                newUser.Properties["displayName"].Value = userInstance.displayName;
-                newUser.Properties["employeeNumber"].Value = userInstance.employeeNumber;
-                newUser.Properties["givenName"].Value = userInstance.givenName;
-                newUser.Properties["homePhone"].Value = userInstance.homePhone;
-                newUser.Properties["initials"].Value = userInstance.initials;
-                newUser.Properties["localityName"].Value = userInstance.localityName;
-                newUser.Properties["mail"].Value = userInstance.mail;
-                newUser.Properties["mailAlternateAddress"].Value = userInstance.mailAlternateAddress;
-                newUser.Properties["mobile"].Value = userInstance.mobile;
-                newUser.Properties["ou"].Value = userInstance.ou;
-                newUser.Properties["postalCode"].Value = userInstance.postalCode;
-                newUser.Properties["roomNumber"].Value = userInstance.roomNumber;
-                newUser.Properties["shadowInactive"].Value = userInstance.shadowInactive;
-                newUser.Properties["street"].Value = userInstance.street;
-                newUser.Properties["telephoneNumber"].Value = userInstance.telephoneNumber;
-                newUser.Properties["title"].Value = userInstance.title;
-                newUser.Properties["description"].Value = userInstance.description;
+                // Find the user entry
+                SearchResult result = searcher.FindOne();
 
-                // Set the password
-                newUser.Invoke("SetPassword", new object[] { userInstance.userPassword });
+                if (result != null)
+                {
+                    // Get the user entry
+                    DirectoryEntry userEntry = result.GetDirectoryEntry();
 
-                // Commit the new entry
-                newUser.CommitChanges();
+                    // Set the properties
+                    userEntry.Properties["cn"].Value = userInstance.cn;
+                    userEntry.Properties["sn"].Value = userInstance.sn;
+                    userEntry.Properties["gidNumber"].Value = userInstance.gidNumber;
+                    userEntry.Properties["uidNumber"].Value = userInstance.uidNumber;
+                    userEntry.Properties["uid"].Value = userInstance.uid;
+                    userEntry.Properties["homeDirectory"].Value = userInstance.homeDirectory;
+                    userEntry.Properties["displayName"].Value = userInstance.displayName;
+                    userEntry.Properties["employeeNumber"].Value = userInstance.employeeNumber;
+                    userEntry.Properties["givenName"].Value = userInstance.givenName;
+                    userEntry.Properties["homePhone"].Value = userInstance.homePhone;
+                    userEntry.Properties["initials"].Value = userInstance.initials;
+                    userEntry.Properties["localityName"].Value = userInstance.localityName;
+                    userEntry.Properties["mail"].Value = userInstance.mail;
+                    userEntry.Properties["mobile"].Value = userInstance.mobile;
+                    userEntry.Properties["ou"].Value = userInstance.ou;
+                    userEntry.Properties["postalCode"].Value = userInstance.postalCode;
+                    userEntry.Properties["roomNumber"].Value = userInstance.roomNumber;
+                    userEntry.Properties["shadowInactive"].Value = userInstance.shadowInactive;
+                    userEntry.Properties["street"].Value = userInstance.street;
+                    userEntry.Properties["telephoneNumber"].Value = userInstance.telephoneNumber;
+                    userEntry.Properties["title"].Value = userInstance.title;
+                    //userEntry.Properties["description"].Value = userInstance.description;
+
+                    // Set the password
+                    //userEntry.Invoke("SetPassword", new object[] { userInstance.userPassword });
+
+
+                    userEntry.CommitChanges();
+                    Console.WriteLine("User attributes updated successfully.");
+                }
+                else
+                {
+                    Console.WriteLine($"No user found with gidNumber={userInstance.uidNumber}");
+                }
 
                 Console.WriteLine("New LDAP entry created successfully.");
             }

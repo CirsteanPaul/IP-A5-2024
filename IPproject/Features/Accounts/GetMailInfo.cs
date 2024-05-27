@@ -48,20 +48,20 @@ namespace IP.Project.Features.Accounts
                     uid = "to.be", // part of email
                     homeDirectory = "/home/to.be", // /home/username(uid)
                     displayName = "Ion Popescu", // from esims
-                    employeeNumber = "",
+                    employeeNumber = "111",
                     givenName = "Ion", // from esims
-                    homePhone = "",
+                    homePhone = "0230000000",
                     initials = "",
                     localityName = "Iasi", // from esims
-                    mail = "", // will be chosen
-                    mobile = "", // will be chosen
+                    mail = "to.be@info.uaic.ro", // will be chosen
+                    mobile = "0230000000", // will be chosen
                     ou = "1A1", // from esims
-                    postalCode = "",
-                    roomNumber = "",
+                    postalCode = "70000",
+                    roomNumber = "1",
                     shadowInactive = "0",
-                    street = "",
-                    telephoneNumber = "",
-                    title = "",
+                    street = "Iasi",
+                    telephoneNumber = "0230000000",
+                    title = "Mr.",
                     userPassword = "", // will be chosen
                     CreatedOnUtc = DateTime.UtcNow,
                     LastUpdatedOnUtc = DateTime.UtcNow
@@ -123,26 +123,26 @@ namespace IP.Project.Features.Accounts
                     // uid and homeDirectory are mandatory because of posixAccount objectClass
                     // sn and cn are mandatory because of inetOrgPerson objectClass
                     newUser.Properties["sn"].Add(account.sn);
-                    //newUser.Properties["mail"].Add(account.mail);  
+                    newUser.Properties["mail"].Add(account.mail);  
                     newUser.Properties["uidNumber"].Add(account.uidNumber); 
                     newUser.Properties["gidNumber"].Add(account.gidNumber); 
                     newUser.Properties["uid"].Add(account.uid);
                     newUser.Properties["homeDirectory"].Add(account.homeDirectory);
                     newUser.Properties["displayName"].Add(account.displayName);
-                    //newUser.Properties["employeeNumber"].Add(account.employeeNumber);
+                    newUser.Properties["employeeNumber"].Add(account.employeeNumber);
                     newUser.Properties["givenName"].Add(account.givenName);
-                    //newUser.Properties["homePhone"].Add(account.homePhone);
+                    newUser.Properties["homePhone"].Add(account.homePhone);
                     newUser.Properties["initials"].Add(account.initials);
                     newUser.Properties["localityName"].Add(account.localityName);
                     newUser.Properties["localityName"].Add("Suceava");
-                    //newUser.Properties["mobile"].Add(account.mobile);
+                    newUser.Properties["mobile"].Add(account.mobile);
                     newUser.Properties["ou"].Add(account.ou);
-                    //newUser.Properties["postalCode"].Add(account.postalCode);
-                    //newUser.Properties["roomNumber"].Add(account.roomNumber);
-                    //newUser.Properties["shadowInactive"].Add(account.shadowInactive);
-                    //newUser.Properties["street"].Add(account.street);
-                    //newUser.Properties["telephoneNumber"].Add(account.telephoneNumber);
-                    //newUser.Properties["title"].Add(account.title);
+                    newUser.Properties["postalCode"].Add(account.postalCode);
+                    newUser.Properties["roomNumber"].Add(account.roomNumber);
+                    newUser.Properties["shadowInactive"].Add(account.shadowInactive);
+                    newUser.Properties["street"].Add(account.street);
+                    newUser.Properties["telephoneNumber"].Add(account.telephoneNumber);
+                    newUser.Properties["title"].Add(account.title);
                     //newUser.Properties["userPassword"].Add(account.userPassword);
 
                     // Save the new user entry
