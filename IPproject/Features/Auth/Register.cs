@@ -84,14 +84,14 @@ namespace IP.Project.Features.Auth
                         return Result.Failure<RegisterResponse>(new Error("UserCreationFailed", string.Join('\n', createUserResult.Errors.Select(x => x.Description))));
                     }
 
-                    if (!await roleManager.RoleExistsAsync(UserRoles.Admin))
+                    if (!await roleManager.RoleExistsAsync(UserRoles.User))
                     {
-                        await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
+                        await roleManager.CreateAsync(new IdentityRole(UserRoles.User));
                     }
 
-                    if (await roleManager.RoleExistsAsync(UserRoles.Admin))
+                    if (await roleManager.RoleExistsAsync(UserRoles.User))
                     {
-                        await userManager.AddToRoleAsync(user, UserRoles.Admin);
+                        await userManager.AddToRoleAsync(user, UserRoles.User);
                     }
 
                     var response = new RegisterResponse
