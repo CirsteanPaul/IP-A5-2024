@@ -3,8 +3,10 @@ using FluentValidation;
 using IP.Project.Contracts;
 using IP.Project.Database;
 using IP.Project.Extensions;
+using IP.Project.Resources;
 using IP.Project.Shared;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IP.Project.Features.Vpn
 {
@@ -49,7 +51,7 @@ namespace IP.Project.Features.Vpn
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPut("api/v1/vpns/{id}", async (Guid id, UpdateVpnRequest request, ISender sender) =>
+            app.MapPut("api/v1/vpns/{id}", [Authorize(Roles = UserRoles.Admin)] async (Guid id, UpdateVpnRequest request, ISender sender) =>
             {
                 var command = new UpdateVpnInstance.Command(id, request);
                 var result = await sender.Send(command);

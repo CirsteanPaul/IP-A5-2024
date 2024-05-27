@@ -1,8 +1,10 @@
 ﻿using Carter;
 using IP.Project.Database;
 using IP.Project.Features.Vpn;
+using IP.Project.Resources;
 using IP.Project.Shared;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 namespace IP.Project.Features.Vpn
@@ -41,7 +43,7 @@ public class DeleteVpnEndpoint :ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        _ = app.MapDelete("api/v1/vpns/{id}", async (Guid id, ISender sender) =>
+        _ = app.MapDelete("api/v1/vpns/{id}", [Authorize(Roles = UserRoles.Admin)] async (Guid id, ISender sender) =>
         {
             var command = new DeleteVpn.Command(id);
             var result = await sender.Send(command);

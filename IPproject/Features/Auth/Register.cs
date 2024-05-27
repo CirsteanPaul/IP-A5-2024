@@ -8,6 +8,7 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using FluentValidation;
+using IP.Project.Extensions;
 
 namespace IP.Project.Features.Auth
 {
@@ -55,8 +56,13 @@ namespace IP.Project.Features.Auth
                         var errorMessages = validationResult.Errors.Select(error => error.ErrorMessage).ToList();
                         return Result.Failure<RegisterResponse>(new Error("RegistrationValidationFailed", string.Join(" ", errorMessages)));
                     }
-
-
+                    
+                    var usernameValid = request.Request.Email!.Split("@").FirstOrDefault() == request.Request.Username;
+                    if (!usernameValid)
+                    {
+                        return Result.Failure<RegisterResponse>(new Error("RegistrationUsernameFailed",
+                            "Username should be the left part of the email."));
+                    }
                     var userExists = await userManager.FindByNameAsync(request.Request.Username);
                     if (userExists != null)
                         return Result.Failure<RegisterResponse>(new Error("UserAlreadyExists", "A user with this username already exists."));
@@ -78,14 +84,14 @@ namespace IP.Project.Features.Auth
                         return Result.Failure<RegisterResponse>(new Error("UserCreationFailed", string.Join('\n', createUserResult.Errors.Select(x => x.Description))));
                     }
 
-                    if (!await roleManager.RoleExistsAsync(UserRoles.User))
+                    if (!await roleManager.RoleExistsAsync(UserRoles.Admin))
                     {
-                        await roleManager.CreateAsync(new IdentityRole(UserRoles.User));
+                        await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
                     }
 
-                    if (await roleManager.RoleExistsAsync(UserRoles.User))
+                    if (await roleManager.RoleExistsAsync(UserRoles.Admin))
                     {
-                        await userManager.AddToRoleAsync(user, UserRoles.User);
+                        await userManager.AddToRoleAsync(user, UserRoles.Admin);
                     }
 
                     var response = new RegisterResponse

@@ -2,6 +2,7 @@ using Carter;
 using FluentValidation;
 using IP.Project.Entities;
 using IP.Project.Shared;
+using IP.Project.Shared.Email;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -30,11 +31,15 @@ namespace IP.Project.Features.Auth
         {
             private readonly UserManager<ApplicationUser> _userManager;
             private readonly Validator _validator;
+            private readonly IEmailService emailService;
+            private readonly ILogger<Handler> logger;
 
-            public Handler(UserManager<ApplicationUser> userManager, Validator validator)
+            public Handler(UserManager<ApplicationUser> userManager, Validator validator, IEmailService emailService, ILogger<Handler> logger)
             {
                 _userManager = userManager;
                 _validator = validator;
+                this.emailService = emailService;
+                this.logger = logger;
             }
 
             public async Task<Result> Handle(Command request, CancellationToken cancellationToken)
@@ -56,31 +61,21 @@ namespace IP.Project.Features.Auth
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var resetLink = $"http://localhost:3000/reset-password?token={Uri.EscapeDataString(token)}";
                 
-                //TO DO: Move email sending to a separate service
-                var email = new MimeMessage();
-                email.From.Add(MailboxAddress.Parse("App <app@example.com>"));
-                email.To.Add(MailboxAddress.Parse(user.Email));
-                email.Subject = "Password Reset Request";
-                email.Body = new TextPart("plain")
-                {
-                    Text = $"Hello {user.UserName},\n\nPlease click the following link to reset your password:\n{resetLink}\n\nIf you did not request a password reset, please ignore this email."
-                };
+                var email = new Mail();
+                email.To = request.Email;
+                email.Subject = "Reset password";
+                email.Body = resetLink + " " + token;
+                
                 try
                 {
-                    using (var client = new SmtpClient())
-                    {
-                        await client.ConnectAsync("smtp.example.com", 587, false, cancellationToken);
-                        await client.AuthenticateAsync("smtp_username", "smtp_password", cancellationToken);
-                        await client.SendAsync(email, cancellationToken);
-                        await client.DisconnectAsync(true, cancellationToken);
-                    }
+                    await emailService.SendEmailAsync(email);
                 }
                 catch (Exception e)
                 {
+                    logger.LogError(e, "Email sending failed");
                     return Result.Failure(new Error("EmailProviderError", e.Message));
                 }
-               
-
+                
                 return Result.Success();
             }
         }

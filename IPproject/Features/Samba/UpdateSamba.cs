@@ -4,6 +4,8 @@ using IP.Project.Database;
 using IP.Project.Shared;
 using MediatR;
 using IP.Project.Extensions;
+using IP.Project.Resources;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 namespace IP.Project.Features.Samba
@@ -67,7 +69,7 @@ namespace IP.Project.Features.Samba
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPut($"{Global.version}sambas/{{id:guid}}", async (Guid id, UpdateSambaRequest request, ISender sender) =>
+            app.MapPut($"{Global.version}sambas/{{id:guid}}", [Authorize(Roles = UserRoles.Admin)] async (Guid id, UpdateSambaRequest request, ISender sender) =>
             {
                 var command = new UpdateSambaInstance.Command(id, request);
                 var result = await sender.Send(command);

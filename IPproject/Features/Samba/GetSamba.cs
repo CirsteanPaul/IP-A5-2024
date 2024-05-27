@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Dapper;
 using IP.Project.Entities;
 using IP.Project.Database;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IP.Project.Features.Samba
 {
@@ -50,7 +51,7 @@ namespace IP.Project.Features.Samba
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapGet($"{Global.version}sambas/{{id:guid}}", async ([FromRoute] Guid id, ISender sender) =>
+            app.MapGet($"{Global.version}sambas/{{id:guid}}", [Authorize] async ([FromRoute] Guid id, ISender sender) =>
             {
                 var query = new GetSamba.Query
                 {

@@ -6,6 +6,7 @@ using IP.Project.Entities;
 using IP.Project.Shared;
 using Mapster;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IP.Project.Features.Vpn
 {
@@ -48,7 +49,7 @@ namespace IP.Project.Features.Vpn
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapGet("api/v1/vpns/{id}", async (Guid id, ISender sender) =>
+            app.MapGet("api/v1/vpns/{id}", [Authorize] async (Guid id, ISender sender) =>
             {
                 var query = new GetVpn.Query
                 {

@@ -60,6 +60,9 @@ namespace IP.Project.Features.Auth
                         new Claim(ClaimTypes.Name, user.UserName!),
                         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     };
+                    var userRoles = await userManager.GetRolesAsync(user);
+
+                    authClaims.AddRange(userRoles.Select(userRole => new Claim(ClaimTypes.Role, userRole)));
 
                     var token = GenerateToken(authClaims);
 
