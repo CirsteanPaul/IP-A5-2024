@@ -47,6 +47,7 @@ namespace IP.Project.Features.Auth
                 }
 
                 var user = await _userManager.FindByEmailAsync(request.Email);
+
                 if (user == null)
                 {
                     // Don't reveal that the user does not exist or is not confirmed
@@ -99,7 +100,7 @@ namespace IP.Project.Features.Auth
                     {
                         return Results.BadRequest(result.Error);
                     }
-
+                    
                     return Results.Ok();
                 })
                 .WithTags("Auth")
