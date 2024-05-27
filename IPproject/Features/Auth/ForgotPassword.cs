@@ -1,8 +1,8 @@
 using Carter;
 using FluentValidation;
 using IP.Project.Entities;
+using IP.Project.Services.Email;
 using IP.Project.Shared;
-using IP.Project.Shared.Email;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

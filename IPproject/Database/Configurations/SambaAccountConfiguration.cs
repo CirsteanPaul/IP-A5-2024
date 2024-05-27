@@ -2,7 +2,7 @@ using IP.Project.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace IP.Project.Database;
+namespace IP.Project.Database.Configurations;
 
 public class SambaAccountConfiguration : IEntityTypeConfiguration<SambaAccount>
 {

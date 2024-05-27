@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using IP.Project.Entities;
 using Microsoft.EntityFrameworkCore;
-using IP.Project.Entities;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace IP.Project.Database
+namespace IP.Project.Database.Configurations
 {
     public class VpnConfiguration : IEntityTypeConfiguration<VpnAccount>
     {

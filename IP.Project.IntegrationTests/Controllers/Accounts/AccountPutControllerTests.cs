@@ -2,6 +2,8 @@
 using System.Net.Http.Json;
 using FluentAssertions;
 using IP.Project.Contracts;
+using IP.Project.Contracts.Account;
+using IP.Project.Contracts.Samba;
 using IP.Project.IntegrationTests.Base;
 using IP.Project.Shared;
 using Newtonsoft.Json;

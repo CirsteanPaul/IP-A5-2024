@@ -1,4 +1,4 @@
-namespace IP.Project.Contracts;
+namespace IP.Project.Contracts.Vpn;
 
 public class UpdateVpnRequest
 {

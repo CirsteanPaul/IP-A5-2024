@@ -1,6 +1,6 @@
-﻿namespace IP.Project.Resources;
+﻿namespace IP.Project.Constants;
 
-public static class UserRoles
+public static class Roles
 {
     public const string User = "User";
     public const string Admin = "Admin";

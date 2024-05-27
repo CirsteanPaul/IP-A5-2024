@@ -1,11 +1,12 @@
 ﻿using Carter;
 using FluentValidation;
+using IP.Project.Constants;
 using IP.Project.Contracts;
+using IP.Project.Contracts.Samba;
 using IP.Project.Database;
 using IP.Project.Entities;
 using IP.Project.Extensions;
 using IP.Project.Features.Samba;
-using IP.Project.Resources;
 using IP.Project.Shared;
 using Mapster;
 using MediatR;
@@ -73,7 +74,7 @@ public class CreateSambaEndPoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        _ = app.MapPost($"{Global.version}sambas", [Authorize(Roles = UserRoles.Admin)] async ([FromBody] CreateSambaRequest request, ISender sender) =>
+        _ = app.MapPost($"{Global.version}sambas", [Authorize(Roles = Roles.Admin)] async ([FromBody] CreateSambaRequest request, ISender sender) =>
             {
                 var command = request.Adapt<CreateSamba.Command>();
                 var result = await sender.Send(command);

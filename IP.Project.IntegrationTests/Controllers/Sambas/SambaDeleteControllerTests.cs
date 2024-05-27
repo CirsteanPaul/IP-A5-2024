@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Net.Http.Headers;
 using FluentAssertions;
 using IP.Project.IntegrationTests.Base;
 using IP.Project.Shared;
@@ -21,6 +22,10 @@ namespace IP.Project.IntegrationTests.Controllers.Sambas
         [Fact]
         public async Task When_DeleteSamba_WithExistingId_Then_ReturnsNoContent()
         {
+            // Arrange
+            _factory.Client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", TestingBaseWebApplicationFactory.CreateAdminToken());
+
             // Act
             var response = await _factory.Client.DeleteAsync(_requestUri + _existingSambaId);
 
@@ -31,6 +36,10 @@ namespace IP.Project.IntegrationTests.Controllers.Sambas
         [Fact]
         public async Task When_DeleteSamba_WithNonExistingId_Then_ReturnsNotFound()
         {
+            // Arrange
+            _factory.Client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", TestingBaseWebApplicationFactory.CreateAdminToken());
+
             // Act
             var response = await _factory.Client.DeleteAsync(_requestUri + _nonExistingSambaId);
 

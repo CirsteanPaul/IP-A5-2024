@@ -1,6 +1,8 @@
 ﻿using Carter;
 using Dapper;
 using IP.Project.Contracts;
+using IP.Project.Contracts.Samba;
+using IP.Project.Contracts.Vpn;
 using IP.Project.Database;
 using IP.Project.Entities;
 using IP.Project.Shared;

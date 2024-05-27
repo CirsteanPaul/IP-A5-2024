@@ -1,7 +1,9 @@
 ﻿using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using FluentAssertions;
 using IP.Project.Contracts;
+using IP.Project.Contracts.Samba;
 using IP.Project.IntegrationTests.Base;
 using IP.Project.Shared;
 
@@ -28,6 +30,8 @@ public class SambaCreateControllerTests : IClassFixture<TestingBaseWebApplicatio
         };
 
         // Act
+        factory.Client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", TestingBaseWebApplicationFactory.CreateAdminToken());
         var response = await factory.Client.PostAsJsonAsync(RequestUri, request);
 
         // Assert
@@ -43,6 +47,9 @@ public class SambaCreateControllerTests : IClassFixture<TestingBaseWebApplicatio
             Description = "Invalid Samba",
             IPv4Address = "999.999.999.999"  
         };
+        
+        factory.Client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", TestingBaseWebApplicationFactory.CreateAdminToken());
 
         // Act
         var response = await factory.Client.PostAsJsonAsync(RequestUri, request);

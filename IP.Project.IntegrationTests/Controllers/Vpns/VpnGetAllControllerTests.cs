@@ -1,7 +1,8 @@
 ﻿using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using FluentAssertions;
-using IP.Project.Contracts;
+using IP.Project.Contracts.Vpn;
 using IP.Project.IntegrationTests.Base;
 
 namespace IP.Project.IntegrationTests.Controllers.Vpns
@@ -20,7 +21,9 @@ namespace IP.Project.IntegrationTests.Controllers.Vpns
         public async Task GetAllVpns_ReturnsListOfVpns_WhenExists()
         {
             // Arrange 
-            var existingid = Guid.Parse("2330d4f5-1c5b-42cb-a34b-d9275e99b6bc");
+            var existingId = Guid.Parse("2330d4f5-1c5b-42cb-a34b-d9275e99b6bc");
+            factory.Client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", TestingBaseWebApplicationFactory.CreateUserToken());
             
             // Act
             var response = await factory.Client.GetAsync(RequestUri);
@@ -30,7 +33,7 @@ namespace IP.Project.IntegrationTests.Controllers.Vpns
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             vpns.Should().NotBeNull();
             vpns.Should().HaveCount(2);
-            vpns.Should().ContainSingle(x => x.Id == existingid);
+            vpns.Should().ContainSingle(x => x.Id == existingId);
         }
     }
 }

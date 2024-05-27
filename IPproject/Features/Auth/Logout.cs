@@ -3,7 +3,6 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using IP.Project.Shared;
 using IP.Project.Entities;
-using IP.Project.Resources;
 using Microsoft.AspNetCore.Authorization;
 
 namespace IP.Project.Features.Auth

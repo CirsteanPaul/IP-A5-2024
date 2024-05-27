@@ -1,7 +1,8 @@
 ﻿using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using FluentAssertions;
-using IP.Project.Contracts;
+using IP.Project.Contracts.Vpn;
 using IP.Project.IntegrationTests.Base;
 using IP.Project.Shared;
 
@@ -28,7 +29,9 @@ namespace IP.Project.IntegrationTests.Controllers.Vpns
                 NewDescription = "Updated VPN Description",
                 NewIpAddress = "192.168.100.1"
             };
-
+            factory.Client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", TestingBaseWebApplicationFactory.CreateAdminToken());
+            
             // Act
             var response = await factory.Client.PutAsJsonAsync($"{RequestUri}{existingVpnId}", updateRequest);
 
@@ -46,6 +49,8 @@ namespace IP.Project.IntegrationTests.Controllers.Vpns
                 NewDescription = "Non-existent VPN Description",
                 NewIpAddress = "192.168.100.2"
             };
+            factory.Client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", TestingBaseWebApplicationFactory.CreateAdminToken());
 
             // Act
             var response = await factory.Client.PutAsJsonAsync($"{RequestUri}{nonExistingVpnId}", updateRequest);

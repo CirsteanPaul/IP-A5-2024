@@ -2,12 +2,13 @@ using Carter;
 using IP.Project.Contracts;
 using IP.Project.Entities;
 using IP.Project.Features.Auth;
-using IP.Project.Resources;
 using IP.Project.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using FluentValidation;
+using IP.Project.Constants;
+using IP.Project.Contracts.Auth;
 using IP.Project.Extensions;
 
 namespace IP.Project.Features.Auth
@@ -84,14 +85,14 @@ namespace IP.Project.Features.Auth
                         return Result.Failure<RegisterResponse>(new Error("UserCreationFailed", string.Join('\n', createUserResult.Errors.Select(x => x.Description))));
                     }
 
-                    if (!await roleManager.RoleExistsAsync(UserRoles.User))
+                    if (!await roleManager.RoleExistsAsync(Roles.User))
                     {
-                        await roleManager.CreateAsync(new IdentityRole(UserRoles.User));
+                        await roleManager.CreateAsync(new IdentityRole(Roles.User));
                     }
 
-                    if (await roleManager.RoleExistsAsync(UserRoles.User))
+                    if (await roleManager.RoleExistsAsync(Roles.User))
                     {
-                        await userManager.AddToRoleAsync(user, UserRoles.User);
+                        await userManager.AddToRoleAsync(user, Roles.User);
                     }
 
                     var response = new RegisterResponse

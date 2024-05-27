@@ -1,10 +1,11 @@
 ﻿using Carter;
 using FluentValidation;
+using IP.Project.Constants;
 using IP.Project.Contracts;
+using IP.Project.Contracts.Vpn;
 using IP.Project.Database;
 using IP.Project.Extensions;
 using IP.Project.Features.Vpn;
-using IP.Project.Resources;
 using IP.Project.Shared;
 using Mapster;
 using MediatR;
@@ -70,7 +71,7 @@ public class CreateVpnEndPoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        _ = app.MapPost("api/v1/vpns", [Authorize(Roles = UserRoles.Admin)] async (CreateVpnRequest request, ISender sender) =>
+        _ = app.MapPost("api/v1/vpns", [Authorize(Roles = Roles.Admin)] async (CreateVpnRequest request, ISender sender) =>
         {
             var command = request.Adapt<CreateVpn.Command>();
             var result = await sender.Send(command);

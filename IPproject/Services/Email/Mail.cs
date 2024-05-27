@@ -1,4 +1,4 @@
-namespace IP.Project.Shared.Email;
+namespace IP.Project.Services.Email;
 
 public class Mail
 {

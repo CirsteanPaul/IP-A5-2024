@@ -5,6 +5,7 @@ using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Dapper;
+using IP.Project.Contracts.Samba;
 using IP.Project.Entities;
 using IP.Project.Database;
 using Microsoft.AspNetCore.Authorization;

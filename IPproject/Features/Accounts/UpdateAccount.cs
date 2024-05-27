@@ -1,6 +1,8 @@
 ﻿using IP.Project.Contracts;
 using Carter;
 using FluentValidation;
+using IP.Project.Contracts.Account;
+using IP.Project.Contracts.Samba;
 using IP.Project.Database;
 using IP.Project.Shared;
 using MediatR;

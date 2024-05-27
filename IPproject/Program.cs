@@ -2,7 +2,7 @@ using Carter;
 using FluentValidation;
 using IP.Project.Database;
 using IP.Project.Extensions;
-using IP.Project.Shared.Email;
+using IP.Project.Services.Email;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

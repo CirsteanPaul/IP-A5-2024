@@ -2,7 +2,7 @@ using Microsoft.Extensions.Options;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 
-namespace IP.Project.Shared.Email
+namespace IP.Project.Services.Email
 {
     public class EmailService : IEmailService
     {

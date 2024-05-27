@@ -1,6 +1,7 @@
 ﻿using System.Net;
+using System.Net.Http.Headers;
 using FluentAssertions;
-using IP.Project.Contracts;
+using IP.Project.Contracts.Samba;
 using IP.Project.IntegrationTests.Base;
 using IP.Project.Shared;
 using Newtonsoft.Json;
@@ -22,7 +23,9 @@ namespace IP.Project.IntegrationTests.Controllers.Sambas
         {
             // Arrange
             var existingSambaId = Guid.Parse("b1f5d163-ff83-411a-4144-08dc5ef3042e");
-
+            factory.Client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", TestingBaseWebApplicationFactory.CreateUserToken());
+            
             // Act
             var response = await factory.Client.GetAsync(RequestUri + existingSambaId);
 
@@ -39,6 +42,8 @@ namespace IP.Project.IntegrationTests.Controllers.Sambas
         {
             // Arrange
             Guid nonExistingSambaId = Guid.Parse("b1f5d163-ee13-411a-4144-07dc5ef3042e");
+            factory.Client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", TestingBaseWebApplicationFactory.CreateUserToken());
 
             // Act
             var response = await factory.Client.GetAsync(RequestUri + nonExistingSambaId);
