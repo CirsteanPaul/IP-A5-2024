@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using Carter;
-using IP.Project.Contracts;
 using IP.Project.Contracts.Auth;
 using IP.Project.Features.Auth;
 using IP.Project.Shared;

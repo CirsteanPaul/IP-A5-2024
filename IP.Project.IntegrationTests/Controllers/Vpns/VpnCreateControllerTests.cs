@@ -23,7 +23,7 @@ namespace IP.Project.IntegrationTests.Controllers.Vpns
             // Arrange
             var vpnRequest = new CreateVpnRequest
             {
-                Description = "New VPN",
+                Description = "New VPN long",
                 IPv4Address = "192.168.1.1"
             };
             factory.Client.DefaultRequestHeaders.Authorization =

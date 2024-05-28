@@ -25,7 +25,7 @@ public class SambaCreateControllerTests : IClassFixture<TestingBaseWebApplicatio
         // Arrange
         var request = new CreateSambaRequest()
         {
-            Description = "New Samba",
+            Description = "New Samba long",
             IPv4Address = "192.168.1.100" 
         };
 

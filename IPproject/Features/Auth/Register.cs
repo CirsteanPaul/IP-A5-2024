@@ -1,5 +1,4 @@
 using Carter;
-using IP.Project.Contracts;
 using IP.Project.Entities;
 using IP.Project.Features.Auth;
 using IP.Project.Shared;
@@ -9,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using FluentValidation;
 using IP.Project.Constants;
 using IP.Project.Contracts.Auth;
-using IP.Project.Extensions;
 
 namespace IP.Project.Features.Auth
 {
@@ -29,9 +27,7 @@ namespace IP.Project.Features.Auth
             {
                 public Validator()
                 {
-                    RuleFor(x => x.Request.Username).NotEmpty().MinimumLength(6);
                     RuleFor(x => x.Request.Email).NotEmpty().EmailAddress();
-                    RuleFor(x => x.Request.Password).NotEmpty().MinimumLength(6);
                 }
             }
         }

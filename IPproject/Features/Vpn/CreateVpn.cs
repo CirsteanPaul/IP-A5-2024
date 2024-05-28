@@ -1,7 +1,6 @@
 ﻿using Carter;
 using FluentValidation;
 using IP.Project.Constants;
-using IP.Project.Contracts;
 using IP.Project.Contracts.Vpn;
 using IP.Project.Database;
 using IP.Project.Extensions;
@@ -17,7 +16,7 @@ namespace IP.Project.Features.Vpn
     {
         public record Command : IRequest<Result<Guid>>
         {
-            public string? Description { get; set; }
+            public string Description { get; set; } = string.Empty;
             public string IPv4Address { get; set; } = string.Empty;
         }
 
@@ -25,7 +24,7 @@ namespace IP.Project.Features.Vpn
         {
             public Validator()
             {
-                RuleFor(x => x.Description).NotEmpty();
+                RuleFor(x => x.Description).NotEmpty().MinimumLength(10);
                 RuleFor(x => x.IPv4Address).NotEmpty().IpAddress();
             }
         }

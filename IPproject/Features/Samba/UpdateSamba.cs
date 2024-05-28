@@ -12,8 +12,8 @@ namespace IP.Project.Features.Samba
 {
     public class UpdateSambaRequest
     {
-        public string NewIpAddress { get; set; }
-        public string? NewDescription { get; set; }
+        public string NewIpAddress { get; set; } = string.Empty;
+        public string NewDescription { get; set; } = string.Empty;
     }
 
     public static class UpdateSambaInstance
@@ -24,7 +24,8 @@ namespace IP.Project.Features.Samba
             {
                 public Validator()
                 {
-                    RuleFor(x => x.Request.NewIpAddress).NotEmpty().IpAddress(); // Using Matricol() for IP address validation
+                    RuleFor(x => x.Request.NewIpAddress).NotEmpty().IpAddress();
+                    RuleFor(x => x.Request.NewDescription).NotEmpty().MinimumLength(10);
                 }
             }
         }
@@ -57,7 +58,8 @@ namespace IP.Project.Features.Samba
                 }
 
                 sambaInstance.IPv4Address = request.Request.NewIpAddress;
-                if (request.Request.NewDescription != null) { sambaInstance.Description = request.Request.NewDescription; }
+                sambaInstance.Description = request.Request.NewDescription;
+                
                 await context.SaveChangesAsync(cancellationToken);
 
                 return Result.Success(request.Id);

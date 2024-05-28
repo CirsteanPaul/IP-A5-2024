@@ -1,8 +1,6 @@
 ﻿using Carter;
 using FluentValidation;
 using IP.Project.Constants;
-using IP.Project.Contracts;
-using IP.Project.Contracts.Samba;
 using IP.Project.Contracts.Vpn;
 using IP.Project.Database;
 using IP.Project.Extensions;
@@ -21,6 +19,7 @@ namespace IP.Project.Features.Vpn
                 public Validator()
                 {
                     RuleFor(x => x.Request.NewIpAddress).NotEmpty().IpAddress(); 
+                    RuleFor(x => x.Request.NewDescription).NotEmpty().MinimumLength(10); 
                 }
             }
         }
@@ -42,7 +41,7 @@ namespace IP.Project.Features.Vpn
                 }
 
                 vpnInstance.IPv4Address = request.Request.NewIpAddress;
-                if (request.Request.NewDescription != null) { vpnInstance.Description = request.Request.NewDescription; }
+                vpnInstance.Description = request.Request.NewDescription;
                 await context.SaveChangesAsync(cancellationToken);
 
                 return Result.Success(request.Id);

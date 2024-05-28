@@ -6,8 +6,6 @@ using IP.Project.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using MimeKit;
-using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Identity.Data;
 
 namespace IP.Project.Features.Auth
@@ -62,11 +60,13 @@ namespace IP.Project.Features.Auth
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var resetLink = $"http://localhost:3000/reset-password?token={Uri.EscapeDataString(token)}";
                 
-                var email = new Mail();
-                email.To = request.Email;
-                email.Subject = "Reset password";
-                email.Body = resetLink + " " + token;
-                
+                var email = new Mail
+                {
+                    To = request.Email,
+                    Subject = "Reset password",
+                    Body = resetLink + " " + token
+                };
+
                 try
                 {
                     await emailService.SendEmailAsync(email);

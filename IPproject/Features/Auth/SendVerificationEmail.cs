@@ -4,11 +4,9 @@ using IP.Project.Contracts;
 using IP.Project.Entities;
 using IP.Project.Services.Email;
 using IP.Project.Shared;
-using MailKit.Net.Smtp;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using MimeKit;
 
 namespace IP.Project.Features.Auth;
 
@@ -16,7 +14,7 @@ public static class SendVerificationEmail
 {
     public record Command : IRequest<Result>
     {
-        public string Email { get; init; }
+        public string Email { get; init; } = string.Empty;
     }
 
     public class Validator : AbstractValidator<Command>
@@ -61,10 +59,12 @@ public static class SendVerificationEmail
             var verificationLink =
                 $"http://localhost:3000/verify-email?userId={Uri.EscapeDataString(user.Id)}&token={Uri.EscapeDataString(token)}";
             
-            var email = new Mail();
-            email.To = request.Email;
-            email.Subject = "Verify password";
-            email.Body = verificationLink + " " + token + " " + user.Id;
+            var email = new Mail
+            {
+                To = request.Email,
+                Subject = "Verify email",
+                Body = verificationLink
+            };
             try
             {
                 await emailService.SendEmailAsync(email);

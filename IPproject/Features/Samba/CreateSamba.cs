@@ -1,7 +1,6 @@
 ﻿using Carter;
 using FluentValidation;
 using IP.Project.Constants;
-using IP.Project.Contracts;
 using IP.Project.Contracts.Samba;
 using IP.Project.Database;
 using IP.Project.Entities;
@@ -19,7 +18,7 @@ namespace IP.Project.Features.Samba
     {
         public record Command : IRequest<Result<Guid>>
         {
-            public string? Description { get; set; }
+            public string Description { get; set; } = string.Empty;
             public string IPv4Address { get; set; } = string.Empty;
             
         }
@@ -29,7 +28,7 @@ namespace IP.Project.Features.Samba
                 public Validator()
                 {
                     RuleFor(x => x.IPv4Address).NotEmpty().IpAddress(); // Using IpAddress() for IP address validation
-                    
+                    RuleFor(x => x.Description).NotEmpty().MinimumLength(10);
                 }
             }
         

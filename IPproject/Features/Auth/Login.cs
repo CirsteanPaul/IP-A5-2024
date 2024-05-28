@@ -1,6 +1,5 @@
 ﻿using Carter;
 using FluentValidation;
-using IP.Project.Contracts;
 using IP.Project.Entities;
 using IP.Project.Features.Auth;
 using IP.Project.Shared;
