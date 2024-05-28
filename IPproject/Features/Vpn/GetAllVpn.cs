@@ -51,9 +51,7 @@ namespace IP.Project.Features.Vpn
                 var query = new GetAllVpns.Query();
                 var result = await sender.Send(query);
 
-                return result.IsSuccess ?
-                    Results.Ok(result.Value) :
-                    Results.NotFound(result.Error);
+                return Results.Ok(result.Value);
             })
             .WithTags("Vpn");
         }

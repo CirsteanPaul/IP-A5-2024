@@ -58,11 +58,8 @@ namespace IP.Project.Features.Samba
                     Id = id
                 };
                 var result = await sender.Send(query);
-                if (result.IsFailure)
-                {
-                    return Results.NotFound(result.Error);
-                }
-                return Results.Ok(result.Value);
+                
+                return result.IsFailure ? Results.NotFound(result.Error) : Results.Ok(result.Value);
             }).WithTags("Samba")
             .WithDescription("Endpoint for retrieving details of a specific Samba account.")
             .Produces<SambaResponse>(StatusCodes.Status200OK)

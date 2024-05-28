@@ -6,8 +6,8 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
-namespace IP.Project.Features.Samba
-{
+namespace IP.Project.Features.Samba;
+
     public static class DeleteSamba
     {
         public record Command(Guid Id) : IRequest<Result>;
@@ -57,4 +57,4 @@ namespace IP.Project.Features.Samba
                 .WithOpenApi();
         }
     }
-}
+

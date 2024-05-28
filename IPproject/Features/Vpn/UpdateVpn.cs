@@ -56,11 +56,8 @@ namespace IP.Project.Features.Vpn
             {
                 var command = new UpdateVpnInstance.Command(id, request);
                 var result = await sender.Send(command);
-                if (result.IsSuccess)
-                {
-                    return Results.NoContent();
-                }
-                return Results.NotFound(result.Error);
+                
+                return result.IsSuccess ? Results.NoContent() : Results.NotFound(result.Error);
             })
             .WithTags("Vpn");
         }

@@ -1,7 +1,6 @@
 ﻿using Carter;
 using IP.Project.Constants;
 using IP.Project.Database;
-using IP.Project.Features.Vpn;
 using IP.Project.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -24,12 +23,14 @@ namespace IP.Project.Features.Vpn
 
             public async Task<Result> Handle(Command request, CancellationToken cancellationToken)
             {
-                var vpnToBeDeleted = await dbContext.Vpns.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+                var vpnToBeDeleted =
+                    await dbContext.Vpns.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
                 if (vpnToBeDeleted is null)
                 {
                     return Result.Failure<Guid>(new Error("DeleteVpn.Null", $"Vpn with id {request.Id} not found"));
                 }
+
                 dbContext.Vpns.Remove(vpnToBeDeleted);
                 await dbContext.SaveChangesAsync(cancellationToken);
 
@@ -37,32 +38,25 @@ namespace IP.Project.Features.Vpn
             }
         }
     }
-}
 
-public class DeleteVpnEndpoint :ICarterModule
-{
-    public void AddRoutes(IEndpointRouteBuilder app)
+    public class DeleteVpnEndpoint : ICarterModule
     {
-        _ = app.MapDelete($"{Global.version}vpns/{{id}}", [Authorize(Roles = Roles.Admin)] async (Guid id, ISender sender) =>
+        public void AddRoutes(IEndpointRouteBuilder app)
         {
-            var command = new DeleteVpn.Command(id);
-            var result = await sender.Send(command);
-            if (result.IsFailure)
-            {
-                if (result.Error.Code == "DeleteVpn.Null")
-                {
-                    return Results.NotFound(result.Error);
-                }
-                return Results.BadRequest(result.Error);
-            }
-            return Results.NoContent();
-        })
-        .WithTags("Vpn")
-        .WithDescription("Endpoint for deleting a specific Vpn. " +
-                         "If the request is successful, it will return status code 204 (No content).")
-        .Produces(StatusCodes.Status204NoContent)
-        .Produces<Error>(StatusCodes.Status404NotFound)
-        .WithOpenApi();
-    }   
-}
+            _ = app.MapDelete($"{Global.version}vpns/{{id}}", [Authorize(Roles = Roles.Admin)]
+                    async (Guid id, ISender sender) =>
+                    {
+                        var command = new DeleteVpn.Command(id);
+                        var result = await sender.Send(command);
 
+                        return result.IsSuccess ? Results.NoContent() : Results.NotFound(result.Error);
+                    })
+                .WithTags("Vpn")
+                .WithDescription("Endpoint for deleting a specific Vpn. " +
+                                 "If the request is successful, it will return status code 204 (No content).")
+                .Produces(StatusCodes.Status204NoContent)
+                .Produces<Error>(StatusCodes.Status404NotFound)
+                .WithOpenApi();
+        }
+    }
+}

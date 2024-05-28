@@ -75,11 +75,8 @@ namespace IP.Project.Features.Samba
             {
                 var command = new UpdateSambaInstance.Command(id, request);
                 var result = await sender.Send(command);
-                if (result.IsSuccess)
-                {
-                    return Results.NoContent();
-                }
-                return Results.NotFound(result.Error);
+                
+                return result.IsSuccess ? Results.NoContent() : Results.NotFound(result.Error);
             }).WithTags("Samba")
             .WithDescription("Endpoint for updating details of a specific Samba account. " +
                          "If the request is successful, it will return status code 204 (No content). ")

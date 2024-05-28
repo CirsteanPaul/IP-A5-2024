@@ -83,7 +83,7 @@ public class CreateSambaEndPoint : ICarterModule
                     return Results.BadRequest(result.Error);
                 }
 
-                return Results.Created($"/api/v1/sambas/{result.Value}", null);
+                return Results.Created($"{Global.version}sambas/{result.Value}", null);
             })
             .WithTags("Samba")
             .WithDescription("Endpoint for creating a new samba account. " +

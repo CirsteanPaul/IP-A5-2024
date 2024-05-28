@@ -56,9 +56,7 @@ namespace IP.Project.Features.Vpn
                     Id = id
                 };
                 var result = await sender.Send(query);
-                return result.IsSuccess ?
-                    Results.Ok(result.Value) :
-                    Results.NotFound(result.Error);
+                return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error);
             })
             .WithTags("Vpn");
         }
