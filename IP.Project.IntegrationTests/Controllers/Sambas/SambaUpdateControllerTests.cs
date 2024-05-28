@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
 using FluentAssertions;
 using IP.Project.Features.Samba;
@@ -28,6 +29,9 @@ namespace IP.Project.IntegrationTests.Controllers.Sambas
                 NewDescription = "New description"
             };
             var content = new StringContent(JsonConvert.SerializeObject(updateRequest), Encoding.UTF8, "application/json");
+            factory.Client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", TestingBaseWebApplicationFactory.CreateAdminToken());
+
             // Act
             var response = await factory.Client.PutAsync(RequestUri + existingSambaId, content);
             // Assert
@@ -45,6 +49,8 @@ namespace IP.Project.IntegrationTests.Controllers.Sambas
                 NewDescription = "New description"
             };
             var content = new StringContent(JsonConvert.SerializeObject(updateRequest), Encoding.UTF8, "application/json");
+            factory.Client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", TestingBaseWebApplicationFactory.CreateAdminToken());
 
             // Act
             var response = await factory.Client.PutAsync(RequestUri + nonExistingSambaId, content);

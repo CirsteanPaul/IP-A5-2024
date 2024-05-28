@@ -42,7 +42,7 @@ public class CreateSambaTests : BaseTest<SambaAccount>
         var sut = new CreateSamba.Handler(mock, new CreateSamba.Validator());
         var createCommand = new CreateSamba.Command()
         {
-            Description = null,
+            Description = "Description ip address",
             IPv4Address = "192.168.1.1" 
         };
         

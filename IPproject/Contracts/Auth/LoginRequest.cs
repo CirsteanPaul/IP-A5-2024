@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace IP.Project.Contracts;
+﻿namespace IP.Project.Contracts.Auth;
 
 public class LoginRequest
 {

@@ -1,6 +1,5 @@
 ﻿using Carter;
 using FluentValidation;
-using IP.Project.Contracts;
 using IP.Project.Entities;
 using IP.Project.Features.Auth;
 using IP.Project.Shared;
@@ -11,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using IP.Project.Contracts.Auth;
 
 namespace IP.Project.Features.Auth
 {
@@ -22,7 +22,7 @@ namespace IP.Project.Features.Auth
             {
                 public Validator()
                 {
-                    RuleFor(x => x.Request.Username).NotEmpty().MinimumLength(6);
+                    RuleFor(x => x.Request.Username).NotEmpty();
                     RuleFor(x => x.Request.Password).NotEmpty().MinimumLength(6);
                 }
             }
@@ -60,6 +60,9 @@ namespace IP.Project.Features.Auth
                         new Claim(ClaimTypes.Name, user.UserName!),
                         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     };
+                    var userRoles = await userManager.GetRolesAsync(user);
+
+                    authClaims.AddRange(userRoles.Select(userRole => new Claim(ClaimTypes.Role, userRole)));
 
                     var token = GenerateToken(authClaims);
 

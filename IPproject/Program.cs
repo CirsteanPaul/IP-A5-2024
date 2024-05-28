@@ -2,6 +2,7 @@ using Carter;
 using FluentValidation;
 using IP.Project.Database;
 using IP.Project.Extensions;
+using IP.Project.Services.Email;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,8 +24,11 @@ var assembly = typeof(Program).Assembly;
 builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(assembly));
 builder.Services.AddValidatorsFromAssembly(assembly);
 builder.Services.AddCarter();
-builder.Services.AddIdentity(builder.Configuration);
 builder.Services.AddAuthorization();
+builder.Services.AddIdentity(builder.Configuration);
+
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddSingleton<IEmailService, EmailService>();
 
 var app = builder.Build();
 

@@ -1,11 +1,13 @@
 using Carter;
+using IP.Project.Constants;
 using IP.Project.Database;
 using IP.Project.Shared;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
-namespace IP.Project.Features.Samba
-{
+namespace IP.Project.Features.Samba;
+
     public static class DeleteSamba
     {
         public record Command(Guid Id) : IRequest<Result>;
@@ -40,7 +42,7 @@ namespace IP.Project.Features.Samba
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapDelete($"{Global.version}sambas/{{id}}", async (Guid id, ISender sender) =>
+            app.MapDelete($"{Global.version}sambas/{{id}}", [Authorize(Roles = Roles.Admin)] async (Guid id, ISender sender) =>
                 {
                     var command = new DeleteSamba.Command(id);
                     var result = await sender.Send(command);
@@ -55,4 +57,4 @@ namespace IP.Project.Features.Samba
                 .WithOpenApi();
         }
     }
-}
+

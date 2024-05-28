@@ -1,17 +1,19 @@
 ﻿using Carter;
 using FluentValidation;
+using IP.Project.Constants;
 using IP.Project.Database;
 using IP.Project.Shared;
 using MediatR;
 using IP.Project.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 namespace IP.Project.Features.Samba
 {
     public class UpdateSambaRequest
     {
-        public string NewIpAddress { get; set; }
-        public string? NewDescription { get; set; }
+        public string NewIpAddress { get; set; } = string.Empty;
+        public string NewDescription { get; set; } = string.Empty;
     }
 
     public static class UpdateSambaInstance
@@ -22,7 +24,8 @@ namespace IP.Project.Features.Samba
             {
                 public Validator()
                 {
-                    RuleFor(x => x.Request.NewIpAddress).NotEmpty().IpAddress(); // Using Matricol() for IP address validation
+                    RuleFor(x => x.Request.NewIpAddress).NotEmpty().IpAddress();
+                    RuleFor(x => x.Request.NewDescription).NotEmpty().MinimumLength(10);
                 }
             }
         }
@@ -55,7 +58,8 @@ namespace IP.Project.Features.Samba
                 }
 
                 sambaInstance.IPv4Address = request.Request.NewIpAddress;
-                if (request.Request.NewDescription != null) { sambaInstance.Description = request.Request.NewDescription; }
+                sambaInstance.Description = request.Request.NewDescription;
+                
                 await context.SaveChangesAsync(cancellationToken);
 
                 return Result.Success(request.Id);
@@ -67,15 +71,12 @@ namespace IP.Project.Features.Samba
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPut($"{Global.version}sambas/{{id:guid}}", async (Guid id, UpdateSambaRequest request, ISender sender) =>
+            app.MapPut($"{Global.version}sambas/{{id:guid}}", [Authorize(Roles = Roles.Admin)] async (Guid id, UpdateSambaRequest request, ISender sender) =>
             {
                 var command = new UpdateSambaInstance.Command(id, request);
                 var result = await sender.Send(command);
-                if (result.IsSuccess)
-                {
-                    return Results.NoContent();
-                }
-                return Results.NotFound(result.Error);
+                
+                return result.IsSuccess ? Results.NoContent() : Results.NotFound(result.Error);
             }).WithTags("Samba")
             .WithDescription("Endpoint for updating details of a specific Samba account. " +
                          "If the request is successful, it will return status code 204 (No content). ")

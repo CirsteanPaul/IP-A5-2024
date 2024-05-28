@@ -1,15 +1,19 @@
-using System.Data;
 using System.Data.SQLite;
+using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
+using System.Security.Claims;
 using Dapper;
+using IP.Project.Constants;
 using IP.Project.Database;
 using IP.Project.IntegrationTests.Base.AccountSeed;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace IP.Project.IntegrationTests.Base
 {
@@ -45,6 +49,19 @@ namespace IP.Project.IntegrationTests.Base
                     {
                         options.UseSqlite(connectionString);
                     });
+                    services.Configure<JwtBearerOptions>(
+                        JwtBearerDefaults.AuthenticationScheme,
+                        options =>
+                        {
+                            options.Configuration = new OpenIdConnectConfiguration
+                            {
+                                Issuer = JwtTokenProvider.Issuer,
+                            };
+                            options.TokenValidationParameters.ValidIssuer = JwtTokenProvider.Issuer;
+                            options.TokenValidationParameters.ValidAudience = JwtTokenProvider.Issuer;
+                            options.Configuration.SigningKeys.Add(JwtTokenProvider.SecurityKey);
+                        }
+                    );
                     
                     var sp = services.BuildServiceProvider();
                     using (var scope = sp.CreateScope())
@@ -86,6 +103,31 @@ namespace IP.Project.IntegrationTests.Base
             db.Database.EnsureDeleted();
             File.Delete(dbPath);
             Client.Dispose();
+        }
+        
+        public static string CreateUserToken()
+        {
+
+            return JwtTokenProvider.JwtSecurityTokenHandler.WriteToken(
+                new JwtSecurityToken(
+                    JwtTokenProvider.Issuer,
+                    JwtTokenProvider.Issuer,
+                    new List<Claim> { new(ClaimTypes.Role, Roles.User) },
+                    expires: DateTime.Now.AddMinutes(30),
+                    signingCredentials: JwtTokenProvider.SigningCredentials
+                ));
+        }
+        public static string CreateAdminToken()
+        {
+
+            return JwtTokenProvider.JwtSecurityTokenHandler.WriteToken(
+                new JwtSecurityToken(
+                    JwtTokenProvider.Issuer,
+                    JwtTokenProvider.Issuer,
+                    new List<Claim> { new(ClaimTypes.Role, Roles.Admin) },
+                    expires: DateTime.Now.AddMinutes(30),
+                    signingCredentials: JwtTokenProvider.SigningCredentials
+                ));
         }
     }
 }

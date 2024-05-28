@@ -1,6 +1,7 @@
 ﻿using Carter;
 using FluentValidation;
-using IP.Project.Contracts;
+using IP.Project.Constants;
+using IP.Project.Contracts.Samba;
 using IP.Project.Database;
 using IP.Project.Entities;
 using IP.Project.Extensions;
@@ -8,6 +9,7 @@ using IP.Project.Features.Samba;
 using IP.Project.Shared;
 using Mapster;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IP.Project.Features.Samba
@@ -16,7 +18,7 @@ namespace IP.Project.Features.Samba
     {
         public record Command : IRequest<Result<Guid>>
         {
-            public string? Description { get; set; }
+            public string Description { get; set; } = string.Empty;
             public string IPv4Address { get; set; } = string.Empty;
             
         }
@@ -26,7 +28,7 @@ namespace IP.Project.Features.Samba
                 public Validator()
                 {
                     RuleFor(x => x.IPv4Address).NotEmpty().IpAddress(); // Using IpAddress() for IP address validation
-                    
+                    RuleFor(x => x.Description).NotEmpty().MinimumLength(10);
                 }
             }
         
@@ -71,7 +73,7 @@ public class CreateSambaEndPoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        _ = app.MapPost($"{Global.version}sambas", async ([FromBody] CreateSambaRequest request, ISender sender) =>
+        _ = app.MapPost($"{Global.version}sambas", [Authorize(Roles = Roles.Admin)] async ([FromBody] CreateSambaRequest request, ISender sender) =>
             {
                 var command = request.Adapt<CreateSamba.Command>();
                 var result = await sender.Send(command);
@@ -81,7 +83,7 @@ public class CreateSambaEndPoint : ICarterModule
                     return Results.BadRequest(result.Error);
                 }
 
-                return Results.Created($"/api/v1/sambas/{result.Value}", null);
+                return Results.Created($"{Global.version}sambas/{result.Value}", null);
             })
             .WithTags("Samba")
             .WithDescription("Endpoint for creating a new samba account. " +

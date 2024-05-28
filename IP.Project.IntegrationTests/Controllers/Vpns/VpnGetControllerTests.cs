@@ -1,6 +1,7 @@
 ﻿using System.Net;
+using System.Net.Http.Headers;
 using FluentAssertions;
-using IP.Project.Contracts;
+using IP.Project.Contracts.Vpn;
 using IP.Project.IntegrationTests.Base;
 using Newtonsoft.Json;
 
@@ -21,6 +22,8 @@ namespace IP.Project.IntegrationTests.Controllers.Vpns
         {
             // Arrange
             var existingVpnId = Guid.Parse("2330d4f5-1c5b-42cb-a34b-d9275e99b6bc"); 
+            factory.Client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", TestingBaseWebApplicationFactory.CreateUserToken());
 
             // Act
             var response = await factory.Client.GetAsync(RequestUri + existingVpnId);
@@ -39,6 +42,8 @@ namespace IP.Project.IntegrationTests.Controllers.Vpns
         {
             // Arrange
             var nonExistingVpnId = Guid.Parse("b1f5d163-ee13-411a-4144-07dc5ef3042e"); 
+            factory.Client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", TestingBaseWebApplicationFactory.CreateUserToken());
 
             // Act
             var response = await factory.Client.GetAsync(RequestUri + nonExistingVpnId);

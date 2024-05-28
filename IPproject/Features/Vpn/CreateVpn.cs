@@ -1,12 +1,13 @@
 ﻿using Carter;
 using FluentValidation;
-using IP.Project.Contracts;
+using IP.Project.Constants;
+using IP.Project.Contracts.Vpn;
 using IP.Project.Database;
 using IP.Project.Extensions;
-using IP.Project.Features.Vpn;
 using IP.Project.Shared;
 using Mapster;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IP.Project.Features.Vpn
 {
@@ -14,7 +15,7 @@ namespace IP.Project.Features.Vpn
     {
         public record Command : IRequest<Result<Guid>>
         {
-            public string? Description { get; set; }
+            public string Description { get; set; } = string.Empty;
             public string IPv4Address { get; set; } = string.Empty;
         }
 
@@ -22,7 +23,7 @@ namespace IP.Project.Features.Vpn
         {
             public Validator()
             {
-                RuleFor(x => x.Description).NotEmpty();
+                RuleFor(x => x.Description).NotEmpty().MinimumLength(10);
                 RuleFor(x => x.IPv4Address).NotEmpty().IpAddress();
             }
         }
@@ -62,24 +63,24 @@ namespace IP.Project.Features.Vpn
             }
         }
     }
-}
 
-public class CreateVpnEndPoint : ICarterModule
-{
-    public void AddRoutes(IEndpointRouteBuilder app)
+    public class CreateVpnEndPoint : ICarterModule
     {
-        _ = app.MapPost("api/v1/vpns", async (CreateVpnRequest request, ISender sender) =>
+        public void AddRoutes(IEndpointRouteBuilder app)
         {
-            var command = request.Adapt<CreateVpn.Command>();
-            var result = await sender.Send(command);
-
-            if (result.IsFailure)
+            _ = app.MapPost($"{Global.version}vpns", [Authorize(Roles = Roles.Admin)] async (CreateVpnRequest request, ISender sender) =>
             {
-                return Results.BadRequest(result.Error); 
-            }
+                var command = request.Adapt<CreateVpn.Command>();
+                var result = await sender.Send(command);
 
-            return Results.Created($"/api/v1/vpns/{result.Value}", result.Value);
-        })
-        .WithTags("Vpn");
+                if (result.IsFailure)
+                {
+                    return Results.BadRequest(result.Error); 
+                }
+
+                return Results.Created($"{Global.version}vpns/{result.Value}", result.Value);
+            })
+            .WithTags("Vpn");
+        }
     }
 }

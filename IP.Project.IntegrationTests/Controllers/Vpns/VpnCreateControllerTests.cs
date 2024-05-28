@@ -1,7 +1,8 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using FluentAssertions;
-using IP.Project.Contracts;
+using IP.Project.Contracts.Vpn;
 using IP.Project.IntegrationTests.Base;
 
 namespace IP.Project.IntegrationTests.Controllers.Vpns
@@ -22,9 +23,11 @@ namespace IP.Project.IntegrationTests.Controllers.Vpns
             // Arrange
             var vpnRequest = new CreateVpnRequest
             {
-                Description = "New VPN",
+                Description = "New VPN long",
                 IPv4Address = "192.168.1.1"
             };
+            factory.Client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", TestingBaseWebApplicationFactory.CreateAdminToken());
 
             // Act
             var response = await factory.Client.PostAsJsonAsync(RequestUri, vpnRequest);
@@ -42,6 +45,8 @@ namespace IP.Project.IntegrationTests.Controllers.Vpns
                 Description = "Invalid VPN",
                 IPv4Address = ""
             };
+            factory.Client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", TestingBaseWebApplicationFactory.CreateAdminToken());
 
             // Act
             var response = await factory.Client.PostAsJsonAsync(RequestUri, invalidVpnRequest);

@@ -34,7 +34,7 @@ namespace IP.Project.Tests.Features.Samba
         }
 
         [Fact]
-        public async Task Handle_NullDescription_ReturnsSuccess()
+        public async Task Handle_NullDescription_ReturnsFailure()
         {
             // Arrange
             var id = Guid.Parse("4c727215-0522-4384-8481-4a2d1e094fb7");
@@ -52,10 +52,7 @@ namespace IP.Project.Tests.Features.Samba
             var result = await handler.Handle(request, CancellationToken.None);
 
             // Assert
-            result.IsSuccess.Should().BeTrue();
-            await dbContextMock.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
-            sambaAccount.IPv4Address.Should().Be("192.168.1.2"); // IP address should be updated
-            sambaAccount.Description.Should().Be("Samba Account 1"); // Description should remain the same
+            result.IsSuccess.Should().BeFalse();
         }
 
         [Fact]

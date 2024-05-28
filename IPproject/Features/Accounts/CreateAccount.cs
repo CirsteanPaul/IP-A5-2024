@@ -1,6 +1,7 @@
 ﻿using Carter;
 using FluentValidation;
 using IP.Project.Contracts;
+using IP.Project.Contracts.Account;
 using IP.Project.Database;
 using IP.Project.Entities;
 using IP.Project.Features.Accounts;

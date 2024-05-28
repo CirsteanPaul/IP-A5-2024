@@ -1,11 +1,12 @@
 using Carter;
 using Dapper;
-using IP.Project.Contracts;
+using IP.Project.Contracts.Vpn;
 using IP.Project.Database;
 using IP.Project.Entities;
 using IP.Project.Shared;
 using Mapster;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IP.Project.Features.Vpn
 {
@@ -28,7 +29,7 @@ namespace IP.Project.Features.Vpn
             public async Task<Result<VpnResponse>> Handle(Query request, CancellationToken cancellationToken)
             {
                 using var connection = factory.CreateConnection();
-                var vpn = await connection.QueryFirstOrDefaultAsync<VpnAccount>("SELECT * FROM Vpns WHEREgit  Id = @Id",
+                var vpn = await connection.QueryFirstOrDefaultAsync<VpnAccount>("SELECT * FROM Vpns WHERE Id = @Id",
                     new { Id = request.Id });
 
                 if (vpn == null)
@@ -48,16 +49,14 @@ namespace IP.Project.Features.Vpn
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapGet("api/v1/vpns/{id}", async (Guid id, ISender sender) =>
+            app.MapGet($"{Global.version}vpns/{{id}}", [Authorize] async (Guid id, ISender sender) =>
             {
                 var query = new GetVpn.Query
                 {
                     Id = id
                 };
                 var result = await sender.Send(query);
-                return result.IsSuccess ?
-                    Results.Ok(result.Value) :
-                    Results.NotFound(result.Error);
+                return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Error);
             })
             .WithTags("Vpn");
         }

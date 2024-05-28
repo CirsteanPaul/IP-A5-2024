@@ -1,11 +1,12 @@
 using Carter;
 using Dapper;
-using IP.Project.Contracts;
+using IP.Project.Contracts.Samba;
 using IP.Project.Database;
 using IP.Project.Entities;
 using IP.Project.Shared;
 using Mapster;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IP.Project.Features.Samba
 {
@@ -15,19 +16,16 @@ namespace IP.Project.Features.Samba
 
         public class Handler : IRequestHandler<Query, Result<List<SambaResponse>>>
         {
-            private readonly ISqlConnectionFactory _factory;
-            private readonly ApplicationDBContext _dbContext;
+            private readonly ISqlConnectionFactory factory;
 
             public Handler(ISqlConnectionFactory factory, ApplicationDBContext dbContext)
             {
-                this._factory = factory;
-                _dbContext = dbContext;
+                this.factory = factory;
             }
 
             public async Task<Result<List<SambaResponse>>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var u = _dbContext.SambaAccounts.ToList();
-                using (var connection = _factory.CreateConnection())
+                using (var connection = factory.CreateConnection())
                 {
                     var query = "SELECT * FROM SambaAccounts";
                     var sambas = await connection.QueryAsync<SambaAccount>(query);
@@ -49,7 +47,7 @@ namespace IP.Project.Features.Samba
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapGet($"{Global.version}sambas", async (ISender sender) =>
+            app.MapGet($"{Global.version}sambas", [Authorize] async (ISender sender) =>
                 {
                     var query = new GetAllSambas.Query();
                     var result = await sender.Send(query);

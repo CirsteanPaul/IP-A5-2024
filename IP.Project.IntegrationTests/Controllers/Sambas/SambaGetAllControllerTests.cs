@@ -1,6 +1,8 @@
 using System.Net;
+using System.Net.Http.Headers;
 using FluentAssertions;
 using IP.Project.Contracts;
+using IP.Project.Contracts.Samba;
 using IP.Project.IntegrationTests.Base;
 using IP.Project.Shared;
 using Newtonsoft.Json;
@@ -21,6 +23,8 @@ public class SambaGetAllControllerTests : IClassFixture<TestingBaseWebApplicatio
     public async Task When_GetAllSambas_Then_Success()
     {
         // Arrange
+        factory.Client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", TestingBaseWebApplicationFactory.CreateUserToken());
 
         // Act
         var response = await factory.Client.GetAsync(RequestUri);

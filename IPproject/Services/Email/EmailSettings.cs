@@ -1,0 +1,8 @@
+namespace IP.Project.Services.Email;
+
+public class EmailSettings
+{
+    public string ApiKey { get; init; } = default!;
+    public string FromAddress { get; init; } = default!;
+    public string FromName { get; init; } = default!;
+}

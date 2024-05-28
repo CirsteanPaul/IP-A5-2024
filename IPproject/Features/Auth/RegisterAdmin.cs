@@ -11,13 +11,13 @@ using IP.Project.Contracts.Auth;
 
 namespace IP.Project.Features.Auth
 {
-    public record RegisterResponse
+    public record RegisterAdminResponse
     {
-        public string Username { get; init; }
-        public string Email { get; init; }
+        public string Username { get; init; } = string.Empty;
+        public string Email { get; init; } = string.Empty;
     }
 
-    public static class Register
+    public static class RegisterAdmin
     {
         public record Command : IRequest<Result<RegisterResponse>>
         {
@@ -81,14 +81,14 @@ namespace IP.Project.Features.Auth
                         return Result.Failure<RegisterResponse>(new Error("UserCreationFailed", string.Join('\n', createUserResult.Errors.Select(x => x.Description))));
                     }
 
-                    if (!await roleManager.RoleExistsAsync(Roles.User))
+                    if (!await roleManager.RoleExistsAsync(Roles.Admin))
                     {
-                        await roleManager.CreateAsync(new IdentityRole(Roles.User));
+                        await roleManager.CreateAsync(new IdentityRole(Roles.Admin));
                     }
 
-                    if (await roleManager.RoleExistsAsync(Roles.User))
+                    if (await roleManager.RoleExistsAsync(Roles.Admin))
                     {
-                        await userManager.AddToRoleAsync(user, Roles.User);
+                        await userManager.AddToRoleAsync(user, Roles.Admin);
                     }
 
                     var response = new RegisterResponse
@@ -108,11 +108,11 @@ namespace IP.Project.Features.Auth
     }
 }
 
-public class RegisterEndPoint : ICarterModule
+public class RegisterAdminEndPoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapPost($"{Global.version}auth/register", async ([FromBody] RegisterRequest request, ISender sender) =>
+        app.MapPost($"{Global.version}auth/register-admin", async ([FromBody] RegisterRequest request, ISender sender) =>
         {
             var command = new Register.Command
             {
@@ -131,11 +131,11 @@ public class RegisterEndPoint : ICarterModule
                 return Results.BadRequest(result.Error);
             }
 
-            return Results.Created($"{Global.version}auth/register/{result.Value}", result.Value);
+            return Results.Created($"{Global.version}auth/register-admin/{result.Value}", result.Value);
 
         })
             .WithTags("Auth")
-            .WithDescription("Endpoint for registering a new user account." +
+            .WithDescription("Endpoint for registering a new admin account." +
                                                                         "If the request is successful, it will return status code 201 (Created)). ")
             .Produces<RegisterResponse>(StatusCodes.Status201Created)
             .Produces<Error>(StatusCodes.Status500InternalServerError)

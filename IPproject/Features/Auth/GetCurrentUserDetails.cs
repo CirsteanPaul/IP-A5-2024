@@ -1,6 +1,6 @@
 using System.Security.Claims;
 using Carter;
-using IP.Project.Contracts;
+using IP.Project.Contracts.Auth;
 using IP.Project.Features.Auth;
 using IP.Project.Shared;
 using MediatR;
@@ -65,10 +65,7 @@ public class CurrentUserDetailsEndPoint : ICarterModule
             {
                 var query = new GetCurrentUserDetails.Query();
                 var result = await sender.Send(query);
-                if (result.IsFailure)
-                {
-                    return Results.BadRequest(result.Error);
-                }
+
                 return Results.Ok(result.Value);
             })
             .WithTags("Auth")

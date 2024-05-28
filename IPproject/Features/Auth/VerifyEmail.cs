@@ -13,8 +13,8 @@ namespace IP.Project.Features.Auth
     {
         public record Command : IRequest<Result>
         {
-            public string UserId { get; init; }
-            public string Token { get; init; }
+            public string UserId { get; init; } = string.Empty;
+            public string Token { get; init; } = string.Empty;
         }
 
         public class Validator : AbstractValidator<Command>

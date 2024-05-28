@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using IP.Project.Shared;
 using IP.Project.Entities;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IP.Project.Features.Auth
 {
@@ -41,7 +42,7 @@ namespace IP.Project.Features.Auth
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            _ = app.MapPost($"{Global.version}auth/logout", async (ISender sender) =>
+            _ = app.MapPost($"{Global.version}auth/logout", [Authorize] async (ISender sender) =>
             {
                 var command = new Logout.Command();
                 var result = await sender.Send(command);

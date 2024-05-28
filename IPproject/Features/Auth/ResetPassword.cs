@@ -24,7 +24,6 @@ namespace IP.Project.Features.Auth
             public CommandValidator()
             {
                 RuleFor(x => x.Email).NotEmpty().EmailAddress();
-                RuleFor(x => x.NewPassword).NotEmpty().MinimumLength(6); 
                 RuleFor(x => x.ResetCode).NotEmpty();
             }
         }

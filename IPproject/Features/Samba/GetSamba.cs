@@ -1,12 +1,13 @@
 ﻿using Carter;
-using IP.Project.Contracts;
 using IP.Project.Shared; 
 using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Dapper;
+using IP.Project.Contracts.Samba;
 using IP.Project.Entities;
 using IP.Project.Database;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IP.Project.Features.Samba
 {
@@ -50,18 +51,15 @@ namespace IP.Project.Features.Samba
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapGet($"{Global.version}sambas/{{id:guid}}", async ([FromRoute] Guid id, ISender sender) =>
+            app.MapGet($"{Global.version}sambas/{{id:guid}}", [Authorize] async ([FromRoute] Guid id, ISender sender) =>
             {
                 var query = new GetSamba.Query
                 {
                     Id = id
                 };
                 var result = await sender.Send(query);
-                if (result.IsFailure)
-                {
-                    return Results.NotFound(result.Error);
-                }
-                return Results.Ok(result.Value);
+                
+                return result.IsFailure ? Results.NotFound(result.Error) : Results.Ok(result.Value);
             }).WithTags("Samba")
             .WithDescription("Endpoint for retrieving details of a specific Samba account.")
             .Produces<SambaResponse>(StatusCodes.Status200OK)

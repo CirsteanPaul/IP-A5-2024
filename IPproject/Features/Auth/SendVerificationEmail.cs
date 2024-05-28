@@ -2,12 +2,11 @@ using Carter;
 using FluentValidation;
 using IP.Project.Contracts;
 using IP.Project.Entities;
+using IP.Project.Services.Email;
 using IP.Project.Shared;
-using MailKit.Net.Smtp;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using MimeKit;
 
 namespace IP.Project.Features.Auth;
 
@@ -15,7 +14,7 @@ public static class SendVerificationEmail
 {
     public record Command : IRequest<Result>
     {
-        public string Email { get; init; }
+        public string Email { get; init; } = string.Empty;
     }
 
     public class Validator : AbstractValidator<Command>
@@ -30,11 +29,15 @@ public static class SendVerificationEmail
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly Validator _validator;
+        private readonly IEmailService emailService;
+        private readonly ILogger<Handler> logger;
 
-        public Handler(UserManager<ApplicationUser> userManager, Validator validator)
+        public Handler(UserManager<ApplicationUser> userManager, Validator validator, IEmailService emailService, ILogger<Handler> logger)
         {
             _userManager = userManager;
             _validator = validator;
+            this.emailService = emailService;
+            this.logger = logger;
         }
 
         public async Task<Result> Handle(Command request, CancellationToken cancellationToken)
@@ -54,30 +57,21 @@ public static class SendVerificationEmail
 
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var verificationLink =
-                $"http://localhost:3000/verify-email?userId={Uri.EscapeDataString(user.Id)}&token={Uri.EscapeDataString(token)}";
+                $"http://localhost:5173/verify-email?userId={Uri.EscapeDataString(user.Id)}&token={Uri.EscapeDataString(token)}";
             
-            var email = new MimeMessage();
-            email.From.Add(MailboxAddress.Parse("App <app@example.com>"));
-            email.To.Add(MailboxAddress.Parse(user.Email));
-            email.Subject = "Email Verification";
-            email.Body = new TextPart("plain")
+            var email = new Mail
             {
-                Text =
-                    $"Hello {user.UserName},\n\nPlease click the following link to verify your email:\n{verificationLink}\n\nIf you did not request email verification, please ignore this email."
+                To = request.Email,
+                Subject = "Verify email",
+                Body = verificationLink
             };
-
             try
             {
-                using (var client = new SmtpClient())
-                {
-                    await client.ConnectAsync("smtp.example.com", 587, false, cancellationToken);
-                    await client.AuthenticateAsync("smtp_username", "smtp_password", cancellationToken);
-                    await client.SendAsync(email, cancellationToken);
-                    await client.DisconnectAsync(true, cancellationToken);
-                }
+                await emailService.SendEmailAsync(email);
             }
             catch (Exception e)
             {
+                logger.LogError(e, "Email sending failed");
                 return Result.Failure(new Error("EmailProviderError", e.Message));
             }
 

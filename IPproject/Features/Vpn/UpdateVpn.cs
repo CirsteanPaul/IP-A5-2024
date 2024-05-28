@@ -1,10 +1,12 @@
 ﻿using Carter;
 using FluentValidation;
-using IP.Project.Contracts;
+using IP.Project.Constants;
+using IP.Project.Contracts.Vpn;
 using IP.Project.Database;
 using IP.Project.Extensions;
 using IP.Project.Shared;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IP.Project.Features.Vpn
 {
@@ -17,6 +19,7 @@ namespace IP.Project.Features.Vpn
                 public Validator()
                 {
                     RuleFor(x => x.Request.NewIpAddress).NotEmpty().IpAddress(); 
+                    RuleFor(x => x.Request.NewDescription).NotEmpty().MinimumLength(10); 
                 }
             }
         }
@@ -38,7 +41,7 @@ namespace IP.Project.Features.Vpn
                 }
 
                 vpnInstance.IPv4Address = request.Request.NewIpAddress;
-                if (request.Request.NewDescription != null) { vpnInstance.Description = request.Request.NewDescription; }
+                vpnInstance.Description = request.Request.NewDescription;
                 await context.SaveChangesAsync(cancellationToken);
 
                 return Result.Success(request.Id);
@@ -49,15 +52,12 @@ namespace IP.Project.Features.Vpn
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPut("api/v1/vpns/{id}", async (Guid id, UpdateVpnRequest request, ISender sender) =>
+            app.MapPut($"{Global.version}vpns/{{id}}", [Authorize(Roles = Roles.Admin)] async (Guid id, UpdateVpnRequest request, ISender sender) =>
             {
                 var command = new UpdateVpnInstance.Command(id, request);
                 var result = await sender.Send(command);
-                if (result.IsSuccess)
-                {
-                    return Results.NoContent();
-                }
-                return Results.NotFound(result.Error);
+                
+                return result.IsSuccess ? Results.NoContent() : Results.NotFound(result.Error);
             })
             .WithTags("Vpn");
         }
