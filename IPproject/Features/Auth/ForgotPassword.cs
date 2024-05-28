@@ -58,7 +58,7 @@ namespace IP.Project.Features.Auth
                 }
 
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-                var resetLink = $"http://localhost:3000/reset-password?token={Uri.EscapeDataString(token)}";
+                var resetLink = $"http://localhost:5173/reset-password?token={Uri.EscapeDataString(token)}";
                 
                 var email = new Mail
                 {

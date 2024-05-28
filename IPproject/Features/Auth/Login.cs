@@ -22,7 +22,7 @@ namespace IP.Project.Features.Auth
             {
                 public Validator()
                 {
-                    RuleFor(x => x.Request.Username).NotEmpty().MinimumLength(6);
+                    RuleFor(x => x.Request.Username).NotEmpty();
                     RuleFor(x => x.Request.Password).NotEmpty().MinimumLength(6);
                 }
             }

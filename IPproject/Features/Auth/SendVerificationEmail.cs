@@ -57,7 +57,7 @@ public static class SendVerificationEmail
 
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var verificationLink =
-                $"http://localhost:3000/verify-email?userId={Uri.EscapeDataString(user.Id)}&token={Uri.EscapeDataString(token)}";
+                $"http://localhost:5173/verify-email?userId={Uri.EscapeDataString(user.Id)}&token={Uri.EscapeDataString(token)}";
             
             var email = new Mail
             {

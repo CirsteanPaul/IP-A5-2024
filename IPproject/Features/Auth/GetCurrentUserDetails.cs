@@ -65,10 +65,7 @@ public class CurrentUserDetailsEndPoint : ICarterModule
             {
                 var query = new GetCurrentUserDetails.Query();
                 var result = await sender.Send(query);
-                if (result.IsFailure)
-                {
-                    return Results.BadRequest(result.Error);
-                }
+
                 return Results.Ok(result.Value);
             })
             .WithTags("Auth")
