@@ -70,7 +70,7 @@ public class CreateVpnEndPoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        _ = app.MapPost("api/v1/vpns", [Authorize(Roles = Roles.Admin)] async (CreateVpnRequest request, ISender sender) =>
+        _ = app.MapPost($"{Global.version}vpns", [Authorize(Roles = Roles.Admin)] async (CreateVpnRequest request, ISender sender) =>
         {
             var command = request.Adapt<CreateVpn.Command>();
             var result = await sender.Send(command);
