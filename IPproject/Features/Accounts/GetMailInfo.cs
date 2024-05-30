@@ -7,10 +7,9 @@ using IP.Project.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.DirectoryServices;
-using System.DirectoryServices.Protocols;
 using System.Configuration;
 using System.Collections.Specialized;
+using Novell.Directory.Ldap;
 
 namespace IP.Project.Features.Accounts
 {
@@ -57,7 +56,7 @@ namespace IP.Project.Features.Accounts
                     localityName = "Iasi", // from esims
                     mail = "to.be@info.uaic.ro", // will be chosen
                     mobile = "0230000000", // will be chosen
-                    ou = "1A1", // from esims
+                    ou = "2A1", // from esims
                     postalCode = "70000",
                     roomNumber = "1",
                     shadowInactive = "0",
@@ -75,86 +74,90 @@ namespace IP.Project.Features.Accounts
                 await dbContext.SaveChangesAsync(cancellationToken);
 
                 //add partial entry to ldap
-                string ldapServer = "LDAP://localhost:10389";
-                string userName = "uid=admin, ou=system"; // admin user
-                string password = "secret";
-
-                var directoryEntry = new System.DirectoryServices.DirectoryEntry(ldapServer, userName, password, AuthenticationTypes.ServerBind);
-                directoryEntry.Path = "LDAP://localhost:10389/ou=license,ou=students,dc=info,dc=uaic,dc=ro";
+                string ldapServer = "localhost";
+                int ldapPort = 10389;
+                string adminUserName = "uid=admin,ou=system";
+                string adminPassword = "secret";
+                string baseDn = "dc=info,dc=uaic,dc=ro";
 
                 try
                 {
-                    // Authenticate the admin
-                    object nativeObject = directoryEntry.NativeObject;
-                    Console.WriteLine("Authenticated");
-
-                    //Create a new organizational unit if necessary for the student group of the user
-                    DirectorySearcher searcher = new DirectorySearcher(directoryEntry)
+                    using (var ldapConnection = new LdapConnection())
                     {
-                        PageSize = int.MaxValue,
-                        Filter = "(&(objectClass=organizationalUnit)(ou=" + account.ou +"))"
+                        // Connect and authenticate
+                        ldapConnection.Connect(ldapServer, ldapPort);
+                        ldapConnection.Bind(adminUserName, adminPassword);
+                        Console.WriteLine("Authenticated");
+
+                        // Search for the organizational unit
+                        string ouDn = $"ou=license,ou=students,{baseDn}";
+                        string searchFilter = $"(&(objectClass=organizationalUnit)(ou={account.ou}))";
+                        var searchResults = ldapConnection.Search(
+                            ouDn,
+                            LdapConnection.ScopeSub,
+                            searchFilter,
+                            null, // retrieve all attributes
+                            false
+                        );
+
+                        if (!searchResults.HasMore())
+                        {
+                            // Create a new organizational unit entry if not found
+                            var newOUDn = $"ou={account.ou},{ouDn}";
+                            var newOUAttributes = new LdapAttributeSet
+                    {
+                        new LdapAttribute("objectClass", "organizationalUnit"),
+                        new LdapAttribute("ou", account.ou)
                     };
+                            var newOUEntry = new LdapEntry(newOUDn, newOUAttributes);
+                            ldapConnection.Add(newOUEntry);
+                            Console.WriteLine("Organizational unit added successfully.");
+                        }
 
-                    var result = searcher.FindOne();
-
-                    if (result == null)
-                    {
-                        // Create a new organizational unit entry
-                        System.DirectoryServices.DirectoryEntry newOU = directoryEntry.Children.Add("ou=" + account.ou, "organizationalUnit");
-                        newOU.Properties["objectClass"].Add("organizationalUnit");
-
-                        // Save the new organizational unit entry
-                        newOU.CommitChanges();
-                        Console.WriteLine("Organizational unit added successfully.");
+                        // Create a new user entry
+                        var userDn = $"cn={account.displayName},ou={account.ou},{ouDn}";
+                        var userAttributes = new LdapAttributeSet
+                {
+                    new LdapAttribute("objectClass", new [] { "inetOrgPerson", "organizationalPerson", "person", "posixAccount", "shadowAccount" }),
+                    new LdapAttribute("sn", account.sn),
+                    new LdapAttribute("mail", account.mail),
+                    new LdapAttribute("uidNumber", account.uidNumber.ToString()),
+                    new LdapAttribute("gidNumber", account.gidNumber.ToString()),
+                    new LdapAttribute("uid", account.uid),
+                    new LdapAttribute("homeDirectory", account.homeDirectory),
+                    new LdapAttribute("displayName", account.displayName),
+                    new LdapAttribute("employeeNumber", account.employeeNumber),
+                    new LdapAttribute("givenName", account.givenName),
+                    new LdapAttribute("homePhone", account.homePhone),
+                    new LdapAttribute("initials", account.initials),
+                    new LdapAttribute("localityName", new[] { account.localityName, "Suceava" }),
+                    new LdapAttribute("mobile", account.mobile),
+                    new LdapAttribute("ou", account.ou),
+                    new LdapAttribute("postalCode", account.postalCode),
+                    new LdapAttribute("roomNumber", account.roomNumber),
+                    new LdapAttribute("shadowInactive", account.shadowInactive),
+                    new LdapAttribute("street", account.street),
+                    new LdapAttribute("telephoneNumber", account.telephoneNumber),
+                    new LdapAttribute("title", account.title),
+                    new LdapAttribute("description", account.description)
+                    //new LdapAttribute("userPassword", account.userPassword) // Uncomment if password needs to be set
+                };
+                        var newUserEntry = new LdapEntry(userDn, userAttributes);
+                        ldapConnection.Add(newUserEntry);
+                        Console.WriteLine("User added successfully.");
                     }
-
-
-                    // Create a new user entry
-                    directoryEntry.Path = "LDAP://localhost:10389/ou=" + account.ou + ",ou=license, ou=students, dc=info, dc=uaic, dc=ro";
-                    System.DirectoryServices.DirectoryEntry newUser = directoryEntry.Children.Add("cn=" + account.displayName, "inetOrgPerson");
-
-                    // Set user attributes
-                    newUser.Properties["objectClass"].Add("inetOrgPerson");
-                    newUser.Properties["objectClass"].Add("organizationalPerson");
-                    newUser.Properties["objectClass"].Add("person");
-                    newUser.Properties["objectClass"].Add("posixAccount");
-                    newUser.Properties["objectClass"].Add("shadowAccount");
-
-
-                    // Null properties cannot be set, but they will be pulled from ESIMS
-                    // uid and homeDirectory are mandatory because of posixAccount objectClass
-                    // sn and cn are mandatory because of inetOrgPerson objectClass
-                    newUser.Properties["sn"].Add(account.sn);
-                    newUser.Properties["mail"].Add(account.mail);  
-                    newUser.Properties["uidNumber"].Add(account.uidNumber); 
-                    newUser.Properties["gidNumber"].Add(account.gidNumber); 
-                    newUser.Properties["uid"].Add(account.uid);
-                    newUser.Properties["homeDirectory"].Add(account.homeDirectory);
-                    newUser.Properties["displayName"].Add(account.displayName);
-                    newUser.Properties["employeeNumber"].Add(account.employeeNumber);
-                    newUser.Properties["givenName"].Add(account.givenName);
-                    newUser.Properties["homePhone"].Add(account.homePhone);
-                    newUser.Properties["initials"].Add(account.initials);
-                    newUser.Properties["localityName"].Add(account.localityName);
-                    newUser.Properties["localityName"].Add("Suceava");
-                    newUser.Properties["mobile"].Add(account.mobile);
-                    newUser.Properties["ou"].Add(account.ou);
-                    newUser.Properties["postalCode"].Add(account.postalCode);
-                    newUser.Properties["roomNumber"].Add(account.roomNumber);
-                    newUser.Properties["shadowInactive"].Add(account.shadowInactive);
-                    newUser.Properties["street"].Add(account.street);
-                    newUser.Properties["telephoneNumber"].Add(account.telephoneNumber);
-                    newUser.Properties["title"].Add(account.title);
-                    newUser.Properties["description"].Add(account.description);
-                    //newUser.Properties["userPassword"].Add(account.userPassword);
-
-                    // Save the new user entry
-                    newUser.CommitChanges();
-                    Console.WriteLine("User added successfully.");
+                }
+                catch (LdapException ex)
+                {
+                    Console.WriteLine("LDAP Error: " + ex.Message);
+                    if (ex.InnerException != null)
+                    {
+                        Console.WriteLine("Inner exception: " + ex.InnerException.Message);
+                    }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("LDAP" + ex.Message);
+                    Console.WriteLine("Error: " + ex.Message);
                 }
 
                 return account.uidNumber;
