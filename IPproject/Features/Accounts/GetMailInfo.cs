@@ -305,7 +305,7 @@ public class GetMailInfoEndpoint : ICarterModule
         }).WithTags("Accounts")
         .WithDescription("Endpoint for getting mail variants by user information. " +
         "If the request succeeds, in the response body you can find the mail addresses.")
-        .Produces<AccountResponse>(StatusCodes.Status200OK)
+        .Produces<MailInfoResponse>(StatusCodes.Status200OK)
         .Produces<Error>(StatusCodes.Status404NotFound)
         .WithOpenApi();
     }
