@@ -10,14 +10,23 @@ using Microsoft.EntityFrameworkCore;
 using System.Configuration;
 using System.Collections.Specialized;
 using Novell.Directory.Ldap;
+using FluentValidation;
+using IP.Project.Extensions;
 
 namespace IP.Project.Features.Accounts
 {
     public static class GetMailInfo
     {
-        public record Query : IRequest<Result<MailInfoResponse>>
+        public record Query : IRequest<Result<MailInfoResponse>> 
         {
             public string Matricol { get; set; } = string.Empty;
+            public class Validator : AbstractValidator<Query>
+            {
+                public Validator()
+                {
+                    RuleFor(x => x.Matricol).NotEmpty().Matricol();
+                }
+            }
         }
 
         internal sealed class Handler : IRequestHandler<Query, Result<MailInfoResponse>>
@@ -31,6 +40,7 @@ namespace IP.Project.Features.Accounts
 
             public async Task<Result<int>> addPartialEntryToDb(string matricol, CancellationToken cancellationToken)
             {
+
                 //add partial entry to db
                 var uidNumber = await generateUidNumber(cancellationToken);
 
@@ -237,6 +247,13 @@ namespace IP.Project.Features.Accounts
 
             public async Task<Result<MailInfoResponse>> Handle(Query request, CancellationToken cancellationToken)
             {
+                var validationResult = new Query.Validator().Validate(request);
+                if (!validationResult.IsValid)
+                {
+                    var errorMessages = validationResult.Errors.Select(error => error.ErrorMessage).ToList();
+                    return Result.Failure<MailInfoResponse>(new Error("GetMailInfo.Validation", validationResult.ToString()));
+                }
+
                 // firstly search in our database
                 var accountInstance = await dbContext.Accounts.FirstOrDefaultAsync(x => x.Matricol == request.Matricol, cancellationToken);
 
