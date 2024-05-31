@@ -50,6 +50,19 @@ public class UpdateUserInstance
                 return Result.Failure<int>(new Error("UpdateUser.ValidationFailed", string.Join(" ", errorMessages)));
             }
 
+            // Checks if there is another user with the same Mail or MailAlternateAddress
+            var mailConflict = await context.Accounts.FirstOrDefaultAsync(x => x.mail == request.Request.Mail && x.uidNumber != request.UidNumber, cancellationToken);
+            if (mailConflict != null)
+            {
+                return Result.Failure<int>(new Error("UpdateUser.DuplicateMail", "The specified mail is already used by another user."));
+            }
+
+            var mailAlternateAddressConflict = await context.Accounts.FirstOrDefaultAsync(x => x.mailAlternateAddress == request.Request.MailAlternateAddress && x.uidNumber != request.UidNumber, cancellationToken);
+            if (mailAlternateAddressConflict != null)
+            {
+                return Result.Failure<int>(new Error("UpdateUser.DuplicateMailAlternateAddress", "The specified mail alternate address is already used by another user."));
+            }
+
             // Update user in database
             var userInstance = await context.Accounts.FirstOrDefaultAsync(x => x.uidNumber == request.UidNumber, cancellationToken);
 
@@ -204,7 +217,21 @@ public class UpdateUserEndpoints : ICarterModule
 
             if (result.IsFailure)
             {
-                return Results.NotFound(result.Error);
+                // if is failure due to duplicate mail return 409
+                if (result.Error.Code == "UpdateUser.DuplicateMail")
+                {
+                    return Results.Conflict(result.Error.Message);
+                }
+                // if is failure due to duplicate mailAlternateAddress return 409
+                if (result.Error.Code == "UpdateUser.DuplicateMailAlternateAddress")
+                {
+                    return Results.Conflict(result.Error.Message);
+                }
+                // if is failure due to null user instance return 404
+                if (result.Error.Code == "UpdateUser.Null")
+                {
+                    return Results.NotFound(result.Error.Message);
+                }
             }
 
             return Results.Ok(Global.version + $"accounts/{result.Value}");
