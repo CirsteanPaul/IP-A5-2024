@@ -26,10 +26,15 @@ public static class GetMailInfo
         }
     }
 
-    internal sealed class Handler(ApplicationDBContext dbContext) : IRequestHandler<Query, Result<MailInfoResponse>>
+    internal sealed class Handler(ApplicationDBContext dbContext, ILdapService ldapService) : IRequestHandler<Query, Result<MailInfoResponse>>
     {
         private readonly ApplicationDBContext dbContext = dbContext;
         internal static readonly string[] objectProperties = ["inetOrgPerson", "organizationalPerson", "person", "posixAccount", "shadowAccount"];
+        private readonly string ldapServer = ldapService.GetLdapSettings().LdapServer;
+        private readonly int ldapPort = ldapService.GetLdapSettings().LdapPort;
+        private readonly string adminUserName = ldapService.GetLdapSettings().AdminUserName;
+        private readonly string adminPassword = ldapService.GetLdapSettings().AdminPassword;
+        private readonly string baseDn = ldapService.GetLdapSettings().BaseDN;
 
         public async Task<Result<int>> AddPartialEntryToDb(string matricol, CancellationToken cancellationToken)
         {
@@ -77,13 +82,6 @@ public static class GetMailInfo
             await dbContext.SaveChangesAsync(cancellationToken);
 
             //add partial entry to ldap
-            //TODO from appsettings
-            string ldapServer = "localhost";
-            int ldapPort = 10389;
-            string adminUserName = "uid=admin,ou=system";
-            string adminPassword = "secret";
-            string baseDn = "dc=info,dc=uaic,dc=ro";
-
             try
             {
                 using var ldapConnection = new LdapConnection();

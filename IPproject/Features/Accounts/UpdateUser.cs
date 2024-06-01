@@ -27,12 +27,14 @@ public partial class UpdateUserInstance
         }
     }
 
-    public partial class Handler(ApplicationDBContext dbContext) : IRequestHandler<Command, Result<int>>
+    public partial class Handler(ApplicationDBContext dbContext, ILdapService ldapService) : IRequestHandler<Command, Result<int>>
     {
         private readonly ApplicationDBContext context = dbContext;
-        //static private readonly string ldapServer = "LDAP://localhost:10389";
-        //static private readonly string adminUserName = "uid=admin,ou=system";
-        //static private readonly string adminPassword = "secret";
+        private readonly string ldapServer = ldapService.GetLdapSettings().LdapServer;
+        private readonly int ldapPort = ldapService.GetLdapSettings().LdapPort;
+        private readonly string adminUserName = ldapService.GetLdapSettings().AdminUserName;
+        private readonly string adminPassword = ldapService.GetLdapSettings().AdminPassword;
+        private readonly string baseDn = ldapService.GetLdapSettings().BaseDN;
 
         public async Task<Result<int>> Handle(Command request, CancellationToken cancellationToken)
         {
@@ -67,13 +69,6 @@ public partial class UpdateUserInstance
             userInstance.LastUpdatedOnUtc = DateTime.UtcNow;
 
             await context.SaveChangesAsync(cancellationToken);
-
-            //TODO from appsettings
-            string ldapServer = "localhost";
-            int ldapPort = 10389;
-            string adminUserName = "uid=admin,ou=system";
-            string adminPassword = "secret";
-            string baseDn = "dc=info,dc=uaic,dc=ro";
 
             var role = UidNumberToRole(userInstance.uidNumber);
             var fullOuPath = role == "students" ? OuToFullOuPath(userInstance.ou) : "";

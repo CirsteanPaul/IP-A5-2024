@@ -2,6 +2,7 @@ using Carter;
 using FluentValidation;
 using IP.Project.Database;
 using IP.Project.Extensions;
+using IP.Project.Features.Accounts;
 using IP.Project.Services.Email;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,6 +30,9 @@ builder.Services.AddIdentity(builder.Configuration);
 
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddSingleton<IEmailService, EmailService>();
+
+builder.Services.Configure<LdapSettings>(builder.Configuration.GetSection("LdapSettings"));
+builder.Services.AddSingleton<ILdapService, LdapService>();
 
 var app = builder.Build();
 
