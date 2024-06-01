@@ -20,10 +20,10 @@ public partial class UpdateUserInstance
         {
             public Validator()
             {
-                RuleFor(x => x.Request.Mail).UniversityEmailAddress().When(x => x.Request.Mail != null);
-                RuleFor(x => x.Request.MailAlternateAddress).EmailAddress().When(x => x.Request.MailAlternateAddress != null);
                 RuleFor(x => x.UidNumber).NotEmpty().UidNumber().When(x => x.UidNumber != 0);
                 RuleFor(x => x.Request.TelephoneNumber).NotEmpty().OnlyNumbers().When(x => x.Request.TelephoneNumber != null);
+                RuleFor(x => x.Request.Mail).UniversityEmailAddress().When(x => x.Request.Mail != null);
+                RuleFor(x => x.Request.MailAlternateAddress).EmailAddress().When(x => x.Request.MailAlternateAddress != null);
             }
         }
     }
