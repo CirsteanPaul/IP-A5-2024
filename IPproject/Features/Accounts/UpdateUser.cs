@@ -1,18 +1,18 @@
-using Azure.Core;
-using IP.Project.Contracts;
 using Carter;
 using FluentValidation;
+using IP.Project.Contracts;
 using IP.Project.Database;
+using IP.Project.Extensions;
 using IP.Project.Shared;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore;
 using Novell.Directory.Ldap;
+using System.Text.RegularExpressions;
 
 namespace IP.Project.Features.Accounts;
 
-public class UpdateUserInstance
+public partial class UpdateUserInstance
 {
     public record Command(int UidNumber, UpdateUserRequest Request) : IRequest<Result<int>>
     {
@@ -20,31 +20,29 @@ public class UpdateUserInstance
         {
             public Validator()
             {
-                RuleFor(x => x.Request.Mail).EmailAddress().When(x => x.Request.Mail != null);
+                RuleFor(x => x.Request.Mail).UniversityEmailAddress().When(x => x.Request.Mail != null);
                 RuleFor(x => x.Request.MailAlternateAddress).EmailAddress().When(x => x.Request.MailAlternateAddress != null);
+                RuleFor(x => x.UidNumber).NotEmpty().UidNumber().When(x => x.UidNumber != 0);
+                RuleFor(x => x.Request.TelephoneNumber).NotEmpty().OnlyNumbers().When(x => x.Request.TelephoneNumber != null);
             }
         }
     }
 
-    public class Handler : IRequestHandler<Command, Result<int>>
+    public partial class Handler(ApplicationDBContext dbContext, ILdapService ldapService) : IRequestHandler<Command, Result<int>>
     {
-        private readonly ApplicationDBContext context;
-
-        public Handler(ApplicationDBContext dbContext)
-        {
-            this.context = dbContext;
-        }
-
-        static private readonly string ldapServer = "LDAP://localhost:10389";
-        static private readonly string adminUserName = "uid=admin,ou=system";
-        static private readonly string adminPassword = "secret";
+        private readonly ApplicationDBContext context = dbContext;
+        private readonly string ldapServer = ldapService.GetLdapSettings().LdapServer;
+        private readonly int ldapPort = ldapService.GetLdapSettings().LdapPort;
+        private readonly string adminUserName = ldapService.GetLdapSettings().AdminUserName;
+        private readonly string adminPassword = ldapService.GetLdapSettings().AdminPassword;
+        private readonly string baseDn = ldapService.GetLdapSettings().BaseDN;
 
         public async Task<Result<int>> Handle(Command request, CancellationToken cancellationToken)
         {
             var validationResult = new Command.Validator().Validate(request);
             var errorMessages = validationResult.Errors
-            .Select(error => error.ErrorMessage)
-            .ToList();
+                .Select(error => error.ErrorMessage)
+                .ToList();
             if (!validationResult.IsValid)
             {
                 return Result.Failure<int>(new Error("UpdateUser.ValidationFailed", string.Join(" ", errorMessages)));
@@ -63,12 +61,6 @@ public class UpdateUserInstance
                 return Result.Failure<int>(new Error("UpdateUser.DuplicateMailAlternateAddress", "The specified mail alternate address is already used by another user."));
             }
 
-            // Check if uidNumber is between 1000 and 8000
-            if (request.UidNumber < 1000 || request.UidNumber > 8000)
-            {
-                return Result.Failure<int>(new Error("UpdateUser.InvalidUidNumber", "The specified uidNumber is invalid."));
-            }
-
             // Update user in database
             var userInstance = await context.Accounts.FirstOrDefaultAsync(x => x.uidNumber == request.UidNumber, cancellationToken);
 
@@ -77,8 +69,8 @@ public class UpdateUserInstance
                 return Result.Failure<int>(new Error("UpdateUser.Null", $"User instance with ID {request.UidNumber} not found."));
             }
 
-            if (request.Request.Mail != null) 
-            {   
+            if (request.Request.Mail != null)
+            {
                 userInstance.mail = request.Request.Mail;
                 userInstance.uid = request.Request.Mail.Split('@')[0];
                 userInstance.homeDirectory = "/home/" + userInstance.uid;
@@ -92,43 +84,36 @@ public class UpdateUserInstance
 
             await context.SaveChangesAsync(cancellationToken);
 
-            string ldapServer = "localhost";
-            int ldapPort = 10389;
-            string adminUserName = "uid=admin,ou=system";
-            string adminPassword = "secret";
-            string baseDn = "dc=info,dc=uaic,dc=ro";
-
             var role = UidNumberToRole(userInstance.uidNumber);
             var fullOuPath = role == "students" ? OuToFullOuPath(userInstance.ou) : "";
             var userDn = $"uid={userInstance.uid},ou={userInstance.ou},{fullOuPath},ou={role},{baseDn}";
 
             try
             {
-                using (var ldapConnection = new LdapConnection())
+                using var ldapConnection = new LdapConnection();
+                // Connect and authenticate
+                ldapConnection.Connect(ldapServer, ldapPort);
+                ldapConnection.Bind(adminUserName, adminPassword);
+                Console.WriteLine("Authenticated");
+
+                // Search for the user by gidNumber
+                string searchFilter = $"(gidNumber={userInstance.gidNumber})";
+                var searchResults = ldapConnection.Search(
+                    baseDn,
+                    LdapConnection.ScopeSub,
+                    searchFilter,
+                    null, // retrieve all attributes
+                    false
+                );
+
+                if (searchResults.HasMore())
                 {
-                    // Connect and authenticate
-                    ldapConnection.Connect(ldapServer, ldapPort);
-                    ldapConnection.Bind(adminUserName, adminPassword);
-                    Console.WriteLine("Authenticated");
+                    var userEntry = searchResults.Next();
+                    userDn = userEntry.Dn;
 
-                    // Search for the user by gidNumber
-                    string searchFilter = $"(gidNumber={userInstance.gidNumber})";
-                    var searchResults = ldapConnection.Search(
-                        baseDn,
-                        LdapConnection.ScopeSub,
-                        searchFilter,
-                        null, // retrieve all attributes
-                        false
-                    );
-
-                    if (searchResults.HasMore())
+                    // Prepare modifications
+                    var modifications = new[]
                     {
-                        var userEntry = searchResults.Next();
-                        userDn = userEntry.Dn;
-
-                        // Prepare modifications
-                        var modifications = new[]
-                        {
                         new LdapModification(LdapModification.Replace, new LdapAttribute("cn", userInstance.cn)),
                         new LdapModification(LdapModification.Replace, new LdapAttribute("sn", userInstance.sn)),
                         new LdapModification(LdapModification.Replace, new LdapAttribute("gidNumber", userInstance.gidNumber.ToString())),
@@ -154,14 +139,13 @@ public class UpdateUserInstance
                         new LdapModification(LdapModification.Replace, new LdapAttribute("userPassword", userInstance.userPassword))
                     };
 
-                        // Apply modifications
-                        ldapConnection.Modify(userDn, modifications);
-                        Console.WriteLine("User attributes updated successfully.");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"No user found with gidNumber={userInstance.gidNumber}");
-                    }
+                    // Apply modifications
+                    ldapConnection.Modify(userDn, modifications);
+                    Console.WriteLine("User attributes updated successfully.");
+                }
+                else
+                {
+                    Console.WriteLine($"No user found with gidNumber={userInstance.gidNumber}");
                 }
             }
             catch (LdapException ex)
@@ -182,20 +166,27 @@ public class UpdateUserInstance
 
         private static string UidNumberToRole(int uidNumber)
         {
-            if (1000 <= uidNumber && uidNumber < 1200) {
+            if (1000 <= uidNumber && uidNumber < 1200)
+            {
                 return "management";
-            } else if (1200 <= uidNumber && uidNumber < 2000) {
+            }
+            else if (1200 <= uidNumber && uidNumber < 2000)
+            {
                 return "professors";
-            } else if (2000 <= uidNumber && uidNumber < 8000) {
+            }
+            else if (2000 <= uidNumber && uidNumber < 8000)
+            {
                 return "students";
-            } else {
+            }
+            else
+            {
                 return "unknown";
             }
         }
 
         private static string OuToFullOuPath(string ou)
         {
-            if (Regex.IsMatch(ou, @"^\d[A-Z]\d$"))
+            if (GroupRegex().IsMatch(ou))
             {
                 return ", ou=license";
             }
@@ -208,6 +199,9 @@ public class UpdateUserInstance
                 return ", ou=masters";
             }
         }
+
+        [GeneratedRegex(@"^\d[A-Z]\d$")]
+        private static partial Regex GroupRegex();
     }
 
 }
@@ -238,6 +232,11 @@ public class UpdateUserEndpoints : ICarterModule
                 {
                     return Results.Conflict(result.Error.Message);
                 }
+                // if is failure due to incorrect email addresses return 400
+                if (result.Error.Code == "UpdateUser.ValidationFailed")
+                {
+                    return Results.BadRequest(result.Error.Message);
+                }
                 // if is failure due to null user instance return 404
                 if (result.Error.Code == "UpdateUser.Null")
                 {
@@ -248,7 +247,7 @@ public class UpdateUserEndpoints : ICarterModule
             return Results.Ok(Global.version + $"accounts/{result.Value}");
         }).WithTags("Accounts")
         .WithDescription("Endpoint for creating an user by uidNumber updating with his chosen parameters " + "If the request succeeds, the updated account id will be returned.")
-        .Produces<int>(StatusCodes.Status200OK) // TO DO CHECK 
+        .Produces<int>(StatusCodes.Status200OK) 
         .Produces<Error>(StatusCodes.Status404NotFound)
         .WithOpenApi();
     }
