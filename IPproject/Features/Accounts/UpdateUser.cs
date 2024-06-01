@@ -63,6 +63,12 @@ public class UpdateUserInstance
                 return Result.Failure<int>(new Error("UpdateUser.DuplicateMailAlternateAddress", "The specified mail alternate address is already used by another user."));
             }
 
+            // Check if uidNumber is between 1000 and 8000
+            if (request.UidNumber < 1000 || request.UidNumber > 8000)
+            {
+                return Result.Failure<int>(new Error("UpdateUser.InvalidUidNumber", "The specified uidNumber is invalid."));
+            }
+
             // Update user in database
             var userInstance = await context.Accounts.FirstOrDefaultAsync(x => x.uidNumber == request.UidNumber, cancellationToken);
 
@@ -224,6 +230,11 @@ public class UpdateUserEndpoints : ICarterModule
                 }
                 // if is failure due to duplicate mailAlternateAddress return 409
                 if (result.Error.Code == "UpdateUser.DuplicateMailAlternateAddress")
+                {
+                    return Results.Conflict(result.Error.Message);
+                }
+                // if is failure due to invalid uidNumber return 409
+                if (result.Error.Code == "UpdateUser.InvalidUidNumber")
                 {
                     return Results.Conflict(result.Error.Message);
                 }
