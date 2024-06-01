@@ -18,5 +18,18 @@ namespace IP.Project.Extensions
             return ruleBuilder.Matches(@"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
                                 .WithMessage("Invalid IP address format");
         }
+        public static IRuleBuilderOptions<T, string> UniversityEmailAddress<T>(this IRuleBuilder<T, string> ruleBuilder)
+        {
+            return ruleBuilder.Matches(@"^[a-zA-Z0-9._%+-]+@info.uaic.ro$").WithMessage("Invalid university email address");
+        }   
+        public static IRuleBuilderOptions<T, int> UidNumber<T>(this IRuleBuilder<T, int> ruleBuilder)
+        {
+            return ruleBuilder.InclusiveBetween(1199, 7999).WithMessage("UID number is not valid");
+        }
+        public static IRuleBuilderOptions<T, string> OnlyNumbers<T>(this IRuleBuilder<T, string> ruleBuilder)
+        {
+            return ruleBuilder.Matches(@"^[0-9]*$").WithMessage("Telephone number is not valid");
+        }
+
     }
 }

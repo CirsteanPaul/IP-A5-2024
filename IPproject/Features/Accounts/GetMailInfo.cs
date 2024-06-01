@@ -38,6 +38,10 @@ public static class GetMailInfo
 
         public async Task<Result<int>> AddPartialEntryToDb(string matricol, CancellationToken cancellationToken)
         {
+            Console.WriteLine("LDAP Server: " + ldapServer);
+            Console.WriteLine("LDAP Port: " + ldapPort);
+            Console.WriteLine("Admin Username: " + adminUserName);
+            Console.WriteLine("Admin Password: " + adminPassword);
 
             //add partial entry to db
             var uidNumber = await GenerateUidNumber(cancellationToken);
@@ -165,10 +169,6 @@ public static class GetMailInfo
 
         public async Task<List<string>> GenerateMailVariants(string firstName, string lastName, CancellationToken cancellationToken)
         {
-            //var accounts = from a in dbContext.Accounts
-            //where a.givenName.Equals(firstName) && a.sn.Equals(lastName)
-            //select a;
-
             var accounts = await dbContext.Accounts
                               .Where(a => a.givenName.Equals(firstName) && a.sn.Equals(lastName))
                               .ToListAsync(cancellationToken);
@@ -222,21 +222,26 @@ public static class GetMailInfo
 
         public async Task<int> GenerateUidNumber(CancellationToken cancellationToken)
         {
-            var uid = await dbContext.Accounts.MaxAsync(x => x.uidNumber, cancellationToken);
+            int uid;
 
-            if (uid == 0)
+            if (await dbContext.Accounts.AnyAsync(cancellationToken))
             {
-                return 2000;
-            }
-            //problem for future devs
-            else if (uid == 7999)
-            {
-                return 2000;
+                uid = await dbContext.Accounts.MaxAsync(x => x.uidNumber, cancellationToken);
+                if (uid == 0 || uid == 7999)
+                {
+                    uid = 2000;
+                }
+                else
+                {
+                    uid = uid + 1;
+                }
             }
             else
             {
-                return uid + 1;
+                uid = 2000;
             }
+
+            return uid;
         }
 
         public async Task<Result<MailInfoResponse>> Handle(Query request, CancellationToken cancellationToken)
@@ -245,7 +250,7 @@ public static class GetMailInfo
             if (!validationResult.IsValid)
             {
                 var errorMessages = validationResult.Errors.Select(error => error.ErrorMessage).ToList();
-                return Result.Failure<MailInfoResponse>(new Error("GetMailInfo.Validation", validationResult.ToString()));
+                return Result.Failure<MailInfoResponse>(new Error("GetMailInfo.ValidationFailed", validationResult.ToString()));
             }
 
             // firstly search in our database
@@ -301,7 +306,14 @@ public class GetMailInfoEndpoint : ICarterModule
             var result = await sender.Send(query);
             if (result.IsFailure)
             {
-                return Results.NotFound(result.Error);
+               if (result.Error.Code == "GetMailInfo.ValidationFailed")
+                {
+                    return Results.BadRequest(result.Error);
+                }
+                if (result.Error.Code == "GetMailInfo.Null")
+                {
+                    return Results.NotFound(result.Error);
+                }
             }
             return Results.Ok(result.Value);
         }).WithTags("Accounts")

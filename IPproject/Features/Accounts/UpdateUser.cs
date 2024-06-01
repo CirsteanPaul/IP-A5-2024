@@ -2,6 +2,7 @@ using Carter;
 using FluentValidation;
 using IP.Project.Contracts;
 using IP.Project.Database;
+using IP.Project.Extensions;
 using IP.Project.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -19,10 +20,10 @@ public partial class UpdateUserInstance
         {
             public Validator()
             {
-                RuleFor(x => x.Request.Mail).EmailAddress().When(x => x.Request.Mail != null);
+                RuleFor(x => x.Request.Mail).UniversityEmailAddress().When(x => x.Request.Mail != null);
                 RuleFor(x => x.Request.MailAlternateAddress).EmailAddress().When(x => x.Request.MailAlternateAddress != null);
-                //RuleFor(x => x.Request.MailAlternateAddress).Password().When(x => x.Request.MailAlternateAddress != null);
-                //RuleFor PhoneNumber
+                RuleFor(x => x.UidNumber).NotEmpty().UidNumber().When(x => x.UidNumber != 0);
+                RuleFor(x => x.Request.TelephoneNumber).NotEmpty().OnlyNumbers().When(x => x.Request.TelephoneNumber != null);
             }
         }
     }
@@ -45,6 +46,19 @@ public partial class UpdateUserInstance
             if (!validationResult.IsValid)
             {
                 return Result.Failure<int>(new Error("UpdateUser.ValidationFailed", string.Join(" ", errorMessages)));
+            }
+
+            // Checks if there is another user with the same Mail or MailAlternateAddress
+            var mailConflict = await context.Accounts.FirstOrDefaultAsync(x => x.mail == request.Request.Mail && x.uidNumber != request.UidNumber, cancellationToken);
+            if (mailConflict != null)
+            {
+                return Result.Failure<int>(new Error("UpdateUser.DuplicateMail", "The specified mail is already used by another user."));
+            }
+
+            var mailAlternateAddressConflict = await context.Accounts.FirstOrDefaultAsync(x => x.mailAlternateAddress == request.Request.MailAlternateAddress && x.uidNumber != request.UidNumber, cancellationToken);
+            if (mailAlternateAddressConflict != null)
+            {
+                return Result.Failure<int>(new Error("UpdateUser.DuplicateMailAlternateAddress", "The specified mail alternate address is already used by another user."));
             }
 
             // Update user in database
@@ -203,13 +217,37 @@ public class UpdateUserEndpoints : ICarterModule
 
             if (result.IsFailure)
             {
-                return Results.NotFound(result.Error);
+                // if is failure due to duplicate mail return 409
+                if (result.Error.Code == "UpdateUser.DuplicateMail")
+                {
+                    return Results.Conflict(result.Error.Message);
+                }
+                // if is failure due to duplicate mailAlternateAddress return 409
+                if (result.Error.Code == "UpdateUser.DuplicateMailAlternateAddress")
+                {
+                    return Results.Conflict(result.Error.Message);
+                }
+                // if is failure due to invalid uidNumber return 409
+                if (result.Error.Code == "UpdateUser.InvalidUidNumber")
+                {
+                    return Results.Conflict(result.Error.Message);
+                }
+                // if is failure due to incorrect email addresses return 400
+                if (result.Error.Code == "UpdateUser.ValidationFailed")
+                {
+                    return Results.BadRequest(result.Error.Message);
+                }
+                // if is failure due to null user instance return 404
+                if (result.Error.Code == "UpdateUser.Null")
+                {
+                    return Results.NotFound(result.Error.Message);
+                }
             }
 
             return Results.Ok(Global.version + $"accounts/{result.Value}");
         }).WithTags("Accounts")
         .WithDescription("Endpoint for creating an user by uidNumber updating with his chosen parameters " + "If the request succeeds, the updated account id will be returned.")
-        .Produces<int>(StatusCodes.Status200OK) // TO DO CHECK 
+        .Produces<int>(StatusCodes.Status200OK) 
         .Produces<Error>(StatusCodes.Status404NotFound)
         .WithOpenApi();
     }
