@@ -92,7 +92,7 @@ public static class GetMailInfo
                 // Connect and authenticate
                 ldapConnection.Connect(ldapServer, ldapPort);
                 ldapConnection.Bind(adminUserName, adminPassword);
-                Console.WriteLine("Authenticated");
+                Console.WriteLine("LDAP: Authenticated");
 
                 // Search for the organizational unit
                 string ouDn = $"ou=license,ou=students,{baseDn}";
@@ -116,7 +116,7 @@ public static class GetMailInfo
                 };
                     var newOUEntry = new LdapEntry(newOUDn, newOUAttributes);
                     ldapConnection.Add(newOUEntry);
-                    Console.WriteLine("Organizational unit added successfully.");
+                    Console.WriteLine("LDAP: Organizational unit added successfully.");
                 }
 
                 // Create a new user entry
@@ -149,19 +149,19 @@ public static class GetMailInfo
             };
                 var newUserEntry = new LdapEntry(userDn, userAttributes);
                 ldapConnection.Add(newUserEntry);
-                Console.WriteLine("User added successfully.");
+                Console.WriteLine("LDAP: User added successfully.");
             }
             catch (LdapException ex)
             {
                 Console.WriteLine("LDAP Error: " + ex.Message);
                 if (ex.InnerException != null)
                 {
-                    Console.WriteLine("Inner exception: " + ex.InnerException.Message);
+                    Console.WriteLine("LDAP: Inner exception: " + ex.InnerException.Message);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
+                Console.WriteLine("LDAP: Error: " + ex.Message);
             }
 
             return account.uidNumber;

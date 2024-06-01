@@ -45,7 +45,7 @@ public partial class UpdateUserInstance
                 .ToList();
             if (!validationResult.IsValid)
             {
-                return Result.Failure<int>(new Error("UpdateUser.ValidationFailed", string.Join(" ", errorMessages)));
+                return Result.Failure<int>(new Error("UpdateUser.ValidationFailed", string.Join(", ", errorMessages)));
             }
 
             // Checks if there is another user with the same Mail or MailAlternateAddress
@@ -94,7 +94,7 @@ public partial class UpdateUserInstance
                 // Connect and authenticate
                 ldapConnection.Connect(ldapServer, ldapPort);
                 ldapConnection.Bind(adminUserName, adminPassword);
-                Console.WriteLine("Authenticated");
+                Console.WriteLine("LDAP: Authenticated");
 
                 // Search for the user by gidNumber
                 string searchFilter = $"(gidNumber={userInstance.gidNumber})";
@@ -141,11 +141,11 @@ public partial class UpdateUserInstance
 
                     // Apply modifications
                     ldapConnection.Modify(userDn, modifications);
-                    Console.WriteLine("User attributes updated successfully.");
+                    Console.WriteLine("LDAP: User attributes updated successfully.");
                 }
                 else
                 {
-                    Console.WriteLine($"No user found with gidNumber={userInstance.gidNumber}");
+                    Console.WriteLine($"LDAP: No user found with gidNumber={userInstance.gidNumber}");
                 }
             }
             catch (LdapException ex)
@@ -153,12 +153,12 @@ public partial class UpdateUserInstance
                 Console.WriteLine("LDAP Error: " + ex.Message);
                 if (ex.InnerException != null)
                 {
-                    Console.WriteLine("Inner exception: " + ex.InnerException.Message);
+                    Console.WriteLine("LDAP: Inner exception: " + ex.InnerException.Message);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
+                Console.WriteLine("LDAP: Error: " + ex.Message);
             }
 
             return Result.Success(request.UidNumber);
