@@ -20,7 +20,7 @@ namespace IP.Project.Extensions
         }
         public static IRuleBuilderOptions<T, string> UniversityEmailAddress<T>(this IRuleBuilder<T, string> ruleBuilder)
         {
-            return ruleBuilder.Matches(@"^[a-zA-Z0-9._%+-]+@info.uaic.ro$").WithMessage("Invalid university email address");
+            return ruleBuilder.Matches(@"^[a-zA-Z0-9.]+@info.uaic.ro$").WithMessage("Invalid university email address");
         }   
         public static IRuleBuilderOptions<T, int> UidNumber<T>(this IRuleBuilder<T, int> ruleBuilder)
         {
