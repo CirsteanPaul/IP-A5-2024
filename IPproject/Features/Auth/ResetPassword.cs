@@ -14,9 +14,9 @@ namespace IP.Project.Features.Auth
     {
         public record Command : IRequest<Result>
         {
-            public string Email { get; init; }
-            public string NewPassword { get; init; }
-            public string ResetCode { get; init; }
+            public string Email { get; init; } = string.Empty;
+            public string NewPassword { get; init; } = string.Empty;
+            public string ResetCode { get; init; } = string.Empty;
         }
 
         public class CommandValidator : AbstractValidator<Command>
@@ -25,6 +25,7 @@ namespace IP.Project.Features.Auth
             {
                 RuleFor(x => x.Email).NotEmpty().EmailAddress();
                 RuleFor(x => x.ResetCode).NotEmpty();
+                RuleFor(x => x.NewPassword).NotEmpty();
             }
         }
 

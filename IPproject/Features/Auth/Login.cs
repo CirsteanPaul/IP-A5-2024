@@ -1,7 +1,6 @@
 ﻿using Carter;
 using FluentValidation;
 using IP.Project.Entities;
-using IP.Project.Features.Auth;
 using IP.Project.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -14,10 +13,10 @@ using IP.Project.Contracts.Auth;
 
 namespace IP.Project.Features.Auth
 {
-    public class Login{
+    public static class Login {
         public record Command : IRequest<Result<LoginResponse>>
         {
-            public LoginRequest Request { get; init; }
+            public LoginRequest Request { get; init; } = new();
             public class Validator : AbstractValidator<Command>
             {
                 public Validator()
@@ -49,8 +48,8 @@ namespace IP.Project.Features.Auth
                         return Result.Failure<LoginResponse>(new Error("LoginValidationFailed", string.Join(" ", errorMessages)));
                     }
 
-                    var user = await userManager.FindByNameAsync(request.Request.Username);
-                    if (user == null || !await userManager.CheckPasswordAsync(user, request.Request.Password))
+                    var user = await userManager.FindByNameAsync(request.Request.Username!);
+                    if (user == null || !await userManager.CheckPasswordAsync(user, request.Request.Password!))
                     {
                         return Result.Failure<LoginResponse>(new Error("InvalidCredentials", "Invalid username or password."));
                     }
@@ -91,37 +90,38 @@ namespace IP.Project.Features.Auth
             }
         }
     }
-}
-
-public class LoginEndPoint : ICarterModule
-{
-    public void AddRoutes(IEndpointRouteBuilder app)
+    
+    public class LoginEndPoint : ICarterModule
     {
-        app.MapPost($"{Global.version}auth/login", async ([FromBody] LoginRequest request, ISender sender) =>
+        public void AddRoutes(IEndpointRouteBuilder app)
         {
-            var command = new Login.Command
-            {
-                Request = request
-            };
-            var result = await sender.Send(command);
-
-            if (result.IsFailure)
-            {
-                if (result.Error.Code == "InternalServerError")
+            app.MapPost($"{Global.version}auth/login", async ([FromBody] LoginRequest request, ISender sender) =>
                 {
-                    return Results.StatusCode(500);
-                }
-                
-                return Results.BadRequest(result.Error);
-            }
+                    var command = new Login.Command
+                    {
+                        Request = request
+                    };
+                    var result = await sender.Send(command);
 
-            return Results.Ok(result.Value);
-        })
-        .WithTags("Auth")
-        .WithDescription("Endpoint for logging in a user. If the request is successful, it will return status code 200 (OK) with a JWT token.")
-        .Produces<LoginResponse>(StatusCodes.Status200OK)
-        .Produces<Error>(StatusCodes.Status400BadRequest)
-        .Produces<Error>(StatusCodes.Status500InternalServerError)
-        .WithOpenApi();
+                    if (result.IsFailure)
+                    {
+                        if (result.Error.Code == "InternalServerError")
+                        {
+                            return Results.StatusCode(500);
+                        }
+                
+                        return Results.BadRequest(result.Error);
+                    }
+
+                    return Results.Ok(result.Value);
+                })
+                .WithTags("Auth")
+                .WithDescription("Endpoint for logging in a user. If the request is successful, it will return status code 200 (OK) with a JWT token.")
+                .Produces<LoginResponse>(StatusCodes.Status200OK)
+                .Produces<Error>(StatusCodes.Status400BadRequest)
+                .Produces<Error>(StatusCodes.Status500InternalServerError)
+                .WithOpenApi();
+        }
     }
+
 }

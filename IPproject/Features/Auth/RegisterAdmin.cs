@@ -106,40 +106,40 @@ namespace IP.Project.Features.Auth
             }
         }
     }
-}
-
-public class RegisterAdminEndPoint : ICarterModule
-{
-    public void AddRoutes(IEndpointRouteBuilder app)
+    
+    public class RegisterAdminEndPoint : ICarterModule
     {
-        app.MapPost($"{Global.version}auth/register-admin", async ([FromBody] RegisterRequest request, ISender sender) =>
+        public void AddRoutes(IEndpointRouteBuilder app)
         {
-            var command = new Register.Command
-            {
-                Request = request
-            };
-            
-            var result = await sender.Send(command);
-
-            if (result.IsFailure)
-            {
-                if (result.Error.Code == "InternalServerError")
+            app.MapPost($"{Global.version}auth/register-admin", async ([FromBody] RegisterRequest request, ISender sender) =>
                 {
-                    return Results.StatusCode(500);
-                }
+                    var command = new Register.Command
+                    {
+                        Request = request
+                    };
+            
+                    var result = await sender.Send(command);
+
+                    if (result.IsFailure)
+                    {
+                        if (result.Error.Code == "InternalServerError")
+                        {
+                            return Results.StatusCode(500);
+                        }
                 
-                return Results.BadRequest(result.Error);
-            }
+                        return Results.BadRequest(result.Error);
+                    }
 
-            return Results.Created($"{Global.version}auth/register-admin/{result.Value}", result.Value);
+                    return Results.Created($"{Global.version}auth/register-admin/{result.Value}", result.Value);
 
-        })
-            .WithTags("Auth")
-            .WithDescription("Endpoint for registering a new admin account." +
-                                                                        "If the request is successful, it will return status code 201 (Created)). ")
-            .Produces<RegisterResponse>(StatusCodes.Status201Created)
-            .Produces<Error>(StatusCodes.Status500InternalServerError)
-            .Produces<Error>(StatusCodes.Status400BadRequest)
-            .WithOpenApi();
+                })
+                .WithTags("Auth")
+                .WithDescription("Endpoint for registering a new admin account." +
+                                 "If the request is successful, it will return status code 201 (Created)). ")
+                .Produces<RegisterResponse>(StatusCodes.Status201Created)
+                .Produces<Error>(StatusCodes.Status500InternalServerError)
+                .Produces<Error>(StatusCodes.Status400BadRequest)
+                .WithOpenApi();
+        }
     }
 }

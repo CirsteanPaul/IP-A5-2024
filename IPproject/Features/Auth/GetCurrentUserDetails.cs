@@ -1,7 +1,6 @@
 using System.Security.Claims;
 using Carter;
 using IP.Project.Contracts.Auth;
-using IP.Project.Features.Auth;
 using IP.Project.Shared;
 using MediatR;
 
@@ -55,23 +54,23 @@ namespace IP.Project.Features.Auth
                 }
         }
     }
-}
-
-public class CurrentUserDetailsEndPoint : ICarterModule
-{
-    public void AddRoutes(IEndpointRouteBuilder app)
+    
+    public class CurrentUserDetailsEndPoint : ICarterModule
     {
-        app.MapGet($"{Global.version}auth/currentUserDetails", async (ISender sender) =>
-            {
-                var query = new GetCurrentUserDetails.Query();
-                var result = await sender.Send(query);
+        public void AddRoutes(IEndpointRouteBuilder app)
+        {
+            app.MapGet($"{Global.version}auth/currentUserDetails", async (ISender sender) =>
+                {
+                    var query = new GetCurrentUserDetails.Query();
+                    var result = await sender.Send(query);
 
-                return Results.Ok(result.Value);
-            })
-            .WithTags("Auth")
-            .WithDescription("Endpoint for retrieving the current user's information. If the request is successful, it will return status code 200 (OK) with the user details.")
-            .Produces<CurrentUserDetails>(StatusCodes.Status200OK)
-            .Produces<Error>(StatusCodes.Status400BadRequest)
-            .WithOpenApi();
+                    return Results.Ok(result.Value);
+                })
+                .WithTags("Auth")
+                .WithDescription("Endpoint for retrieving the current user's information. If the request is successful, it will return status code 200 (OK) with the user details.")
+                .Produces<CurrentUserDetails>(StatusCodes.Status200OK)
+                .Produces<Error>(StatusCodes.Status400BadRequest)
+                .WithOpenApi();
+        }
     }
 }

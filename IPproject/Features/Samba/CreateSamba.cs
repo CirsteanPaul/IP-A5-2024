@@ -67,29 +67,29 @@ namespace IP.Project.Features.Samba
             }
         }
     }
-}
-
-public class CreateSambaEndPoint : ICarterModule
-{
-    public void AddRoutes(IEndpointRouteBuilder app)
+    
+    public class CreateSambaEndPoint : ICarterModule
     {
-        _ = app.MapPost($"{Global.version}sambas", [Authorize(Roles = Roles.Admin)] async ([FromBody] CreateSambaRequest request, ISender sender) =>
-            {
-                var command = request.Adapt<CreateSamba.Command>();
-                var result = await sender.Send(command);
-
-                if (result.IsFailure)
+        public void AddRoutes(IEndpointRouteBuilder app)
+        {
+            _ = app.MapPost($"{Global.version}sambas", [Authorize(Roles = Roles.Admin)] async ([FromBody] CreateSambaRequest request, ISender sender) =>
                 {
-                    return Results.BadRequest(result.Error);
-                }
+                    var command = request.Adapt<CreateSamba.Command>();
+                    var result = await sender.Send(command);
 
-                return Results.Created($"{Global.version}sambas/{result.Value}", null);
-            })
-            .WithTags("Samba")
-            .WithDescription("Endpoint for creating a new samba account. " +
-                             "If the request succeeded in the location header you can find the endpoint to get the new account.")
-            .Produces(StatusCodes.Status201Created)
-            .Produces<Error>(StatusCodes.Status400BadRequest)
-            .WithOpenApi();
+                    if (result.IsFailure)
+                    {
+                        return Results.BadRequest(result.Error);
+                    }
+
+                    return Results.Created($"{Global.version}sambas/{result.Value}", null);
+                })
+                .WithTags("Samba")
+                .WithDescription("Endpoint for creating a new samba account. " +
+                                 "If the request succeeded in the location header you can find the endpoint to get the new account.")
+                .Produces(StatusCodes.Status201Created)
+                .Produces<Error>(StatusCodes.Status400BadRequest)
+                .WithOpenApi();
+        }
     }
 }

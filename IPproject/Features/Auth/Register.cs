@@ -13,15 +13,15 @@ namespace IP.Project.Features.Auth
 {
     public record RegisterResponse
     {
-        public string Username { get; init; }
-        public string Email { get; init; }
+        public string Username { get; init; } = string.Empty;
+        public string Email { get; init; } = string.Empty;
     }
 
     public static class Register
     {
         public record Command : IRequest<Result<RegisterResponse>>
         {
-            public RegisterRequest Request { get; init; }
+            public RegisterRequest Request { get; init; } = new ();
 
             public class Validator : AbstractValidator<Command>
             {
@@ -60,7 +60,7 @@ namespace IP.Project.Features.Auth
                         return Result.Failure<RegisterResponse>(new Error("RegistrationUsernameFailed",
                             "Username should be the left part of the email."));
                     }
-                    var userExists = await userManager.FindByNameAsync(request.Request.Username);
+                    var userExists = await userManager.FindByNameAsync(request.Request.Username!);
                     if (userExists != null)
                         return Result.Failure<RegisterResponse>(new Error("UserAlreadyExists", "A user with this username already exists."));
 
@@ -70,12 +70,12 @@ namespace IP.Project.Features.Auth
                     
                     ApplicationUser user = new ApplicationUser()
                     {
-                        Email = request.Request.Email,
+                        Email = request.Request.Email!,
                         SecurityStamp = Guid.NewGuid().ToString(),
-                        UserName = request.Request.Username
+                        UserName = request.Request.Username!
                     };
 
-                    var createUserResult = await userManager.CreateAsync(user, request.Request.Password);
+                    var createUserResult = await userManager.CreateAsync(user, request.Request.Password!);
                     if (!createUserResult.Succeeded)
                     {
                         return Result.Failure<RegisterResponse>(new Error("UserCreationFailed", string.Join('\n', createUserResult.Errors.Select(x => x.Description))));
