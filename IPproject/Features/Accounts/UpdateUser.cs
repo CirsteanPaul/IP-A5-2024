@@ -210,7 +210,7 @@ public class UpdateUserEndpoints : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapPut(Global.version + "accounts/{uidNumber:int}", async ([FromRoute] int uidNumber, [FromBody] UpdateUserRequest request, ISender sender) =>
+        app.MapPut(Global.version + "accounts/mail/{uidNumber:int}", async ([FromRoute] int uidNumber, [FromBody] UpdateUserRequest request, ISender sender) =>
         {
             var command = new UpdateUserInstance.Command(uidNumber, request);
             var result = await sender.Send(command);
