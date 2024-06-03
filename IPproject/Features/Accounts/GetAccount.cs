@@ -1,7 +1,6 @@
 ﻿using Carter;
 using IP.Project.Contracts.Account;
 using IP.Project.Database;
-using IP.Project.Features.Accounts;
 using IP.Project.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
