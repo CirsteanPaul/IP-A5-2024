@@ -23,7 +23,7 @@ namespace IP.Project.Features.Vpn
         {
             public Validator()
             {
-                RuleFor(x => x.Description).NotEmpty().MinimumLength(10);
+                RuleFor(x => x.Description).NotEmpty().TrimmedMinLength(10);
                 RuleFor(x => x.IPv4Address).NotEmpty().IpAddress();
             }
         }

@@ -25,7 +25,7 @@ namespace IP.Project.Features.Samba
                 public Validator()
                 {
                     RuleFor(x => x.Request.NewIpAddress).NotEmpty().IpAddress();
-                    RuleFor(x => x.Request.NewDescription).NotEmpty().MinimumLength(10);
+                    RuleFor(x => x.Request.NewDescription).NotEmpty().TrimmedMinLength(10);
                 }
             }
         }

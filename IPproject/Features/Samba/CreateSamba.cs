@@ -27,7 +27,7 @@ namespace IP.Project.Features.Samba
                 public Validator()
                 {
                     RuleFor(x => x.IPv4Address).NotEmpty().IpAddress(); // Using IpAddress() for IP address validation
-                    RuleFor(x => x.Description).NotEmpty().MinimumLength(10);
+                    RuleFor(x => x.Description).NotEmpty().TrimmedMinLength(10);
                 }
             }
         
