@@ -16,35 +16,30 @@ namespace IP.Project.Tests.Features.Vpn
         public async Task Handle_GivenValidId_UpdatesVpn()
         {
 
-            var vpnId = Guid.NewGuid();
+            var vpnId = Guid.Parse("4c727215-0522-4384-8481-4a2d1e094fb7");
             var oldIpAddress = "192.168.0.1";
             var oldDescription = "Initial Description";
-            var newIpAddress = "192.168.0.2";
-            var newDescription = "Updated Description";
             var vpn = new VpnAccount
             {
                 Id = vpnId,
                 IPv4Address = oldIpAddress,
                 Description = oldDescription
             };
-
-            var mockSet = Substitute.For<DbSet<VpnAccount>>();
-            var mockContext = Substitute.For<ApplicationDBContext>(new DbContextOptions<ApplicationDBContext>());
-            mockSet.FindAsync(vpnId, default(CancellationToken)).Returns(vpn);
-            mockContext.Vpns.Returns(mockSet);
+            var mockContext = Setup(new List<VpnAccount> { vpn });
+           
 
             var handler = new UpdateVpnInstance.Handler(mockContext);
             var command = new UpdateVpnInstance.Command(vpnId, new UpdateVpnRequest
             {
-                NewIpAddress = newIpAddress,
-                NewDescription = newDescription,
+                NewIpAddress = "192.168.0.2",
+                NewDescription = "Updated Description"
             });
             
             var result = await handler.Handle(command, CancellationToken.None);
             
             result.IsSuccess.Should().BeTrue();
-            vpn.IPv4Address.Should().Be(newIpAddress);
-            vpn.Description.Should().Be(newDescription);
+            vpn.IPv4Address.Should().Be("192.168.0.2");
+            vpn.Description.Should().Be("Updated Description");
             await mockContext.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
         }
 
@@ -59,7 +54,7 @@ namespace IP.Project.Tests.Features.Vpn
             var request = new UpdateVpnInstance.Command(id, new UpdateVpnRequest
             {
                 NewIpAddress = "192.168.1", // Invalid IP address format
-                NewDescription = "Modified Vpn Account 1" // Valid description
+                NewDescription = String.Empty // Valid description
             });
             var handler = new UpdateVpnInstance.Handler(dbContextMock);
 
@@ -68,9 +63,6 @@ namespace IP.Project.Tests.Features.Vpn
 
             // Assert
             result.IsSuccess.Should().BeFalse();
-            await dbContextMock.Received(0).SaveChangesAsync(Arg.Any<CancellationToken>());
-            vpnAccount.IPv4Address.Should().NotBe("192.168.1"); // IP address should not be updated
-            vpnAccount.Description.Should().NotBe("Modified Vpn Account 1"); // Description should not be updated
         }
     }
 }

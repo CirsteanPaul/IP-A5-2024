@@ -58,7 +58,7 @@ public class BaseTest<TEntity> where TEntity : class
         return contextMock;
     }
 
-    private void SetupDbMock(ApplicationDBContext dbMock, DbSet<TEntity> setMock)
+    private static void SetupDbMock(ApplicationDBContext dbMock, DbSet<TEntity> setMock)
     {
         switch (setMock)
         {
