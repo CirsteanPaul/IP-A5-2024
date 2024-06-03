@@ -7,6 +7,7 @@ using IP.Project.Extensions;
 using IP.Project.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
 namespace IP.Project.Features.Vpn
 {
@@ -34,7 +35,17 @@ namespace IP.Project.Features.Vpn
 
             public async Task<Result<Guid>> Handle(Command request, CancellationToken cancellationToken)
             {
-                var vpnInstance = await context.Vpns.FindAsync(request.Id, cancellationToken);
+                var validationResult = new Command.Validator().Validate(request);
+                var errorMessages = validationResult.Errors
+                    .Select(error => error.ErrorMessage)
+                    .ToList();
+                if (!validationResult.IsValid)
+                {
+                    return Result.Failure<Guid>(new Error("UpdateVpn.ValidationFailed", string.Join(" ", errorMessages)));
+                }
+
+                var vpnInstance = await context.Vpns.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+
                 if (vpnInstance == null)
                 {
                     return Result.Failure<Guid>(new Error("UpdateVpn.Null", $"Vpn instance with ID {request.Id} not found."));
@@ -42,6 +53,7 @@ namespace IP.Project.Features.Vpn
 
                 vpnInstance.IPv4Address = request.Request.NewIpAddress;
                 vpnInstance.Description = request.Request.NewDescription;
+                
                 await context.SaveChangesAsync(cancellationToken);
 
                 return Result.Success(request.Id);

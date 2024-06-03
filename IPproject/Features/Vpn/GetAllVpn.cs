@@ -12,9 +12,7 @@ namespace IP.Project.Features.Vpn
 {
     public class GetAllVpns
     {
-        public class Query : IRequest<Result<List<VpnResponse>>>
-        {
-        }
+        public class Query : IRequest<Result<List<VpnResponse>>>;
 
         public class Handler : IRequestHandler<Query, Result<List<VpnResponse>>>
         {

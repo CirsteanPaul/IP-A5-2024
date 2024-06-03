@@ -2,9 +2,7 @@
 using IP.Project.Entities;
 using IP.Project.Features.Accounts;
 using IP.Project.Tests.Base;
-using IP.Project.Contracts;
 using IP.Project.Contracts.Account;
-using IP.Project.Contracts.Samba;
 using NSubstitute;
 
 namespace IP.Project.Tests.Features.Accounts;
@@ -169,9 +167,7 @@ public class UpdateAccountTests : BaseTest<Account>
         };
         var dbContextMock = Setup(acc);
 
-        var request = new UpdateAccountInstance.Command(id, new UpdateAccountRequest
-        {
-        });
+        var request = new UpdateAccountInstance.Command(id, new UpdateAccountRequest());
         var handler = new UpdateAccountInstance.Handler(dbContextMock);
 
         // Act
@@ -198,9 +194,7 @@ public class UpdateAccountTests : BaseTest<Account>
         };
         var dbContextMock = Setup(acc);
 
-        var request = new UpdateAccountInstance.Command(id, new UpdateAccountRequest
-        {
-        });
+        var request = new UpdateAccountInstance.Command(id, new UpdateAccountRequest());
         var handler = new UpdateAccountInstance.Handler(dbContextMock);
 
         // Act

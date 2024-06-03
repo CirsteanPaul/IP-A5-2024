@@ -30,7 +30,7 @@ namespace IP.Project.Features.Vpn
             {
                 using var connection = factory.CreateConnection();
                 var vpn = await connection.QueryFirstOrDefaultAsync<VpnAccount>("SELECT * FROM Vpns WHERE Id = @Id",
-                    new { Id = request.Id });
+                    new { request.Id });
 
                 if (vpn == null)
                 {

@@ -247,7 +247,7 @@ public class UpdateUserEndpoints : ICarterModule
             return Results.Ok(Global.version + $"accounts/{result.Value}");
         }).WithTags("Accounts")
         .WithDescription("Endpoint for creating an user by uidNumber updating with his chosen parameters " + "If the request succeeds, the updated account id will be returned.")
-        .Produces<int>(StatusCodes.Status200OK) 
+        .Produces<int>() 
         .Produces<Error>(StatusCodes.Status404NotFound)
         .WithOpenApi();
     }

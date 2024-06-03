@@ -5,7 +5,7 @@ using System.Security.Claims;
 using Dapper;
 using IP.Project.Constants;
 using IP.Project.Database;
-using IP.Project.IntegrationTests.Base.AccountSeed;
+using IP.Project.IntegrationTests.Base.Sqlite;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;

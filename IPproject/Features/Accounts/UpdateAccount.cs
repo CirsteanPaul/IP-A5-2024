@@ -1,8 +1,6 @@
-﻿using IP.Project.Contracts;
-using Carter;
+﻿using Carter;
 using FluentValidation;
 using IP.Project.Contracts.Account;
-using IP.Project.Contracts.Samba;
 using IP.Project.Database;
 using IP.Project.Shared;
 using MediatR;
@@ -77,7 +75,7 @@ namespace IP.Project.Features.Accounts
                 return Results.Ok(Global.version + $"accounts/{result.Value}");
             }).WithTags("Accounts")
             .WithDescription("Endpoint for updating an account by id. " +  "If the request succeeds, the updated account id will be returned.")
-            .Produces<Guid>(StatusCodes.Status200OK)
+            .Produces<Guid>()
             .Produces<Error>(StatusCodes.Status404NotFound)
             .WithOpenApi();
         }

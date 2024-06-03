@@ -55,7 +55,7 @@ namespace IP.Project.Features.Samba
                     return Results.Ok(result.Value);
                 }).WithTags("Samba")
                 .WithDescription("Endpoint for retrieving details of all Samba accounts.")
-                .Produces<List<SambaResponse>>(StatusCodes.Status200OK)
+                .Produces<List<SambaResponse>>()
                 .Produces<Error>(StatusCodes.Status500InternalServerError);
         }
     }

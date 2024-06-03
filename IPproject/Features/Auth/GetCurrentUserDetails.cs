@@ -8,9 +8,7 @@ namespace IP.Project.Features.Auth
 {
     public class GetCurrentUserDetails
     {
-        public class Query : IRequest<Result<CurrentUserDetails>>
-        {
-        }
+        public class Query : IRequest<Result<CurrentUserDetails>>;
 
         public class Handler : IRequestHandler<Query, Result<CurrentUserDetails>>
         {
@@ -68,7 +66,7 @@ namespace IP.Project.Features.Auth
                 })
                 .WithTags("Auth")
                 .WithDescription("Endpoint for retrieving the current user's information. If the request is successful, it will return status code 200 (OK) with the user details.")
-                .Produces<CurrentUserDetails>(StatusCodes.Status200OK)
+                .Produces<CurrentUserDetails>()
                 .Produces<Error>(StatusCodes.Status400BadRequest)
                 .WithOpenApi();
         }

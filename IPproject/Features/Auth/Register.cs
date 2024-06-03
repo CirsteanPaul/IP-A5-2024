@@ -1,6 +1,5 @@
 using Carter;
 using IP.Project.Entities;
-using IP.Project.Features.Auth;
 using IP.Project.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -9,8 +8,7 @@ using FluentValidation;
 using IP.Project.Constants;
 using IP.Project.Contracts.Auth;
 
-namespace IP.Project.Features.Auth
-{
+namespace IP.Project.Features.Auth;
     public record RegisterResponse
     {
         public string Username { get; init; } = string.Empty;
@@ -106,7 +104,6 @@ namespace IP.Project.Features.Auth
             }
         }
     }
-}
 
 public class RegisterEndPoint : ICarterModule
 {

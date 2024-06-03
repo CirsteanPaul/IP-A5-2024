@@ -2,6 +2,6 @@
 {
     public class LoginResponse
     {
-        public string Token { get; init; }
+        public string Token { get; init; } = string.Empty;
     }
 }

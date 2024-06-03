@@ -1,5 +1,4 @@
 ﻿using Carter;
-using IP.Project.Contracts;
 using IP.Project.Contracts.Account;
 using IP.Project.Database;
 using IP.Project.Features.Accounts;
@@ -8,8 +7,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace IP.Project.Features.Accounts
-{
+namespace IP.Project.Features.Accounts;
     public static class GetAccount
     {
         public record Query : IRequest<Result<AccountResponse>>
@@ -52,8 +50,6 @@ namespace IP.Project.Features.Accounts
             }
         }
     }
-}
-
 public class GetAccountEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
@@ -74,7 +70,7 @@ public class GetAccountEndpoint : ICarterModule
         .WithTags("Accounts")
         .WithDescription("Endpoint for getting an account by id. " +
         "If the request succeeds, in the response body you can find the account details.")
-        .Produces<AccountResponse>(StatusCodes.Status200OK)
+        .Produces<AccountResponse>()
         .Produces<Error>(StatusCodes.Status404NotFound)
         .WithOpenApi();
     }

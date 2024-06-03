@@ -32,7 +32,7 @@ namespace IP.Project.Features.Samba
                 using (var connection = _factory.CreateConnection())
                 {
                     var query = "SELECT * FROM SambaAccounts WHERE Id = @Id";
-                    var samba = await connection.QuerySingleOrDefaultAsync<SambaAccount>(query, new { Id = request.Id });
+                    var samba = await connection.QuerySingleOrDefaultAsync<SambaAccount>(query, new { request.Id });
 
                     if (samba == null)
                     {
@@ -62,7 +62,7 @@ namespace IP.Project.Features.Samba
                 return result.IsFailure ? Results.NotFound(result.Error) : Results.Ok(result.Value);
             }).WithTags("Samba")
             .WithDescription("Endpoint for retrieving details of a specific Samba account.")
-            .Produces<SambaResponse>(StatusCodes.Status200OK)
+            .Produces<SambaResponse>()
             .Produces<Error>(StatusCodes.Status404NotFound)
             .WithOpenApi();
         }
