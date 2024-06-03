@@ -54,6 +54,12 @@
 
         public string description { get; set; } = string.Empty;
 
+        public string mailVariant1 { get; set; } = string.Empty;
+
+        public string mailVariant2 { get; set; } = string.Empty;
+
+        public string mailVariant3 { get; set; } = string.Empty;
+
         public DateTime CreatedOnUtc { get; set; } = DateTime.UtcNow;
         public DateTime LastUpdatedOnUtc { get; set; } = DateTime.UtcNow;
     }

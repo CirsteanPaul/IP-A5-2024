@@ -1,4 +1,5 @@
-﻿using Carter;
+﻿using Azure.Core;
+using Carter;
 using FluentValidation;
 using IP.Project.Contracts;
 using IP.Project.Database;
@@ -81,6 +82,11 @@ public static class GetMailInfo
             };
 
             account.initials = account.givenName[0] + account.sn[0].ToString();
+
+            var mailVariants = await GenerateMailVariants(account.givenName, account.sn, cancellationToken);
+            account.mailVariant1 = mailVariants[0];
+            account.mailVariant2 = mailVariants[1];
+            account.mailVariant3 = mailVariants[2];
 
             await dbContext.Accounts.AddAsync(account, cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
@@ -179,6 +185,7 @@ public static class GetMailInfo
             var first = firstName.ToLower();
             var last = lastName.ToLower();
 
+            // Generate mail variants
             mailVariants.Add(first + "." + last + "@info.uaic.ro");
             mailVariants.Add(first + "." + last[0] + "@info.uaic.ro");
             mailVariants.Add(first[0] + "." + last + "@info.uaic.ro");
@@ -189,6 +196,16 @@ public static class GetMailInfo
             mailVariants.Add(first[0] + "." + last + '1' + "@info.uaic.ro");
             mailVariants.Add(first[0..2] + "." + last + '1' + "@info.uaic.ro");
             mailVariants.Add(first + "." + last[0..2] + '1' + "@info.uaic.ro");
+            mailVariants.Add(last + "." + first + "@info.uaic.ro");
+            mailVariants.Add(last + "." + first[0] + "@info.uaic.ro");
+            mailVariants.Add(last[0] + "." + first + "@info.uaic.ro");
+            mailVariants.Add(last[0..2] + "." + first + "@info.uaic.ro");
+            mailVariants.Add(last + "." + first[0..2] + "@info.uaic.ro");
+            mailVariants.Add(last + "." + first + '1' + "@info.uaic.ro");
+            mailVariants.Add(last + "." + first[0] + '1' + "@info.uaic.ro");
+            mailVariants.Add(last[0] + "." + first + '1' + "@info.uaic.ro");
+            mailVariants.Add(last[0..2] + "." + first + '1' + "@info.uaic.ro");
+            mailVariants.Add(last + "." + first[0..2] + '1' + "@info.uaic.ro");
 
             var counter = 0;
 
@@ -260,7 +277,7 @@ public static class GetMailInfo
             {
                 //if it does not exist in esims, return error
                 //return Result.Failure<MailInfoResponse>(
-                //                           new Error("GetMailInfo.Null", $"Account instance with Matricol {request.Matricol} not found."));
+                //                           new Error("GetMailInfo.Null", $"User instance with Matricol {request.Matricol} not found."));
 
                 //search in esims for this matricol
                 //suppose we found the user in esims
@@ -275,16 +292,14 @@ public static class GetMailInfo
 
             }
 
-            var mailVariants = await GenerateMailVariants(accountInstance.givenName, accountInstance.sn, cancellationToken);
-
             var response = new MailInfoResponse
             {
                 UidNumber = accountInstance.uidNumber,
                 FirstName = accountInstance.givenName,
                 LastName = accountInstance.sn,
-                MailVariant1 = mailVariants[0],
-                MailVariant2 = mailVariants[1],
-                MailVariant3 = mailVariants[2]
+                MailVariant1 = accountInstance.mailVariant1,
+                MailVariant2 = accountInstance.mailVariant2,
+                MailVariant3 = accountInstance.mailVariant3,
             };
 
             return response;

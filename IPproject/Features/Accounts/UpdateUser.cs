@@ -61,6 +61,24 @@ public partial class UpdateUserInstance
                 return Result.Failure<int>(new Error("UpdateUser.DuplicateMailAlternateAddress", "The specified mail alternate address is already used by another user."));
             }
 
+            // Checks if the specified mail is a valid mail variant for the specified user
+            var mailVariants = await context.Accounts
+                    .Where(x => x.uidNumber == request.UidNumber)
+                    .Select(x => new { x.mailVariant1, x.mailVariant2, x.mailVariant3 })
+                    .FirstOrDefaultAsync(cancellationToken);
+
+            if (mailVariants != null)
+            {
+                if (request.Request.Mail != null && request.Request.Mail != mailVariants.mailVariant1 && request.Request.Mail != mailVariants.mailVariant2 && request.Request.Mail != mailVariants.mailVariant3)
+                {
+                    return Result.Failure<int>(new Error("UpdateUser.InvalidEmailChoice", "The specified mail is not a valid mail variant for the specified user."));
+                }
+            }
+            else
+            {
+                return Result.Failure<int>(new Error("UpdateUser.NoMailVariantsFound", "No mail variants found for the specified user."));
+            }
+
             // Update user in database
             var userInstance = await context.Accounts.FirstOrDefaultAsync(x => x.uidNumber == request.UidNumber, cancellationToken);
 
@@ -81,6 +99,10 @@ public partial class UpdateUserInstance
             if (request.Request.TelephoneNumber != null) { userInstance.telephoneNumber = request.Request.TelephoneNumber; }
 
             userInstance.LastUpdatedOnUtc = DateTime.UtcNow;
+
+            userInstance.mailVariant1 = "";
+            userInstance.mailVariant2 = "";
+            userInstance.mailVariant3 = "";
 
             await context.SaveChangesAsync(cancellationToken);
 
@@ -233,7 +255,7 @@ public class UpdateUserEndpoints : ICarterModule
                     return Results.Conflict(result.Error.Message);
                 }
                 // if is failure due to incorrect email addresses return 400
-                if (result.Error.Code == "UpdateUser.ValidationFailed")
+                if (result.Error.Code == "UpdateUser.ValidationFailed" || result.Error.Code == "UpdateUser.InvalidEmailChoice" || result.Error.Code == "UpdateUser.NoMailVariantsFound")
                 {
                     return Results.BadRequest(result.Error.Message);
                 }
@@ -247,7 +269,7 @@ public class UpdateUserEndpoints : ICarterModule
             return Results.Ok(Global.version + $"accounts/{result.Value}");
         }).WithTags("Accounts")
         .WithDescription("Endpoint for creating an user by uidNumber updating with his chosen parameters " + "If the request succeeds, the updated account id will be returned.")
-        .Produces<int>() 
+        .Produces<int>(StatusCodes.Status200OK)
         .Produces<Error>(StatusCodes.Status404NotFound)
         .WithOpenApi();
     }
