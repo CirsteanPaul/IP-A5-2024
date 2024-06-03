@@ -31,5 +31,12 @@ namespace IP.Project.Extensions
             return ruleBuilder.Matches(@"^[0-9]*$").WithMessage("Telephone number is not valid");
         }
 
+        public static IRuleBuilderOptions<T, string> Password<T>(this IRuleBuilder<T, string> ruleBuilder)
+        {
+            return ruleBuilder.Matches(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,}$")
+                              .WithMessage("Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit and one special character.");
+        }
+
+
     }
 }
