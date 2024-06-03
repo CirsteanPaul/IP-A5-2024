@@ -1,14 +1,14 @@
 using System.Data;
 using Dapper;
 
-namespace IP.Project.IntegrationTests.Base.AccountSeed;
+namespace IP.Project.IntegrationTests.Base.Sqlite;
 
 public class DapperSqliteHandlers
 {
     public abstract class SqliteTypeHandler<T> : SqlMapper.TypeHandler<T>
     {
         // Parameters are converted by Microsoft.Data.Sqlite
-        public override void SetValue(IDbDataParameter parameter, T value)
+        public override void SetValue(IDbDataParameter parameter, T? value)
             => parameter.Value = value;
     }
 

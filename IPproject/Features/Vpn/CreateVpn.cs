@@ -44,8 +44,9 @@ namespace IP.Project.Features.Vpn
                 var validationResult = await _validator.ValidateAsync(request, cancellationToken);
                 if (!validationResult.IsValid)
                 {
-                    return Result.Failure<Guid>(
-                        new Error("CreateVpn.Validator", validationResult.ToString()));
+                    var validResult = validationResult.ToString();
+                    if(validResult is not null)
+                    {return Result.Failure<Guid>(new Error("CreateVpn.Validator", validResult));}
                 }
 
                 var vpn = new Entities.VpnAccount 

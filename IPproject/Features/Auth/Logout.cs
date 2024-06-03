@@ -9,9 +9,7 @@ namespace IP.Project.Features.Auth
 {
     public static class Logout
     {
-        public record Command : IRequest<Result>
-        {
-        }
+        public record Command : IRequest<Result>;
 
         public class Handler : IRequestHandler<Command, Result>
         {

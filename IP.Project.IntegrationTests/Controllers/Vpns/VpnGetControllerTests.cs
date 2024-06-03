@@ -34,7 +34,10 @@ namespace IP.Project.IntegrationTests.Controllers.Vpns
             var responseString = await response.Content.ReadAsStringAsync();
             var vpnResponse = JsonConvert.DeserializeObject<VpnResponse>(responseString);
             vpnResponse.Should().NotBeNull();
-            vpnResponse.Id.Should().Be(existingVpnId);
+            if (vpnResponse is not null)
+            {
+                vpnResponse.Id.Should().Be(existingVpnId);
+            }
         }
 
         [Fact]

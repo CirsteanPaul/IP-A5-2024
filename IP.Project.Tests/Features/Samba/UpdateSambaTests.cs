@@ -44,7 +44,7 @@ namespace IP.Project.Tests.Features.Samba
             var request = new UpdateSambaInstance.Command(id, new UpdateSambaRequest
             {
                 NewIpAddress = "192.168.1.2", // Valid IP address
-                NewDescription = null // Description left as null
+                NewDescription = String.Empty // Description left as null
             });
             var handler = new UpdateSambaInstance.Handler(dbContextMock);
 

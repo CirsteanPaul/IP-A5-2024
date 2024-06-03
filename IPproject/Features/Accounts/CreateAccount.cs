@@ -1,18 +1,15 @@
 ﻿using Carter;
 using FluentValidation;
-using IP.Project.Contracts;
 using IP.Project.Contracts.Account;
 using IP.Project.Database;
 using IP.Project.Entities;
-using IP.Project.Features.Accounts;
 using IP.Project.Extensions;
 using IP.Project.Shared;
 using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace IP.Project.Features.Accounts
-{
+namespace IP.Project.Features.Accounts;
     public static class CreateAccount
     {
         public record Command : IRequest<Result<Guid>>
@@ -71,8 +68,6 @@ namespace IP.Project.Features.Accounts
         }
 
     }
-}
-
 public class CreateAccountEndPoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)

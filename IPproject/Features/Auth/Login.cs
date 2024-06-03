@@ -117,7 +117,7 @@ namespace IP.Project.Features.Auth
                 })
                 .WithTags("Auth")
                 .WithDescription("Endpoint for logging in a user. If the request is successful, it will return status code 200 (OK) with a JWT token.")
-                .Produces<LoginResponse>(StatusCodes.Status200OK)
+                .Produces<LoginResponse>()
                 .Produces<Error>(StatusCodes.Status400BadRequest)
                 .Produces<Error>(StatusCodes.Status500InternalServerError)
                 .WithOpenApi();

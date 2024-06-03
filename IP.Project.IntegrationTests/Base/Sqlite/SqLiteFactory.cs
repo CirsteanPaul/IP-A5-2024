@@ -3,7 +3,7 @@ using IP.Project.Database;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Configuration;
 
-namespace IP.Project.IntegrationTests.Base;
+namespace IP.Project.IntegrationTests.Base.Sqlite;
 
 public class SqlLiteFactory : ISqlConnectionFactory
 {

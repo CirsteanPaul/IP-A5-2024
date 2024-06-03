@@ -1,6 +1,5 @@
 using Carter;
 using IP.Project.Entities;
-using IP.Project.Features.Auth;
 using IP.Project.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -21,8 +20,13 @@ namespace IP.Project.Features.Auth
     {
         public record Command : IRequest<Result<RegisterResponse>>
         {
-            public RegisterRequest Request { get; init; }
+            public Command(RegisterRequest request)
+            {
+                Request = request;
+            }
 
+            public RegisterRequest Request { get; init; }
+            
             public class Validator : AbstractValidator<Command>
             {
                 public Validator()
@@ -60,9 +64,13 @@ namespace IP.Project.Features.Auth
                         return Result.Failure<RegisterResponse>(new Error("RegistrationUsernameFailed",
                             "Username should be the left part of the email."));
                     }
-                    var userExists = await userManager.FindByNameAsync(request.Request.Username);
-                    if (userExists != null)
-                        return Result.Failure<RegisterResponse>(new Error("UserAlreadyExists", "A user with this username already exists."));
+
+                    if (request.Request.Username != null)
+                    {
+                        var userExists = await userManager.FindByNameAsync(request.Request.Username);
+                        if (userExists != null)
+                            return Result.Failure<RegisterResponse>(new Error("UserAlreadyExists", "A user with this username already exists."));
+                    }
 
                     var emailExists = await userManager.FindByEmailAsync(request.Request.Email);
                     if (emailExists != null)
@@ -75,10 +83,13 @@ namespace IP.Project.Features.Auth
                         UserName = request.Request.Username
                     };
 
-                    var createUserResult = await userManager.CreateAsync(user, request.Request.Password);
-                    if (!createUserResult.Succeeded)
+                    if (request.Request.Password != null)
                     {
-                        return Result.Failure<RegisterResponse>(new Error("UserCreationFailed", string.Join('\n', createUserResult.Errors.Select(x => x.Description))));
+                        var createUserResult = await userManager.CreateAsync(user, request.Request.Password);
+                        if (!createUserResult.Succeeded)
+                        {
+                            return Result.Failure<RegisterResponse>(new Error("UserCreationFailed", string.Join('\n', createUserResult.Errors.Select(x => x.Description))));
+                        }
                     }
 
                     if (!await roleManager.RoleExistsAsync(Roles.Admin))
@@ -90,7 +101,7 @@ namespace IP.Project.Features.Auth
                     {
                         await userManager.AddToRoleAsync(user, Roles.Admin);
                     }
-
+                    
                     var response = new RegisterResponse
                     {
                         Username = user.UserName,

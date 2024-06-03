@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using FluentAssertions;
-using IP.Project.Contracts;
 using IP.Project.Contracts.Account;
 using IP.Project.IntegrationTests.Base;
 using IP.Project.Shared;

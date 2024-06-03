@@ -2,7 +2,6 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using FluentAssertions;
-using IP.Project.Contracts;
 using IP.Project.Contracts.Samba;
 using IP.Project.IntegrationTests.Base;
 using IP.Project.Shared;

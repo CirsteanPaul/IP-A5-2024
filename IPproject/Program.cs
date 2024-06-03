@@ -55,7 +55,4 @@ app.MapCarter();
 app.Run();
 
 // Added for integration tests.
-public partial class Program
-{
-
-}
+public partial class Program;
