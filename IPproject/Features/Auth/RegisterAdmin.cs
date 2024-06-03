@@ -124,10 +124,7 @@ namespace IP.Project.Features.Auth
         {
             app.MapPost($"{Global.Version}auth/register-admin", async ([FromBody] RegisterRequest request, ISender sender) =>
                 {
-                    var command = new Register.Command
-                    {
-                        Request = request
-                    };
+                    var command = new RegisterAdmin.Command(request);
             
                     var result = await sender.Send(command);
 
