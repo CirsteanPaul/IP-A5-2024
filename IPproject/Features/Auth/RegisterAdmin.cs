@@ -122,7 +122,7 @@ namespace IP.Project.Features.Auth
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPost($"{Global.version}auth/register-admin", async ([FromBody] RegisterRequest request, ISender sender) =>
+            app.MapPost($"{Global.Version}auth/register-admin", async ([FromBody] RegisterRequest request, ISender sender) =>
                 {
                     var command = new Register.Command
                     {
@@ -141,7 +141,7 @@ namespace IP.Project.Features.Auth
                         return Results.BadRequest(result.Error);
                     }
 
-                    return Results.Created($"{Global.version}auth/register-admin/{result.Value}", result.Value);
+                    return Results.Created($"{Global.Version}auth/register-admin/{result.Value}", result.Value);
 
                 })
                 .WithTags("Auth")

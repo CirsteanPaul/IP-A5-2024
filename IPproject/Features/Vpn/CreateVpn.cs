@@ -69,7 +69,7 @@ namespace IP.Project.Features.Vpn
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            _ = app.MapPost($"{Global.version}vpns", [Authorize(Roles = Roles.Admin)] async (CreateVpnRequest request, ISender sender) =>
+            _ = app.MapPost($"{Global.Version}vpns", [Authorize(Roles = Roles.Admin)] async (CreateVpnRequest request, ISender sender) =>
             {
                 var command = request.Adapt<CreateVpn.Command>();
                 var result = await sender.Send(command);
@@ -79,7 +79,7 @@ namespace IP.Project.Features.Vpn
                     return Results.BadRequest(result.Error); 
                 }
 
-                return Results.Created($"{Global.version}vpns/{result.Value}", result.Value);
+                return Results.Created($"{Global.Version}vpns/{result.Value}", result.Value);
             })
             .WithTags("Vpn");
         }

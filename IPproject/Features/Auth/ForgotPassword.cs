@@ -14,7 +14,7 @@ namespace IP.Project.Features.Auth
     {
         public record Command : IRequest<Result>
         {
-            public string Email { get; init; }
+            public string Email { get; init; } = String.Empty;
         }
 
         public class Validator : AbstractValidator<Command>
@@ -86,7 +86,7 @@ namespace IP.Project.Features.Auth
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPost($"{Global.version}auth/forgot-password", async ([FromBody] ForgotPasswordRequest request, ISender sender) =>
+            app.MapPost($"{Global.Version}auth/forgot-password", async ([FromBody] ForgotPasswordRequest request, ISender sender) =>
                 {
                     var command = new ForgotPassword.Command { Email = request.Email };
                     var result = await sender.Send(command);

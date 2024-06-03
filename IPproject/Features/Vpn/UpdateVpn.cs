@@ -64,7 +64,7 @@ namespace IP.Project.Features.Vpn
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPut($"{Global.version}vpns/{{id}}", [Authorize(Roles = Roles.Admin)] async (Guid id, UpdateVpnRequest request, ISender sender) =>
+            app.MapPut($"{Global.Version}vpns/{{id}}", [Authorize(Roles = Roles.Admin)] async (Guid id, UpdateVpnRequest request, ISender sender) =>
             {
                 var command = new UpdateVpnInstance.Command(id, request);
                 var result = await sender.Send(command);

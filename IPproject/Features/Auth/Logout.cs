@@ -40,7 +40,7 @@ namespace IP.Project.Features.Auth
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            _ = app.MapPost($"{Global.version}auth/logout", [Authorize] async (ISender sender) =>
+            _ = app.MapPost($"{Global.Version}auth/logout", [Authorize] async (ISender sender) =>
             {
                 var command = new Logout.Command();
                 var result = await sender.Send(command);

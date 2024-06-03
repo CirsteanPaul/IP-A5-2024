@@ -84,7 +84,7 @@ public class SendVerificationEmailEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapPost($"{Global.version}auth/send-verification-email", async ([FromBody] SendVerificationEmailRequest request, ISender sender) =>
+        app.MapPost($"{Global.Version}auth/send-verification-email", async ([FromBody] SendVerificationEmailRequest request, ISender sender) =>
             {
                 var command = new SendVerificationEmail.Command { Email = request.Email };
                 var result = await sender.Send(command);

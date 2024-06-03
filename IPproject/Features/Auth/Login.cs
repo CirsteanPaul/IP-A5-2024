@@ -95,7 +95,7 @@ namespace IP.Project.Features.Auth
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPost($"{Global.version}auth/login", async ([FromBody] LoginRequest request, ISender sender) =>
+            app.MapPost($"{Global.Version}auth/login", async ([FromBody] LoginRequest request, ISender sender) =>
                 {
                     var command = new Login.Command
                     {

@@ -109,7 +109,7 @@ public class RegisterEndPoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapPost($"{Global.version}auth/register", async ([FromBody] RegisterRequest request, ISender sender) =>
+        app.MapPost($"{Global.Version}auth/register", async ([FromBody] RegisterRequest request, ISender sender) =>
         {
             var command = new Register.Command
             {
@@ -128,7 +128,7 @@ public class RegisterEndPoint : ICarterModule
                 return Results.BadRequest(result.Error);
             }
 
-            return Results.Created($"{Global.version}auth/register/{result.Value}", result.Value);
+            return Results.Created($"{Global.Version}auth/register/{result.Value}", result.Value);
 
         })
             .WithTags("Auth")

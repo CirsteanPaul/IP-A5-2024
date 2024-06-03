@@ -184,28 +184,29 @@ public static class GetMailInfo
 
             var first = firstName.ToLower();
             var last = lastName.ToLower();
+            var suffixEmail = "@info.uaic.ro";
 
             // Generate mail variants
-            mailVariants.Add(first + "." + last + "@info.uaic.ro");
-            mailVariants.Add(first + "." + last[0] + "@info.uaic.ro");
-            mailVariants.Add(first[0] + "." + last + "@info.uaic.ro");
-            mailVariants.Add(first[0..2] + "." + last + "@info.uaic.ro");
-            mailVariants.Add(first + "." + last[0..2] + "@info.uaic.ro");
-            mailVariants.Add(first + "." + last + '1' + "@info.uaic.ro");
-            mailVariants.Add(first + "." + last[0] + '1' + "@info.uaic.ro");
-            mailVariants.Add(first[0] + "." + last + '1' + "@info.uaic.ro");
-            mailVariants.Add(first[0..2] + "." + last + '1' + "@info.uaic.ro");
-            mailVariants.Add(first + "." + last[0..2] + '1' + "@info.uaic.ro");
-            mailVariants.Add(last + "." + first + "@info.uaic.ro");
-            mailVariants.Add(last + "." + first[0] + "@info.uaic.ro");
-            mailVariants.Add(last[0] + "." + first + "@info.uaic.ro");
-            mailVariants.Add(last[0..2] + "." + first + "@info.uaic.ro");
-            mailVariants.Add(last + "." + first[0..2] + "@info.uaic.ro");
-            mailVariants.Add(last + "." + first + '1' + "@info.uaic.ro");
-            mailVariants.Add(last + "." + first[0] + '1' + "@info.uaic.ro");
-            mailVariants.Add(last[0] + "." + first + '1' + "@info.uaic.ro");
-            mailVariants.Add(last[0..2] + "." + first + '1' + "@info.uaic.ro");
-            mailVariants.Add(last + "." + first[0..2] + '1' + "@info.uaic.ro");
+            mailVariants.Add(first + "." + last + suffixEmail);
+            mailVariants.Add(first + "." + last[0] + suffixEmail);
+            mailVariants.Add(first[0] + "." + last + suffixEmail);
+            mailVariants.Add(first[0..2] + "." + last + suffixEmail);
+            mailVariants.Add(first + "." + last[0..2] + suffixEmail);
+            mailVariants.Add(first + "." + last + '1' + suffixEmail);
+            mailVariants.Add(first + "." + last[0] + '1' + suffixEmail);
+            mailVariants.Add(first[0] + "." + last + '1' + suffixEmail);
+            mailVariants.Add(first[0..2] + "." + last + '1' + suffixEmail);
+            mailVariants.Add(first + "." + last[0..2] + '1' + suffixEmail);
+            mailVariants.Add(last + "." + first + suffixEmail);
+            mailVariants.Add(last + "." + first[0] + suffixEmail);
+            mailVariants.Add(last[0] + "." + first + suffixEmail);
+            mailVariants.Add(last[0..2] + "." + first + suffixEmail);
+            mailVariants.Add(last + "." + first[0..2] + suffixEmail);
+            mailVariants.Add(last + "." + first + '1' + suffixEmail);
+            mailVariants.Add(last + "." + first[0] + '1' + suffixEmail);
+            mailVariants.Add(last[0] + "." + first + '1' + suffixEmail);
+            mailVariants.Add(last[0..2] + "." + first + '1' + suffixEmail);
+            mailVariants.Add(last + "." + first[0..2] + '1' + suffixEmail);
 
             var counter = 0;
 
@@ -266,8 +267,11 @@ public static class GetMailInfo
             var validationResult = new Query.Validator().Validate(request);
             if (!validationResult.IsValid)
             {
-                var errorMessages = validationResult.Errors.Select(error => error.ErrorMessage).ToList();
-                return Result.Failure<MailInfoResponse>(new Error("GetMailInfo.ValidationFailed", validationResult.ToString()));
+                var validResult = validationResult.ToString();
+                if (validResult != null)
+                {
+                    return Result.Failure<MailInfoResponse>(new Error("GetMailInfo.ValidationFailed", validResult));
+                }
             }
 
             // firstly search in our database
@@ -312,7 +316,7 @@ public class GetMailInfoEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGet(Global.version + "accounts/mail/{matricol}", async ([FromRoute] string matricol, ISender sender) =>
+        app.MapGet(Global.Version + "accounts/mail/{matricol}", async ([FromRoute] string matricol, ISender sender) =>
         {
             var query = new GetMailInfo.Query
             {
@@ -334,7 +338,7 @@ public class GetMailInfoEndpoint : ICarterModule
         }).WithTags("Accounts")
         .WithDescription("Endpoint for getting mail variants by user information. " +
         "If the request succeeds, in the response body you can find the mail addresses.")
-        .Produces<MailInfoResponse>(StatusCodes.Status200OK)
+        .Produces<MailInfoResponse>()
         .Produces<Error>(StatusCodes.Status404NotFound)
         .WithOpenApi();
     }

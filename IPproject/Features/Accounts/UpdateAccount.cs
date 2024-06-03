@@ -64,7 +64,7 @@ namespace IP.Project.Features.Accounts
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPut(Global.version + "accounts/{id:guid}", async ([FromRoute] Guid id, [FromBody] UpdateAccountRequest request, ISender sender) =>
+            app.MapPut(Global.Version + "accounts/{id:guid}", async ([FromRoute] Guid id, [FromBody] UpdateAccountRequest request, ISender sender) =>
             {
                 var command = new UpdateAccountInstance.Command(id, request);
                 var result = await sender.Send(command);
@@ -72,7 +72,7 @@ namespace IP.Project.Features.Accounts
                 {
                     return Results.NotFound(result.Error);
                 }
-                return Results.Ok(Global.version + $"accounts/{result.Value}");
+                return Results.Ok(Global.Version + $"accounts/{result.Value}");
             }).WithTags("Accounts")
             .WithDescription("Endpoint for updating an account by id. " +  "If the request succeeds, the updated account id will be returned.")
             .Produces<Guid>()

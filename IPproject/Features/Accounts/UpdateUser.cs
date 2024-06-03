@@ -232,7 +232,7 @@ public class UpdateUserEndpoints : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapPut(Global.version + "accounts/mail/{uidNumber:int}", async ([FromRoute] int uidNumber, [FromBody] UpdateUserRequest request, ISender sender) =>
+        app.MapPut(Global.Version + "accounts/mail/{uidNumber:int}", async ([FromRoute] int uidNumber, [FromBody] UpdateUserRequest request, ISender sender) =>
         {
             var command = new UpdateUserInstance.Command(uidNumber, request);
             var result = await sender.Send(command);
@@ -266,7 +266,7 @@ public class UpdateUserEndpoints : ICarterModule
                 }
             }
 
-            return Results.Ok(Global.version + $"accounts/{result.Value}");
+            return Results.Ok(Global.Version + $"accounts/{result.Value}");
         }).WithTags("Accounts")
         .WithDescription("Endpoint for creating an user by uidNumber updating with his chosen parameters " + "If the request succeeds, the updated account id will be returned.")
         .Produces<int>(StatusCodes.Status200OK)

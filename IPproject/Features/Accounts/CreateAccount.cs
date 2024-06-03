@@ -72,7 +72,7 @@ public class CreateAccountEndPoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        _ = app.MapPost(Global.version + "accounts", async ([FromBody] CreateAccountRequest request, ISender sender) =>
+        _ = app.MapPost(Global.Version + "accounts", async ([FromBody] CreateAccountRequest request, ISender sender) =>
         {
             var command = request.Adapt<CreateAccount.Command>();
             var result = await sender.Send(command);
@@ -80,7 +80,7 @@ public class CreateAccountEndPoint : ICarterModule
             {
                 return Results.BadRequest(result.Error);
             }
-            return Results.Created(Global.version + $"accounts/{result.Value}", result.Value);
+            return Results.Created(Global.Version + $"accounts/{result.Value}", result.Value);
         }).WithTags("Accounts")
         .WithDescription("Endpoint for creating a new account. " +
                                  "If the request succeeds, in the location header you can find the endpoint to get the new account.")

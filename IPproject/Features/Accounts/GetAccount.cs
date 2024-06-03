@@ -1,7 +1,6 @@
 ﻿using Carter;
 using IP.Project.Contracts.Account;
 using IP.Project.Database;
-using IP.Project.Features.Accounts;
 using IP.Project.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -54,7 +53,7 @@ public class GetAccountEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGet(Global.version + "accounts/{id:guid}", async ([FromRoute] Guid id, ISender sender) =>
+        app.MapGet(Global.Version + "accounts/{id:guid}", async ([FromRoute] Guid id, ISender sender) =>
         {
             var query = new GetAccount.Query
             {

@@ -42,7 +42,7 @@ public class DeleteAccountEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapDelete(Global.version + "accounts/{id:guid}", async ([FromRoute] Guid id, ISender sender) =>
+        app.MapDelete(Global.Version + "accounts/{id:guid}", async ([FromRoute] Guid id, ISender sender) =>
         {
             var command = new DeleteAccount.Command(id);
             var result = await sender.Send(command);

@@ -49,7 +49,7 @@ namespace IP.Project.Features.Vpn
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapGet($"{Global.version}vpns/{{id}}", [Authorize] async (Guid id, ISender sender) =>
+            app.MapGet($"{Global.Version}vpns/{{id}}", [Authorize] async (Guid id, ISender sender) =>
             {
                 var query = new GetVpn.Query
                 {

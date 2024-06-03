@@ -51,7 +51,7 @@ namespace IP.Project.Features.Samba
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapGet($"{Global.version}sambas/{{id:guid}}", [Authorize] async ([FromRoute] Guid id, ISender sender) =>
+            app.MapGet($"{Global.Version}sambas/{{id:guid}}", [Authorize] async ([FromRoute] Guid id, ISender sender) =>
             {
                 var query = new GetSamba.Query
                 {
