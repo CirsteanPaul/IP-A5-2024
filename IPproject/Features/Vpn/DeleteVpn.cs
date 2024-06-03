@@ -43,7 +43,7 @@ namespace IP.Project.Features.Vpn
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            _ = app.MapDelete($"{Global.version}vpns/{{id}}", [Authorize(Roles = Roles.Admin)]
+            _ = app.MapDelete($"{Global.Version}vpns/{{id}}", [Authorize(Roles = Roles.Admin)]
                     async (Guid id, ISender sender) =>
                     {
                         var command = new DeleteVpn.Command(id);

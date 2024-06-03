@@ -71,7 +71,7 @@ namespace IP.Project.Features.Samba
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            _ = app.MapPost($"{Global.version}sambas", [Authorize(Roles = Roles.Admin)] async ([FromBody] CreateSambaRequest request, ISender sender) =>
+            _ = app.MapPost($"{Global.Version}sambas", [Authorize(Roles = Roles.Admin)] async ([FromBody] CreateSambaRequest request, ISender sender) =>
                 {
                     var command = request.Adapt<CreateSamba.Command>();
                     var result = await sender.Send(command);
@@ -81,7 +81,7 @@ namespace IP.Project.Features.Samba
                         return Results.BadRequest(result.Error);
                     }
 
-                    return Results.Created($"{Global.version}sambas/{result.Value}", null);
+                    return Results.Created($"{Global.Version}sambas/{result.Value}", null);
                 })
                 .WithTags("Samba")
                 .WithDescription("Endpoint for creating a new samba account. " +

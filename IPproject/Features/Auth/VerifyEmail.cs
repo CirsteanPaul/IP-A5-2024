@@ -67,7 +67,7 @@ namespace IP.Project.Features.Auth
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPost($"{Global.version}auth/verify-email", async ([FromBody] VerifyEmailRequest request, ISender sender) =>
+            app.MapPost($"{Global.Version}auth/verify-email", async ([FromBody] VerifyEmailRequest request, ISender sender) =>
                 {
                     var command = new VerifyEmail.Command { UserId = request.UserId, Token = request.Token };
                     var result = await sender.Send(command);

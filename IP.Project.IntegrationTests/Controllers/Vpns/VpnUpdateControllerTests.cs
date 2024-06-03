@@ -12,7 +12,7 @@ namespace IP.Project.IntegrationTests.Controllers.Vpns
 
     {
         private readonly TestingBaseWebApplicationFactory factory;
-        private const string RequestUri = Global.version + "vpns/";
+        private const string RequestUri = Global.Version + "vpns/";
 
         public VpnUpdateControllerTests(TestingBaseWebApplicationFactory factory)
         {

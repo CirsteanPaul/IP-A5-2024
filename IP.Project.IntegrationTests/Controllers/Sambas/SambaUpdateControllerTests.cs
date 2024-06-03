@@ -11,7 +11,7 @@ namespace IP.Project.IntegrationTests.Controllers.Sambas
 {
     public class SambaUpdateControllerTests : IClassFixture<TestingBaseWebApplicationFactory>
     {
-        private static readonly string RequestUri = Global.version + "sambas/";
+        private static readonly string RequestUri = Global.Version + "sambas/";
         private readonly TestingBaseWebApplicationFactory factory;
         public SambaUpdateControllerTests(TestingBaseWebApplicationFactory factory)
         {

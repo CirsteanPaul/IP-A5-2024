@@ -300,7 +300,7 @@ public class GetMailInfoEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGet(Global.version + "accounts/mail/{matricol}", async ([FromRoute] string matricol, ISender sender) =>
+        app.MapGet(Global.Version + "accounts/mail/{matricol}", async ([FromRoute] string matricol, ISender sender) =>
         {
             var query = new GetMailInfo.Query
             {

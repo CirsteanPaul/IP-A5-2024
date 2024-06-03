@@ -71,7 +71,7 @@ namespace IP.Project.Features.Auth
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPost($"{Global.version}auth/reset-password",
+            app.MapPost($"{Global.Version}auth/reset-password",
             async ([FromBody] ResetPasswordRequest request, ISender sender) =>
             {
                 var command = request.Adapt<ResetPassword.Command>();

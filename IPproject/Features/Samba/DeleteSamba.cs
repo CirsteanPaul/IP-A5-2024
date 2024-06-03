@@ -42,7 +42,7 @@ namespace IP.Project.Features.Samba;
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapDelete($"{Global.version}sambas/{{id}}", [Authorize(Roles = Roles.Admin)] async (Guid id, ISender sender) =>
+            app.MapDelete($"{Global.Version}sambas/{{id}}", [Authorize(Roles = Roles.Admin)] async (Guid id, ISender sender) =>
                 {
                     var command = new DeleteSamba.Command(id);
                     var result = await sender.Send(command);

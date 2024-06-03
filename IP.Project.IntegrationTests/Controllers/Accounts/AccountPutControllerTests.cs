@@ -11,7 +11,7 @@ namespace IP.Project.IntegrationTests.Controllers.Accounts;
 public class AccountPutControllerTests : IClassFixture<TestingBaseWebApplicationFactory>
 {
     private readonly TestingBaseWebApplicationFactory factory;
-    private const string RequestUri = Global.versionAccount;
+    private const string RequestUri = Global.VersionAccount;
 
     public AccountPutControllerTests(TestingBaseWebApplicationFactory factory)
     {
